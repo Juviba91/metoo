@@ -5,8 +5,11 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 
+type Mode = 'login' | 'register'
+
 export default function LoginPage() {
   const router = useRouter()
+  const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -19,19 +22,21 @@ export default function LoginPage() {
 
     const supabase = createClient()
 
-    // Try login first; if credentials invalid, create account
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-
-    if (signInError) {
-      if (signInError.message.includes('Invalid login credentials')) {
-        const { error: signUpError } = await supabase.auth.signUp({ email, password })
-        if (signUpError) {
-          setError('Error al crear la cuenta. Inténtalo de nuevo.')
-          setLoading(false)
-          return
-        }
-      } else {
+    if (mode === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
         setError('Email o contraseña incorrectos.')
+        setLoading(false)
+        return
+      }
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setError(
+          error.message.includes('already registered')
+            ? 'Ya tienes una cuenta con ese email. Entra con tu contraseña.'
+            : 'Error al crear la cuenta. Inténtalo de nuevo.',
+        )
         setLoading(false)
         return
       }
@@ -41,6 +46,11 @@ export default function LoginPage() {
     router.refresh()
   }
 
+  function switchMode(next: Mode) {
+    setMode(next)
+    setError(null)
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
@@ -48,32 +58,59 @@ export default function LoginPage() {
           metoo.
         </a>
 
-        <h1 className="mb-2 text-center text-2xl font-bold">Bienvenido</h1>
-        <p className="mb-8 text-center text-muted-foreground">
-          Entra o crea tu cuenta
-        </p>
+        {/* Tabs */}
+        <div className="mb-8 flex rounded-xl border border-border p-1">
+          <button
+            onClick={() => switchMode('login')}
+            className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
+              mode === 'login'
+                ? 'bg-foreground text-background'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Entrar
+          </button>
+          <button
+            onClick={() => switchMode('register')}
+            className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
+              mode === 'register'
+                ? 'bg-foreground text-background'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Crear cuenta
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            required
-            placeholder="tu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          />
-          <input
-            type="password"
-            required
-            minLength={6}
-            placeholder="Contraseña (mín. 6 caracteres)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              required
+              placeholder="tu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Contraseña</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            />
+          </div>
+
           {error && <p className="text-sm text-destructive">{error}</p>}
+
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Entrando...' : 'Entrar / Crear cuenta'}
+            {loading ? '...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
           </Button>
         </form>
 
