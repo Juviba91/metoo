@@ -1,0 +1,115 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { MapPin, Heart, Users, LogOut } from 'lucide-react'
+import { signOut } from '@/app/auth/actions'
+
+export default async function DashboardPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) redirect('/auth/login')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*, profile_categories(category_id, categories(slug, name, emoji))')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) redirect('/onboarding')
+
+  const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
+
+  const { data: matches } = await supabase
+    .from('profiles')
+    .select('id, alias, city, profile_categories(category_id, categories(slug, name, emoji))')
+    .eq('role', oppositeRole)
+    .eq('is_active', true)
+    .neq('id', user.id)
+    .limit(20)
+
+  const category = (profile.profile_categories as any[])?.[0]?.categories
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+          <span className="text-xl font-bold tracking-tight">metoo.</span>
+          <form action={signOut}>
+            <Button variant="ghost" size="sm" type="submit" className="gap-2">
+              <LogOut className="size-4" />
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </form>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-4xl px-6 py-8">
+        {/* Profile card */}
+        <div className="mb-8 rounded-xl border border-border bg-muted/30 p-6">
+          <p className="mb-1 text-sm text-muted-foreground">
+            {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
+          </p>
+          <h1 className="text-2xl font-bold">{profile.alias}</h1>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            {profile.city && (
+              <span className="flex items-center gap-1">
+                <MapPin className="size-3.5" /> {profile.city}
+              </span>
+            )}
+            {category && (
+              <span>
+                {category.emoji} {category.name}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Matches */}
+        <div>
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <Users className="size-5" />
+            {profile.role === 'seeker' ? 'Voluntarios disponibles' : 'Personas que buscan apoyo'}
+          </h2>
+
+          {matches && matches.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(matches as any[]).map((match) => {
+                const matchCategory = match.profile_categories?.[0]?.categories
+                return (
+                  <div key={match.id} className="rounded-xl border border-border p-5">
+                    <div className="mb-3 flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold">{match.alias}</h3>
+                        {match.city && (
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="size-3" /> {match.city}
+                          </p>
+                        )}
+                      </div>
+                      {matchCategory && <span className="text-xl">{matchCategory.emoji}</span>}
+                    </div>
+                    {matchCategory && (
+                      <p className="mb-4 text-sm text-muted-foreground">{matchCategory.name}</p>
+                    )}
+                    <Button size="sm" className="w-full gap-1.5">
+                      <Heart className="size-3.5" /> Contactar
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
+              <p className="mb-2 text-3xl">🔍</p>
+              <p>Todavía no hay personas disponibles.</p>
+              <p className="mt-1 text-sm">La comunidad está creciendo, vuelve pronto.</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  )
+}
