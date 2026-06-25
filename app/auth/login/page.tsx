@@ -31,13 +31,14 @@ function LoginForm() {
         return
       }
     } else {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { data, error } = await supabase.auth.signUp({ email, password })
       if (error) {
-        setError(
-          error.message.includes('already registered')
-            ? 'Ya tienes una cuenta con ese email. Entra con tu contraseña.'
-            : `Error: ${error.message}`,
-        )
+        setError(`Error: ${JSON.stringify(error)}`)
+        setLoading(false)
+        return
+      }
+      if (!data.session) {
+        setError('Confirma tu email para continuar (revisa el buzón).')
         setLoading(false)
         return
       }
