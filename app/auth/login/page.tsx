@@ -36,7 +36,7 @@ function LoginForm() {
         setError(
           error.message.includes('already registered')
             ? 'Ya tienes una cuenta con ese email. Entra con tu contraseña.'
-            : 'Error al crear la cuenta. Inténtalo de nuevo.',
+            : `Error: ${error.message}`,
         )
         setLoading(false)
         return
