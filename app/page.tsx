@@ -1,6 +1,4 @@
-import Link from 'next/link'
-import { Button, buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart, MapPin, Shield, Users } from 'lucide-react'
 
 const categories = [
@@ -59,14 +57,6 @@ export default function Page() {
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <span className="text-xl font-bold tracking-tight">metoo.</span>
-          <div className="flex gap-2">
-            <Link href="/auth/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
-              Iniciar sesión
-            </Link>
-            <Link href="/auth/login" className={cn(buttonVariants({ size: 'sm' }))}>
-              Unirme
-            </Link>
-          </div>
         </div>
       </header>
 
@@ -89,20 +79,14 @@ export default function Page() {
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="/auth/login"
-            className={cn(buttonVariants(), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
-          >
+          <Button className="w-full gap-2 px-8 py-5 text-base sm:w-auto">
             Busco apoyo
             <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            href="/auth/login"
-            className={cn(buttonVariants({ variant: 'outline' }), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
-          >
+          </Button>
+          <Button variant="outline" className="w-full gap-2 px-8 py-5 text-base sm:w-auto">
             Quiero ayudar
             <Heart className="size-4" />
-          </Link>
+          </Button>
         </div>
       </section>
 
@@ -132,7 +116,7 @@ export default function Page() {
           {categories.map((cat) => (
             <div
               key={cat.label}
-              className="cursor-pointer rounded-xl border border-border p-5 transition-colors hover:bg-muted/50"
+              className="rounded-xl border border-border p-5 transition-colors hover:bg-muted/50"
             >
               <span className="mb-3 block text-3xl">{cat.emoji}</span>
               <h3 className="mb-1 font-semibold">{cat.label}</h3>
@@ -166,13 +150,10 @@ export default function Page() {
         <p className="mb-8 text-lg text-muted-foreground">
           Sea para pedir ayuda o para ofrecerla, empieza hoy.
         </p>
-        <Link
-          href="/auth/login"
-          className={cn(buttonVariants(), 'gap-2 px-10 py-5 text-base')}
-        >
+        <Button className="gap-2 px-10 py-5 text-base">
           Unirme a metoo
           <ArrowRight className="size-4" />
-        </Link>
+        </Button>
         <p className="mt-8 text-xs text-muted-foreground">
           metoo no sustituye a un profesional de salud mental. En una emergencia, llama al{' '}
           <strong>024</strong> (España) o al servicio de emergencias de tu país.
