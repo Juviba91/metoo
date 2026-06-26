@@ -23,6 +23,35 @@ export async function requestConnection(volunteerId: string) {
   return { success: true }
 }
 
+export async function updateProfile({
+  alias,
+  city,
+  bio,
+}: {
+  alias: string
+  city: string
+  bio: string
+}) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ alias: alias.trim(), city: city.trim(), bio: bio.trim() || null })
+    .eq('id', user.id)
+
+  if (error) {
+    return { error: error.code === '23505' ? 'Ese alias ya está en uso.' : error.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/perfil')
+  return { success: true }
+}
+
 export async function sendMessage(connectionId: string, content: string) {
   const supabase = await createClient()
   const {

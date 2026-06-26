@@ -16,7 +16,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*, profile_categories(category_id, categories(slug, name, emoji))')
+    .select('*, bio, profile_categories(category_id, categories(slug, name, emoji))')
     .eq('id', user.id)
     .single()
 
@@ -77,21 +77,34 @@ export default async function DashboardPage() {
       <main className="mx-auto max-w-4xl px-6 py-8 space-y-10">
         {/* Profile card */}
         <div className="rounded-xl border border-border bg-muted/30 p-6">
-          <p className="mb-1 text-sm text-muted-foreground">
-            {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
-          </p>
-          <h1 className="text-2xl font-bold">{profile.alias}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            {profile.city && (
-              <span className="flex items-center gap-1">
-                <MapPin className="size-3.5" /> {profile.city}
-              </span>
-            )}
-            {category && (
-              <span>
-                {category.emoji} {category.name}
-              </span>
-            )}
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="mb-1 text-sm text-muted-foreground">
+                {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
+              </p>
+              <h1 className="text-2xl font-bold">{profile.alias}</h1>
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                {profile.city && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="size-3.5" /> {profile.city}
+                  </span>
+                )}
+                {category && (
+                  <span>
+                    {category.emoji} {category.name}
+                  </span>
+                )}
+              </div>
+              {profile.bio && (
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
+              )}
+            </div>
+            <Link
+              href="/dashboard/perfil"
+              className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              Editar
+            </Link>
           </div>
         </div>
 
