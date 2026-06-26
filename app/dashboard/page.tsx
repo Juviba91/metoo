@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ContactButton } from '@/components/contact-button'
-import { MapPin, Users, LogOut } from 'lucide-react'
+import { DashboardMatches } from '@/components/dashboard-matches'
+import { MapPin, MessageCircle, LogOut } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -23,25 +24,39 @@ export default async function DashboardPage() {
 
   const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
 
-  const { data: matches } = await supabase
-    .from('profiles')
-    .select('id, alias, city, profile_categories(category_id, categories(slug, name, emoji))')
-    .eq('role', oppositeRole)
-    .eq('is_active', true)
-    .neq('id', user.id)
-    .limit(20)
+  const [{ data: matches }, { data: connections }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, alias, city, profile_categories(category_id, categories(slug, name, emoji))')
+      .eq('role', oppositeRole)
+      .eq('is_active', true)
+      .neq('id', user.id)
+      .limit(50),
 
-  // For seekers: load existing pending/accepted connections to show correct button state
-  const { data: existingConnections } = profile.role === 'seeker'
-    ? await supabase
-        .from('connections')
-        .select('volunteer_id')
-        .eq('seeker_id', user.id)
-    : { data: [] }
+    profile.role === 'seeker'
+      ? supabase
+          .from('connections')
+          .select('id, status, volunteer:volunteer_id(alias, city)')
+          .eq('seeker_id', user.id)
+          .order('created_at', { ascending: false })
+      : supabase
+          .from('connections')
+          .select('id, status, seeker:seeker_id(alias, city)')
+          .eq('volunteer_id', user.id)
+          .order('created_at', { ascending: false }),
+  ])
 
-  const sentTo = new Set((existingConnections ?? []).map((c: any) => c.volunteer_id))
+  const sentTo = new Set((connections ?? []).map((c: any) =>
+    profile.role === 'seeker' ? (c.volunteer as any)?.id : (c.seeker as any)?.id,
+  ).filter(Boolean))
 
   const category = (profile.profile_categories as any[])?.[0]?.categories
+
+  const statusLabel: Record<string, string> = {
+    pending: 'Pendiente',
+    accepted: 'Activa',
+    rejected: 'Cerrada',
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,9 +72,9 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 py-8">
+      <main className="mx-auto max-w-4xl px-6 py-8 space-y-10">
         {/* Profile card */}
-        <div className="mb-8 rounded-xl border border-border bg-muted/30 p-6">
+        <div className="rounded-xl border border-border bg-muted/30 p-6">
           <p className="mb-1 text-sm text-muted-foreground">
             {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
           </p>
@@ -78,55 +93,54 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Matches */}
-        <div>
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <Users className="size-5" />
-            {profile.role === 'seeker' ? 'Voluntarios disponibles' : 'Personas que buscan apoyo'}
-          </h2>
-
-          {matches && matches.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {(matches as any[]).map((match) => {
-                const matchCategory = match.profile_categories?.[0]?.categories
+        {/* Conversations */}
+        {connections && connections.length > 0 && (
+          <div>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+              <MessageCircle className="size-5" />
+              Tus conversaciones
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(connections as any[]).map((conn) => {
+                const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
                 return (
-                  <div key={match.id} className="rounded-xl border border-border p-5">
-                    <div className="mb-3 flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold">{match.alias}</h3>
-                        {match.city && (
-                          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                            <MapPin className="size-3" /> {match.city}
-                          </p>
-                        )}
-                      </div>
-                      {matchCategory && <span className="text-xl">{matchCategory.emoji}</span>}
+                  <Link
+                    key={conn.id}
+                    href={`/dashboard/chat/${conn.id}`}
+                    className="flex items-center justify-between rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+                  >
+                    <div>
+                      <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
+                      {other?.city && (
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="size-3" /> {other.city}
+                        </p>
+                      )}
                     </div>
-                    {matchCategory && (
-                      <p className="mb-4 text-sm text-muted-foreground">{matchCategory.name}</p>
-                    )}
-                    {profile.role === 'seeker' ? (
-                      <ContactButton
-                        volunteerId={match.id}
-                        alreadySent={sentTo.has(match.id)}
-                      />
-                    ) : (
-                      <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
-                        Esperando contacto
-                      </div>
-                    )}
-                  </div>
+                    <span
+                      className={`text-xs font-medium ${
+                        conn.status === 'accepted'
+                          ? 'text-green-600'
+                          : conn.status === 'rejected'
+                            ? 'text-destructive'
+                            : 'text-muted-foreground'
+                      }`}
+                    >
+                      {statusLabel[conn.status] ?? conn.status}
+                    </span>
+                  </Link>
                 )
               })}
             </div>
-          ) : (
-            <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
-              <p className="mb-2 text-3xl">🔍</p>
-              <p>Todavía no hay personas disponibles.</p>
-              <p className="mt-1 text-sm">La comunidad está creciendo, vuelve pronto.</p>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Matches with search */}
+        <DashboardMatches
+          matches={(matches ?? []) as any}
+          role={profile.role}
+          sentTo={sentTo}
+        />
       </main>
     </div>
   )

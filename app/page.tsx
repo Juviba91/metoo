@@ -181,15 +181,15 @@ export default function Page() {
           <span className="font-semibold text-foreground">metoo.</span>
           <span>© 2025 metoo. Hecho con cuidado.</span>
           <div className="flex gap-6">
-            <a href="#" className="transition-colors hover:text-foreground">
+            <Link href="/privacidad" className="transition-colors hover:text-foreground">
               Privacidad
-            </a>
-            <a href="#" className="transition-colors hover:text-foreground">
+            </Link>
+            <Link href="/terminos" className="transition-colors hover:text-foreground">
               Términos
-            </a>
-            <a href="#" className="transition-colors hover:text-foreground">
+            </Link>
+            <Link href="/contacto" className="transition-colors hover:text-foreground">
               Contacto
-            </a>
+            </Link>
           </div>
         </div>
       </footer>
