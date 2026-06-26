@@ -36,19 +36,21 @@ export default async function DashboardPage() {
     profile.role === 'seeker'
       ? supabase
           .from('connections')
-          .select('id, status, volunteer:volunteer_id(alias, city)')
+          .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city)')
           .eq('seeker_id', user.id)
           .order('created_at', { ascending: false })
       : supabase
           .from('connections')
-          .select('id, status, seeker:seeker_id(alias, city)')
+          .select('id, status, seeker_id, seeker:seeker_id(alias, city)')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false }),
   ])
 
-  const sentTo = new Set((connections ?? []).map((c: any) =>
-    profile.role === 'seeker' ? (c.volunteer as any)?.id : (c.seeker as any)?.id,
-  ).filter(Boolean))
+  const sentTo = new Set(
+    (connections ?? []).map((c: any) =>
+      profile.role === 'seeker' ? c.volunteer_id : c.seeker_id,
+    ).filter(Boolean),
+  )
 
   const category = (profile.profile_categories as any[])?.[0]?.categories
 
