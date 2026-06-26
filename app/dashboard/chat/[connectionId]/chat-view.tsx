@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { sendMessage } from '@/app/dashboard/actions'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Send } from 'lucide-react'
 import Link from 'next/link'
@@ -89,29 +90,28 @@ export function ChatView({
     setSendError(null)
     setContent('')
 
-    // Optimistic: show the message immediately
+    // Optimistic: show immediately while server action runs
     const tempId = `tmp-${Date.now()}`
-    const optimistic: Message = {
-      id: tempId,
-      sender_id: currentUserId,
-      content: text,
-      created_at: new Date().toISOString(),
-    }
-    setMessages((prev) => [...prev, optimistic])
+    setMessages((prev) => [
+      ...prev,
+      { id: tempId, sender_id: currentUserId, content: text, created_at: new Date().toISOString() },
+    ])
 
-    // Send directly from client so real-time fires for the other user
-    const supabase = createClient()
-    const { error } = await supabase.from('messages').insert({
-      connection_id: connectionId,
-      sender_id: currentUserId,
-      content: text,
-    })
+    const result = await sendMessage(connectionId, text)
 
-    if (error) {
-      // Rollback optimistic message
+    if (result.error) {
       setMessages((prev) => prev.filter((m) => m.id !== tempId))
       setContent(text)
       setSendError('No se pudo enviar. Inténtalo de nuevo.')
+      setSending(false)
+      return
+    }
+
+    // Replace temp with the real message returned by the server action
+    if (result.message) {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? (result.message as Message) : m)),
+      )
     }
 
     setSending(false)

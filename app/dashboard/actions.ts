@@ -31,12 +31,16 @@ export async function sendMessage(connectionId: string, content: string) {
 
   if (!user) return { error: 'No autenticado' }
 
-  const { error } = await supabase.from('messages').insert({
-    connection_id: connectionId,
-    sender_id: user.id,
-    content: content.trim(),
-  })
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      connection_id: connectionId,
+      sender_id: user.id,
+      content: content.trim(),
+    })
+    .select('id, sender_id, content, created_at')
+    .single()
 
   if (error) return { error: error.message }
-  return { success: true }
+  return { success: true, message: data }
 }
