@@ -102,7 +102,7 @@ export function ChatView({
     if (result.error) {
       setMessages((prev) => prev.filter((m) => m.id !== tempId))
       setContent(text)
-      setSendError('No se pudo enviar. Inténtalo de nuevo.')
+      setSendError(result.error)
       setSending(false)
       return
     }
