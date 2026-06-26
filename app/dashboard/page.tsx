@@ -27,7 +27,7 @@ export default async function DashboardPage() {
   const [{ data: matches }, { data: connections }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, alias, city, profile_categories(category_id, categories(slug, name, emoji))')
+      .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji))')
       .eq('role', oppositeRole)
       .eq('is_active', true)
       .neq('id', user.id)

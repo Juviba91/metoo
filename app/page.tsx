@@ -4,12 +4,12 @@ import { cn } from '@/lib/utils'
 import { ArrowRight, Heart, MapPin, Shield, Users } from 'lucide-react'
 
 const categories = [
-  { emoji: '🏥', label: 'UCIN', sub: 'Bebé ingresado en cuidados intensivos' },
-  { emoji: '👶', label: 'Prematuro extremo', sub: 'Menos de 28 semanas de gestación' },
-  { emoji: '🌱', label: 'Prematuro tardío', sub: 'Entre 28 y 36 semanas' },
-  { emoji: '🧠', label: 'Secuelas del prematuro', sub: 'Parálisis cerebral, retinopatía, displasia' },
-  { emoji: '💙', label: 'Pérdida neonatal', sub: 'El dolor más difícil de sobrellevar' },
-  { emoji: '👫', label: 'Gemelos prematuros', sub: 'El doble de amor, el doble de miedo' },
+  { emoji: '🏥', label: 'UCIN y prematuridad', sub: 'Bebés en cuidados intensivos neonatales' },
+  { emoji: '💙', label: 'Pérdida y duelo', sub: 'La muerte de un ser querido' },
+  { emoji: '🎗️', label: 'Enfermedad grave', sub: 'Propia, de un hijo o de un familiar' },
+  { emoji: '🧠', label: 'Salud mental', sub: 'Depresión, ansiedad, crisis vitales' },
+  { emoji: '🤝', label: 'Bullying y acoso', sub: 'Escolar, laboral o digital' },
+  { emoji: '❤️', label: 'Cuidadores', sub: 'Acompañar a alguien que sufre agota' },
 ]
 
 const steps = [
@@ -70,7 +70,7 @@ export default function Page() {
       <section className="mx-auto max-w-4xl px-6 py-24 text-center">
         <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">
           <Heart className="size-3.5" />
-          <span>Apoyo entre personas que lo han vivido de verdad</span>
+          <span>Apoyo real entre personas que lo han vivido</span>
         </div>
 
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight sm:text-6xl">
@@ -80,8 +80,8 @@ export default function Page() {
         </h1>
 
         <p className="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-muted-foreground">
-          metoo conecta a familias con bebés prematuros o en UCIN con voluntarios que han vivido la
-          misma experiencia. Cerca de ti. Sin juicios.
+          metoo conecta a personas que atraviesan momentos difíciles con voluntarios que han vivido
+          la misma experiencia. Cerca de ti. Sin juicios.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -122,7 +122,7 @@ export default function Page() {
       <section className="mx-auto max-w-5xl px-6 py-20">
         <h2 className="mb-3 text-center text-3xl font-bold">Situaciones que acompañamos</h2>
         <p className="mb-12 text-center text-muted-foreground">
-          No estás solo. Hay familias que han pasado exactamente por lo mismo.
+          No estás solo. Hay alguien que ha pasado exactamente por lo mismo.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {categories.map((cat) => (

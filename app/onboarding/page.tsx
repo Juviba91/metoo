@@ -22,6 +22,7 @@ export default function OnboardingPage() {
   const [categorySlug, setCategorySlug] = useState<string | null>(null)
   const [alias, setAlias] = useState('')
   const [city, setCity] = useState('')
+  const [bio, setBio] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,6 +53,7 @@ export default function OnboardingPage() {
       role,
       city: city.trim(),
       country: 'ES',
+      bio: bio.trim() || null,
     })
 
     if (profileError) {
@@ -197,6 +199,26 @@ export default function OnboardingPage() {
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
                 />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">
+                  {role === 'volunteer' ? 'Tu experiencia (opcional)' : 'Tu situación (opcional)'}
+                </label>
+                <textarea
+                  placeholder={
+                    role === 'volunteer'
+                      ? 'Cuéntanos brevemente qué has vivido y cómo puedes ayudar...'
+                      : 'Cuéntanos brevemente qué estás atravesando...'
+                  }
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={300}
+                  rows={3}
+                  className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {bio.length}/300 — solo la ven las personas con las que conectes
+                </p>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
