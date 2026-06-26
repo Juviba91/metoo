@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart } from 'lucide-react'
 
 const CATEGORIES = [
-  { slug: 'bullying', emoji: '🎒', name: 'Bullying', sub: 'Escolar o laboral' },
-  { slug: 'chronic-illness', emoji: '🏥', name: 'Enfermedad crónica', sub: 'Propia o de un familiar' },
-  { slug: 'special-needs-children', emoji: '👧', name: 'Hijos con necesidades especiales', sub: 'Enfermedades raras, discapacidad' },
-  { slug: 'loss-of-child', emoji: '💙', name: 'Pérdida de un hijo', sub: 'El dolor más difícil' },
-  { slug: 'grief', emoji: '🕊️', name: 'Duelo familiar', sub: 'Pareja, padres, hermanos' },
-  { slug: 'mental-health', emoji: '🧠', name: 'Salud mental', sub: 'Depresión, ansiedad, crisis vitales' },
+  { slug: 'ucin', emoji: '🏥', name: 'UCIN', sub: 'Bebé ingresado en cuidados intensivos neonatales' },
+  { slug: 'prematuro-extremo', emoji: '👶', name: 'Prematuro extremo', sub: 'Menos de 28 semanas de gestación' },
+  { slug: 'prematuro-tardio', emoji: '🌱', name: 'Prematuro tardío', sub: 'Entre 28 y 36 semanas' },
+  { slug: 'secuelas', emoji: '🧠', name: 'Secuelas del prematuro', sub: 'Parálisis cerebral, retinopatía, displasia' },
+  { slug: 'perdida-neonatal', emoji: '💙', name: 'Pérdida neonatal', sub: 'El dolor más difícil de sobrellevar' },
+  { slug: 'gemelos-prematuros', emoji: '👫', name: 'Gemelos prematuros', sub: 'El doble de amor, el doble de miedo' },
 ]
 
 export default function OnboardingPage() {

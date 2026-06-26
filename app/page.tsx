@@ -1,19 +1,15 @@
 import Link from 'next/link'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Heart, MapPin, Shield, Users } from 'lucide-react'
 
 const categories = [
-  { emoji: '🎒', label: 'Bullying', sub: 'Escolar o laboral' },
-  { emoji: '🏥', label: 'Enfermedad crónica', sub: 'Propia o de un familiar' },
-  {
-    emoji: '👧',
-    label: 'Hijos con necesidades especiales',
-    sub: 'Enfermedades raras, discapacidad',
-  },
-  { emoji: '💙', label: 'Pérdida de un hijo', sub: 'El dolor más difícil' },
-  { emoji: '🕊️', label: 'Duelo familiar', sub: 'Pareja, padres, hermanos' },
-  { emoji: '🧠', label: 'Salud mental', sub: 'Depresión, ansiedad, crisis vitales' },
+  { emoji: '🏥', label: 'UCIN', sub: 'Bebé ingresado en cuidados intensivos' },
+  { emoji: '👶', label: 'Prematuro extremo', sub: 'Menos de 28 semanas de gestación' },
+  { emoji: '🌱', label: 'Prematuro tardío', sub: 'Entre 28 y 36 semanas' },
+  { emoji: '🧠', label: 'Secuelas del prematuro', sub: 'Parálisis cerebral, retinopatía, displasia' },
+  { emoji: '💙', label: 'Pérdida neonatal', sub: 'El dolor más difícil de sobrellevar' },
+  { emoji: '👫', label: 'Gemelos prematuros', sub: 'El doble de amor, el doble de miedo' },
 ]
 
 const steps = [
@@ -61,10 +57,10 @@ export default function Page() {
           <span className="text-xl font-bold tracking-tight">metoo.</span>
           <div className="flex gap-2">
             <Link href="/auth/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
-              Iniciar sesión
+              Entrar
             </Link>
-            <Link href="/auth/login" className={cn(buttonVariants({ size: 'sm' }))}>
-              Unirme
+            <Link href="/auth/login?tab=register" className={cn(buttonVariants({ size: 'sm' }))}>
+              Crear cuenta
             </Link>
           </div>
         </div>
@@ -84,20 +80,20 @@ export default function Page() {
         </h1>
 
         <p className="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-muted-foreground">
-          metoo conecta a personas que están pasando por momentos difíciles con voluntarios que han
-          vivido la misma experiencia. Cerca de ti. Sin juicios.
+          metoo conecta a familias con bebés prematuros o en UCIN con voluntarios que han vivido la
+          misma experiencia. Cerca de ti. Sin juicios.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/auth/login"
+            href="/auth/login?tab=register"
             className={cn(buttonVariants(), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
           >
             Busco apoyo
             <ArrowRight className="size-4" />
           </Link>
           <Link
-            href="/auth/login"
+            href="/auth/login?tab=register"
             className={cn(buttonVariants({ variant: 'outline' }), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
           >
             Quiero ayudar
@@ -124,15 +120,15 @@ export default function Page() {
 
       {/* Categories */}
       <section className="mx-auto max-w-5xl px-6 py-20">
-        <h2 className="mb-3 text-center text-3xl font-bold">Experiencias que acompañamos</h2>
+        <h2 className="mb-3 text-center text-3xl font-bold">Situaciones que acompañamos</h2>
         <p className="mb-12 text-center text-muted-foreground">
-          No estás solo en ninguna de estas situaciones.
+          No estás solo. Hay familias que han pasado exactamente por lo mismo.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {categories.map((cat) => (
             <div
               key={cat.label}
-              className="cursor-pointer rounded-xl border border-border p-5 transition-colors hover:bg-muted/50"
+              className="rounded-xl border border-border p-5 transition-colors hover:bg-muted/50"
             >
               <span className="mb-3 block text-3xl">{cat.emoji}</span>
               <h3 className="mb-1 font-semibold">{cat.label}</h3>
@@ -167,7 +163,7 @@ export default function Page() {
           Sea para pedir ayuda o para ofrecerla, empieza hoy.
         </p>
         <Link
-          href="/auth/login"
+          href="/auth/login?tab=register"
           className={cn(buttonVariants(), 'gap-2 px-10 py-5 text-base')}
         >
           Unirme a metoo

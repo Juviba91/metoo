@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { MapPin, Heart, Users, LogOut } from 'lucide-react'
+import { ContactButton } from '@/components/contact-button'
+import { MapPin, Users, LogOut } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
 
 export default async function DashboardPage() {
@@ -29,6 +30,16 @@ export default async function DashboardPage() {
     .eq('is_active', true)
     .neq('id', user.id)
     .limit(20)
+
+  // For seekers: load existing pending/accepted connections to show correct button state
+  const { data: existingConnections } = profile.role === 'seeker'
+    ? await supabase
+        .from('connections')
+        .select('volunteer_id')
+        .eq('seeker_id', user.id)
+    : { data: [] }
+
+  const sentTo = new Set((existingConnections ?? []).map((c: any) => c.volunteer_id))
 
   const category = (profile.profile_categories as any[])?.[0]?.categories
 
@@ -94,9 +105,16 @@ export default async function DashboardPage() {
                     {matchCategory && (
                       <p className="mb-4 text-sm text-muted-foreground">{matchCategory.name}</p>
                     )}
-                    <Button size="sm" className="w-full gap-1.5">
-                      <Heart className="size-3.5" /> Contactar
-                    </Button>
+                    {profile.role === 'seeker' ? (
+                      <ContactButton
+                        volunteerId={match.id}
+                        alreadySent={sentTo.has(match.id)}
+                      />
+                    ) : (
+                      <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
+                        Esperando contacto
+                      </div>
+                    )}
                   </div>
                 )
               })}
