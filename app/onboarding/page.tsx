@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart } from 'lucide-react'
 
 const CATEGORIES = [
-  { slug: 'bullying', emoji: '🎒', name: 'Bullying', sub: 'Escolar o laboral' },
-  { slug: 'chronic-illness', emoji: '🏥', name: 'Enfermedad crónica', sub: 'Propia o de un familiar' },
-  { slug: 'special-needs-children', emoji: '👧', name: 'Hijos con necesidades especiales', sub: 'Enfermedades raras, discapacidad' },
-  { slug: 'loss-of-child', emoji: '💙', name: 'Pérdida de un hijo', sub: 'El dolor más difícil' },
-  { slug: 'grief', emoji: '🕊️', name: 'Duelo familiar', sub: 'Pareja, padres, hermanos' },
-  { slug: 'mental-health', emoji: '🧠', name: 'Salud mental', sub: 'Depresión, ansiedad, crisis vitales' },
+  { slug: 'ucin', emoji: '🏥', name: 'UCIN', sub: 'Bebé ingresado en cuidados intensivos neonatales' },
+  { slug: 'prematuro-extremo', emoji: '👶', name: 'Prematuro extremo', sub: 'Menos de 28 semanas de gestación' },
+  { slug: 'prematuro-tardio', emoji: '🌱', name: 'Prematuro tardío', sub: 'Entre 28 y 36 semanas' },
+  { slug: 'secuelas', emoji: '🧠', name: 'Secuelas del prematuro', sub: 'Parálisis cerebral, retinopatía, displasia' },
+  { slug: 'perdida-neonatal', emoji: '💙', name: 'Pérdida neonatal', sub: 'El dolor más difícil de sobrellevar' },
+  { slug: 'gemelos-prematuros', emoji: '👫', name: 'Gemelos prematuros', sub: 'El doble de amor, el doble de miedo' },
 ]
 
 export default function OnboardingPage() {
@@ -22,6 +22,7 @@ export default function OnboardingPage() {
   const [categorySlug, setCategorySlug] = useState<string | null>(null)
   const [alias, setAlias] = useState('')
   const [city, setCity] = useState('')
+  const [bio, setBio] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,6 +53,7 @@ export default function OnboardingPage() {
       role,
       city: city.trim(),
       country: 'ES',
+      bio: bio.trim() || null,
     })
 
     if (profileError) {
@@ -197,6 +199,26 @@ export default function OnboardingPage() {
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
                 />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">
+                  {role === 'volunteer' ? 'Tu experiencia (opcional)' : 'Tu situación (opcional)'}
+                </label>
+                <textarea
+                  placeholder={
+                    role === 'volunteer'
+                      ? 'Cuéntanos brevemente qué has vivido y cómo puedes ayudar...'
+                      : 'Cuéntanos brevemente qué estás atravesando...'
+                  }
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={300}
+                  rows={3}
+                  className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {bio.length}/300 — solo la ven las personas con las que conectes
+                </p>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>

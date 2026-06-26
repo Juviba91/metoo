@@ -1,17 +1,15 @@
-import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { ArrowRight, Heart, MapPin, Shield, Users } from 'lucide-react'
 
 const categories = [
-  { emoji: '🎒', label: 'Bullying', sub: 'Escolar o laboral' },
-  { emoji: '🏥', label: 'Enfermedad crónica', sub: 'Propia o de un familiar' },
-  {
-    emoji: '👧',
-    label: 'Hijos con necesidades especiales',
-    sub: 'Enfermedades raras, discapacidad',
-  },
-  { emoji: '💙', label: 'Pérdida de un hijo', sub: 'El dolor más difícil' },
-  { emoji: '🕊️', label: 'Duelo familiar', sub: 'Pareja, padres, hermanos' },
+  { emoji: '🏥', label: 'UCIN y prematuridad', sub: 'Bebés en cuidados intensivos neonatales' },
+  { emoji: '💙', label: 'Pérdida y duelo', sub: 'La muerte de un ser querido' },
+  { emoji: '🎗️', label: 'Enfermedad grave', sub: 'Propia, de un hijo o de un familiar' },
   { emoji: '🧠', label: 'Salud mental', sub: 'Depresión, ansiedad, crisis vitales' },
+  { emoji: '🤝', label: 'Bullying y acoso', sub: 'Escolar, laboral o digital' },
+  { emoji: '❤️', label: 'Cuidadores', sub: 'Acompañar a alguien que sufre agota' },
 ]
 
 const steps = [
@@ -57,6 +55,14 @@ export default function Page() {
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <span className="text-xl font-bold tracking-tight">metoo.</span>
+          <div className="flex gap-2">
+            <Link href="/auth/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
+              Entrar
+            </Link>
+            <Link href="/auth/login?tab=register" className={cn(buttonVariants({ size: 'sm' }))}>
+              Crear cuenta
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -64,7 +70,7 @@ export default function Page() {
       <section className="mx-auto max-w-4xl px-6 py-24 text-center">
         <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">
           <Heart className="size-3.5" />
-          <span>Apoyo entre personas que lo han vivido de verdad</span>
+          <span>Apoyo real entre personas que lo han vivido</span>
         </div>
 
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight sm:text-6xl">
@@ -74,19 +80,25 @@ export default function Page() {
         </h1>
 
         <p className="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-muted-foreground">
-          metoo conecta a personas que están pasando por momentos difíciles con voluntarios que han
-          vivido la misma experiencia. Cerca de ti. Sin juicios.
+          metoo conecta a personas que atraviesan momentos difíciles con voluntarios que han vivido
+          la misma experiencia. Cerca de ti. Sin juicios.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button className="w-full gap-2 px-8 py-5 text-base sm:w-auto">
+          <Link
+            href="/auth/login?tab=register"
+            className={cn(buttonVariants(), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
+          >
             Busco apoyo
             <ArrowRight className="size-4" />
-          </Button>
-          <Button variant="outline" className="w-full gap-2 px-8 py-5 text-base sm:w-auto">
+          </Link>
+          <Link
+            href="/auth/login?tab=register"
+            className={cn(buttonVariants({ variant: 'outline' }), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
+          >
             Quiero ayudar
             <Heart className="size-4" />
-          </Button>
+          </Link>
         </div>
       </section>
 
@@ -108,9 +120,9 @@ export default function Page() {
 
       {/* Categories */}
       <section className="mx-auto max-w-5xl px-6 py-20">
-        <h2 className="mb-3 text-center text-3xl font-bold">Experiencias que acompañamos</h2>
+        <h2 className="mb-3 text-center text-3xl font-bold">Situaciones que acompañamos</h2>
         <p className="mb-12 text-center text-muted-foreground">
-          No estás solo en ninguna de estas situaciones.
+          No estás solo. Hay alguien que ha pasado exactamente por lo mismo.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {categories.map((cat) => (
@@ -150,10 +162,13 @@ export default function Page() {
         <p className="mb-8 text-lg text-muted-foreground">
           Sea para pedir ayuda o para ofrecerla, empieza hoy.
         </p>
-        <Button className="gap-2 px-10 py-5 text-base">
+        <Link
+          href="/auth/login?tab=register"
+          className={cn(buttonVariants(), 'gap-2 px-10 py-5 text-base')}
+        >
           Unirme a metoo
           <ArrowRight className="size-4" />
-        </Button>
+        </Link>
         <p className="mt-8 text-xs text-muted-foreground">
           metoo no sustituye a un profesional de salud mental. En una emergencia, llama al{' '}
           <strong>024</strong> (España) o al servicio de emergencias de tu país.
@@ -166,15 +181,15 @@ export default function Page() {
           <span className="font-semibold text-foreground">metoo.</span>
           <span>© 2025 metoo. Hecho con cuidado.</span>
           <div className="flex gap-6">
-            <a href="#" className="transition-colors hover:text-foreground">
+            <Link href="/privacidad" className="transition-colors hover:text-foreground">
               Privacidad
-            </a>
-            <a href="#" className="transition-colors hover:text-foreground">
+            </Link>
+            <Link href="/terminos" className="transition-colors hover:text-foreground">
               Términos
-            </a>
-            <a href="#" className="transition-colors hover:text-foreground">
+            </Link>
+            <Link href="/contacto" className="transition-colors hover:text-foreground">
               Contacto
-            </a>
+            </Link>
           </div>
         </div>
       </footer>
