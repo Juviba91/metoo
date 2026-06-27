@@ -65,12 +65,20 @@ export default async function DashboardPage() {
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <span className="text-xl font-bold tracking-tight">metoo.</span>
-          <form action={signOut}>
-            <Button variant="ghost" size="sm" type="submit" className="gap-2">
-              <LogOut className="size-4" />
-              <span className="hidden sm:inline">Salir</span>
-            </Button>
-          </form>
+          <nav className="flex items-center gap-1">
+            <Link
+              href="/feed"
+              className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              Feed
+            </Link>
+            <form action={signOut}>
+              <Button variant="ghost" size="sm" type="submit" className="gap-2">
+                <LogOut className="size-4" />
+                <span className="hidden sm:inline">Salir</span>
+              </Button>
+            </form>
+          </nav>
         </div>
       </header>
 
