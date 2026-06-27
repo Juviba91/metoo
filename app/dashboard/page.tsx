@@ -5,6 +5,7 @@ import { DashboardMatches } from '@/components/dashboard-matches'
 import { MapPin, MessageCircle, LogOut } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
 import Link from 'next/link'
+import { BottomNav } from '@/components/bottom-nav'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -68,7 +69,7 @@ export default async function DashboardPage() {
           <nav className="flex items-center gap-1">
             <Link
               href="/feed"
-              className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="hidden rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:block"
             >
               Feed
             </Link>
@@ -82,9 +83,9 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 py-8 space-y-10">
+      <main className="mx-auto max-w-4xl space-y-8 px-4 py-6 pb-24 sm:space-y-10 sm:px-6 sm:py-8 sm:pb-8">
         {/* Profile card */}
-        <div className="rounded-xl border border-border bg-muted/30 p-6">
+        <div className="rounded-xl border border-border bg-muted/30 p-4 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="mb-1 text-sm text-muted-foreground">
@@ -165,6 +166,8 @@ export default async function DashboardPage() {
           sentTo={sentTo}
         />
       </main>
+
+      <BottomNav />
     </div>
   )
 }

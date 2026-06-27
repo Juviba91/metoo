@@ -4,6 +4,7 @@ import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { BottomNav } from '@/components/bottom-nav'
 
 export default async function FeedPage(props: {
   searchParams: Promise<{ tag?: string }>
@@ -85,10 +86,10 @@ export default async function FeedPage(props: {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl space-y-6 px-6 py-6">
+      <main className="mx-auto max-w-2xl space-y-4 px-4 py-4 pb-24 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-6">
         {/* Hashtag filter bar */}
         {hashtags && hashtags.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
             <Link
               href="/feed"
               className={`shrink-0 rounded-full border px-3 py-1 text-sm transition-colors ${
@@ -119,6 +120,8 @@ export default async function FeedPage(props: {
 
         <PostList posts={posts} currentUserId={user.id} />
       </main>
+
+      <BottomNav />
     </div>
   )
 }
