@@ -211,10 +211,10 @@ export function ChatView({
       {/* Input */}
       <form
         onSubmit={handleSend}
-        className="flex flex-col gap-2 border-t border-border bg-background px-4 py-3"
+        className="pb-safe flex flex-col gap-2 border-t border-border bg-background px-4 pt-3"
       >
         {sendError && <p className="text-xs text-destructive">{sendError}</p>}
-        <div className="flex items-end gap-2">
+        <div className="flex items-center gap-2">
           <input
             ref={inputRef}
             type="text"
@@ -223,15 +223,15 @@ export function ChatView({
             placeholder="Escribe un mensaje..."
             maxLength={2000}
             autoComplete="off"
-            className="flex-1 rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            className="flex-1 rounded-full border border-border bg-muted/40 px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
           />
           <Button
             type="submit"
-            size="sm"
+            size="icon"
             disabled={sending || !content.trim()}
-            className="shrink-0"
+            className="size-11 shrink-0 rounded-full"
           >
-            <Send className="size-3.5" />
+            <Send className="size-4" />
           </Button>
         </div>
       </form>

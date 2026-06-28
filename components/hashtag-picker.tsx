@@ -137,7 +137,7 @@ export function HashtagPicker({
               key={tag.id}
               type="button"
               onClick={() => add(tag)}
-              className="rounded-full border border-border px-3 py-1 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              className="rounded-full border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary active:bg-muted/60"
             >
               #{tag.label}
             </button>

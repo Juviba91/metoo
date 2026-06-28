@@ -67,19 +67,19 @@ export default function Page() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-4xl px-6 py-24 text-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">
+      <section className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-24">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground sm:mb-8">
           <Heart className="size-3.5" />
           <span>Apoyo real entre personas que lo han vivido</span>
         </div>
 
-        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight sm:text-6xl">
+        <h1 className="mb-5 text-4xl font-bold leading-tight tracking-tight sm:mb-6 sm:text-5xl lg:text-6xl">
           Alguien ya estuvo
           <br />
           donde estás tú.
         </h1>
 
-        <p className="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-muted-foreground">
+        <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:mb-10 sm:text-xl">
           metoo conecta a personas que atraviesan momentos difíciles con voluntarios que han vivido
           la misma experiencia. Cerca de ti. Sin juicios.
         </p>
@@ -103,10 +103,10 @@ export default function Page() {
       </section>
 
       {/* How it works */}
-      <section className="bg-muted/40 py-20">
+      <section className="bg-muted/40 py-14 sm:py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2 className="mb-14 text-center text-3xl font-bold">Cómo funciona</h2>
-          <div className="grid gap-10 md:grid-cols-3">
+          <h2 className="mb-10 text-center text-2xl font-bold sm:mb-14 sm:text-3xl">Cómo funciona</h2>
+          <div className="grid gap-8 md:grid-cols-3 sm:gap-10">
             {steps.map((step) => (
               <div key={step.n}>
                 <span className="text-5xl font-bold text-border">{step.n}</span>
@@ -119,9 +119,9 @@ export default function Page() {
       </section>
 
       {/* Categories */}
-      <section className="mx-auto max-w-5xl px-6 py-20">
-        <h2 className="mb-3 text-center text-3xl font-bold">Situaciones que acompañamos</h2>
-        <p className="mb-12 text-center text-muted-foreground">
+      <section className="mx-auto max-w-5xl px-6 py-14 sm:py-20">
+        <h2 className="mb-3 text-center text-2xl font-bold sm:text-3xl">Situaciones que acompañamos</h2>
+        <p className="mb-8 text-center text-muted-foreground sm:mb-12">
           No estás solo. Hay alguien que ha pasado exactamente por lo mismo.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -139,9 +139,9 @@ export default function Page() {
       </section>
 
       {/* Why metoo */}
-      <section className="bg-muted/40 py-20">
+      <section className="bg-muted/40 py-14 sm:py-20">
         <div className="mx-auto max-w-4xl px-6">
-          <h2 className="mb-14 text-center text-3xl font-bold">Por qué metoo</h2>
+          <h2 className="mb-10 text-center text-2xl font-bold sm:mb-14 sm:text-3xl">Por qué metoo</h2>
           <div className="grid gap-10 text-center sm:grid-cols-3">
             {reasons.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex flex-col items-center">
@@ -157,8 +157,8 @@ export default function Page() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <h2 className="mb-4 text-4xl font-bold">¿Listo para dar el primer paso?</h2>
+      <section className="mx-auto max-w-3xl px-6 py-16 text-center sm:py-24">
+        <h2 className="mb-4 text-3xl font-bold sm:text-4xl">¿Listo para dar el primer paso?</h2>
         <p className="mb-8 text-lg text-muted-foreground">
           Sea para pedir ayuda o para ofrecerla, empieza hoy.
         </p>
