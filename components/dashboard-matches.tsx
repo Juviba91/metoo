@@ -5,12 +5,14 @@ import { MapPin, Search, Users } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
 
 type Category = { slug: string; name: string; emoji: string }
+type Hashtag = { id: string; slug: string; label: string }
 type Match = {
   id: string
   alias: string
   city: string | null
   bio: string | null
   profile_categories: { categories: Category }[]
+  profile_hashtags: { hashtags: Hashtag }[]
 }
 
 export function DashboardMatches({
@@ -23,16 +25,16 @@ export function DashboardMatches({
   sentTo: Set<string>
 }) {
   const [query, setQuery] = useState('')
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
+  const [activeHashtag, setActiveHashtag] = useState<string | null>(null)
 
-  // Build unique category list from current matches
-  const categoryOptions = Array.from(
+  // Build unique hashtag list from all matches
+  const hashtagOptions = Array.from(
     new Map(
       matches
-        .flatMap((m) => m.profile_categories.map((pc) => pc.categories).filter(Boolean))
-        .map((c) => [c.slug, c]),
+        .flatMap((m) => (m.profile_hashtags ?? []).map((ph) => ph.hashtags).filter(Boolean))
+        .map((h) => [h.slug, h]),
     ).values(),
-  )
+  ).sort((a, b) => a.label.localeCompare(b.label, 'es'))
 
   const filtered = matches.filter((m) => {
     const q = query.toLowerCase()
@@ -41,10 +43,10 @@ export function DashboardMatches({
       m.alias.toLowerCase().includes(q) ||
       m.city?.toLowerCase().includes(q) ||
       m.bio?.toLowerCase().includes(q)
-    const matchesCat =
-      !selectedSlug ||
-      m.profile_categories.some((pc) => pc.categories?.slug === selectedSlug)
-    return matchesText && matchesCat
+    const matchesTag =
+      !activeHashtag ||
+      (m.profile_hashtags ?? []).some((ph) => ph.hashtags?.slug === activeHashtag)
+    return matchesText && matchesTag
   })
 
   return (
@@ -57,38 +59,55 @@ export function DashboardMatches({
         <span className="text-sm text-muted-foreground">({filtered.length})</span>
       </div>
 
-      {/* Search + category filter */}
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Buscar por alias, ciudad o descripción..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background py-2.5 pl-9 pr-4 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          />
-        </div>
-        {categoryOptions.length > 1 && (
-          <select
-            value={selectedSlug ?? ''}
-            onChange={(e) => setSelectedSlug(e.target.value || null)}
-            className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          >
-            <option value="">Todas las situaciones</option>
-            {categoryOptions.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.emoji} {c.name}
-              </option>
-            ))}
-          </select>
-        )}
+      {/* Text search */}
+      <div className="mb-3 relative">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Buscar por alias, ciudad o descripción..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full rounded-lg border border-border bg-background py-2.5 pl-9 pr-4 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+        />
       </div>
+
+      {/* Hashtag filter chips */}
+      {hashtagOptions.length > 0 && (
+        <div className="no-scrollbar mb-5 flex gap-2 overflow-x-auto pb-1">
+          <button
+            onClick={() => setActiveHashtag(null)}
+            className={`shrink-0 rounded-full border px-3 py-1 text-sm transition-colors ${
+              !activeHashtag
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
+            }`}
+          >
+            Todos
+          </button>
+          {hashtagOptions.map((h) => (
+            <button
+              key={h.slug}
+              onClick={() => setActiveHashtag(activeHashtag === h.slug ? null : h.slug)}
+              className={`shrink-0 rounded-full border px-3 py-1 text-sm transition-colors ${
+                activeHashtag === h.slug
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
+              }`}
+            >
+              #{h.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {filtered.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {filtered.map((match) => {
             const cat = match.profile_categories?.[0]?.categories
+            const tags = (match.profile_hashtags ?? [])
+              .map((ph) => ph.hashtags)
+              .filter(Boolean)
+              .slice(0, 4)
             return (
               <div key={match.id} className="flex flex-col rounded-xl border border-border p-5">
                 <div className="mb-2 flex items-start justify-between">
@@ -100,10 +119,28 @@ export function DashboardMatches({
                       </p>
                     )}
                   </div>
-                  {cat && <span className="text-xl">{cat.emoji}</span>}
+                  {cat && tags.length === 0 && <span className="text-xl">{cat.emoji}</span>}
                 </div>
 
-                {cat && <p className="mb-2 text-xs font-medium text-muted-foreground">{cat.name}</p>}
+                {tags.length > 0 ? (
+                  <div className="mb-3 flex flex-wrap gap-1.5">
+                    {tags.map((tag) => (
+                      <button
+                        key={tag.slug}
+                        onClick={() => setActiveHashtag(tag.slug === activeHashtag ? null : tag.slug)}
+                        className={`rounded-full border px-2 py-0.5 text-xs transition-colors ${
+                          activeHashtag === tag.slug
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        #{tag.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  cat && <p className="mb-2 text-xs font-medium text-muted-foreground">{cat.name}</p>
+                )}
 
                 {match.bio && (
                   <p className="mb-4 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
@@ -126,13 +163,13 @@ export function DashboardMatches({
         </div>
       ) : (
         <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
-          <p className="mb-2 text-3xl">{query || selectedSlug ? '🔍' : '👥'}</p>
+          <p className="mb-2 text-3xl">{query || activeHashtag ? '🔍' : '👥'}</p>
           <p>
-            {query || selectedSlug
+            {query || activeHashtag
               ? 'Sin resultados con esos filtros.'
               : 'Todavía no hay personas disponibles.'}
           </p>
-          {!query && !selectedSlug && (
+          {!query && !activeHashtag && (
             <p className="mt-1 text-sm">La comunidad está creciendo, vuelve pronto.</p>
           )}
         </div>

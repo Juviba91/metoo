@@ -12,13 +12,20 @@ export default async function PerfilPage() {
 
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('alias, city, bio, role')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, { data: allHashtags }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('alias, city, bio, role, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .eq('id', user.id)
+      .single(),
+    supabase.from('hashtags').select('id, slug, label').order('label'),
+  ])
 
   if (!profile) redirect('/onboarding')
+
+  const profileHashtags = (profile.profile_hashtags as any[])
+    ?.map((ph: any) => ph.hashtags)
+    .filter(Boolean) ?? []
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,8 +43,14 @@ export default async function PerfilPage() {
 
       <main className="mx-auto max-w-lg px-6 py-8">
         <EditForm
-          initial={{ alias: profile.alias, city: profile.city, bio: profile.bio }}
+          initial={{
+            alias: profile.alias,
+            city: profile.city,
+            bio: profile.bio,
+            hashtags: profileHashtags,
+          }}
           role={profile.role}
+          suggestions={allHashtags ?? []}
         />
       </main>
     </div>

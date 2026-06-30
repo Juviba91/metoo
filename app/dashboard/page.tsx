@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*, bio, profile_categories(category_id, categories(slug, name, emoji))')
+    .select('*, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
     .eq('id', user.id)
     .single()
 
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   const [{ data: matches }, { data: connections }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji))')
+      .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('role', oppositeRole)
       .eq('is_active', true)
       .neq('id', user.id)
@@ -54,6 +54,9 @@ export default async function DashboardPage() {
   )
 
   const category = (profile.profile_categories as any[])?.[0]?.categories
+  const ownHashtags = (profile.profile_hashtags as any[])
+    ?.map((ph: any) => ph.hashtags)
+    .filter(Boolean) ?? []
 
   const statusLabel: Record<string, string> = {
     pending: 'Pendiente',
@@ -106,6 +109,18 @@ export default async function DashboardPage() {
               </div>
               {profile.bio && (
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
+              )}
+              {ownHashtags.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {ownHashtags.map((tag: any) => (
+                    <span
+                      key={tag.id}
+                      className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
+                    >
+                      #{tag.label}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
             <Link
