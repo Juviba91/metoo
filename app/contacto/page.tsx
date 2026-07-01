@@ -20,7 +20,7 @@ export default function ContactoPage() {
 
         <div className="grid gap-6 sm:grid-cols-2">
           <a
-            href="mailto:hola@metoo.es"
+            href="mailto:juan@bay-apps.com"
             className="flex items-start gap-4 rounded-xl border border-border p-6 transition-colors hover:bg-muted/40"
           >
             <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-background">
@@ -28,13 +28,13 @@ export default function ContactoPage() {
             </div>
             <div>
               <h2 className="mb-1 font-semibold">Correo general</h2>
-              <p className="text-sm text-muted-foreground">hola@metoo.es</p>
+              <p className="text-sm text-muted-foreground">juan@bay-apps.com</p>
               <p className="mt-1 text-xs text-muted-foreground">Respondemos en 24–48 h</p>
             </div>
           </a>
 
           <a
-            href="mailto:privacidad@metoo.es"
+            href="mailto:juan@bay-apps.com"
             className="flex items-start gap-4 rounded-xl border border-border p-6 transition-colors hover:bg-muted/40"
           >
             <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-background">
