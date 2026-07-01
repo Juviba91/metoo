@@ -34,7 +34,7 @@ export default function TerminosPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">2. Quién puede usar metoo</h2>
             <ul className="ml-4 list-disc space-y-1">
-              <li>Debes tener al menos 18 años.</li>
+              <li>Debes tener al menos 16 años.</li>
               <li>Debes proporcionar un email válido.</li>
               <li>
                 Solo puedes tener una cuenta. Las cuentas múltiples o falsas pueden ser eliminadas.
@@ -68,8 +68,8 @@ export default function TerminosPage() {
             <p>
               Nos reservamos el derecho de suspender o eliminar cuentas que incumplan estas normas, sin
               previo aviso. Puedes eliminar tu cuenta en cualquier momento escribiendo a{' '}
-              <a href="mailto:hola@metoo.es" className="text-foreground underline underline-offset-2">
-                hola@metoo.es
+              <a href="mailto:juan@bay-apps.com" className="text-foreground underline underline-offset-2">
+                juan@bay-apps.com
               </a>
               .
             </p>
