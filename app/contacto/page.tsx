@@ -56,8 +56,8 @@ export default function ContactoPage() {
             <h2 className="font-semibold">¿Quieres ser voluntario?</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            Si has pasado por una experiencia con un bebé prematuro y quieres acompañar a otras
-            familias, regístrate directamente desde la app y elige el rol de voluntario en el
+            Si has pasado por una experiencia dura en la vida y quieres acompañar a otras
+            familias que puedan estar pasando por lo mismo, regístrate directamente desde la app y elige el rol de voluntario en el
             onboarding.
           </p>
           <Link
