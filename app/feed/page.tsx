@@ -6,10 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { BottomNav } from '@/components/bottom-nav'
 
-export default async function FeedPage(props: {
-  searchParams: Promise<{ tag?: string }>
-}) {
-  const { tag } = await props.searchParams
+export default async function FeedPage() {
   const supabase = await createClient()
 
   const {
@@ -24,52 +21,18 @@ export default async function FeedPage(props: {
     .single()
   if (!profile) redirect('/onboarding')
 
-  const { data: hashtags } = await supabase
-    .from('hashtags')
-    .select('id, slug, label')
-    .order('label')
-    .limit(40)
+  const { data } = await supabase
+    .from('posts')
+    .select(
+      `id, content, created_at,
+       author:author_id(alias),
+       post_hashtags(hashtag:hashtag_id(id, slug, label)),
+       post_reactions(profile_id)`,
+    )
+    .order('created_at', { ascending: false })
+    .limit(50)
 
-  // Resolve filtered post IDs when a tag is active
-  let filteredPostIds: string[] | null = null
-  if (tag) {
-    const { data: tagRow } = await supabase
-      .from('hashtags')
-      .select('id')
-      .eq('slug', tag)
-      .single()
-
-    if (tagRow) {
-      const { data: ph } = await supabase
-        .from('post_hashtags')
-        .select('post_id')
-        .eq('hashtag_id', tagRow.id)
-      filteredPostIds = (ph ?? []).map((r) => r.post_id)
-    } else {
-      filteredPostIds = []
-    }
-  }
-
-  let posts: any[] = []
-  if (filteredPostIds === null || filteredPostIds.length > 0) {
-    let q = supabase
-      .from('posts')
-      .select(
-        `id, content, created_at,
-         author:author_id(alias),
-         post_hashtags(hashtag:hashtag_id(id, slug, label)),
-         post_reactions(profile_id)`,
-      )
-      .order('created_at', { ascending: false })
-      .limit(50)
-
-    if (filteredPostIds && filteredPostIds.length > 0) {
-      q = q.in('id', filteredPostIds)
-    }
-
-    const { data } = await q
-    posts = data ?? []
-  }
+  const posts = (data ?? []) as any[]
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,37 +50,7 @@ export default async function FeedPage(props: {
       </header>
 
       <main className="mx-auto max-w-2xl space-y-4 px-4 py-4 pb-24 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-6">
-        {/* Hashtag filter bar */}
-        {hashtags && hashtags.length > 0 && (
-          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-            <Link
-              href="/feed"
-              className={`shrink-0 rounded-full border px-3 py-1 text-sm transition-colors ${
-                !tag
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
-              }`}
-            >
-              Todos
-            </Link>
-            {hashtags.map((h) => (
-              <Link
-                key={h.id}
-                href={`/feed?tag=${encodeURIComponent(h.slug)}`}
-                className={`shrink-0 rounded-full border px-3 py-1 text-sm transition-colors ${
-                  tag === h.slug
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
-                }`}
-              >
-                #{h.label}
-              </Link>
-            ))}
-          </div>
-        )}
-
         <PostComposer alias={profile.alias} />
-
         <PostList posts={posts} currentUserId={user.id} />
       </main>
 

@@ -27,10 +27,12 @@ export async function updateProfile({
   alias,
   city,
   bio,
+  hashtags,
 }: {
   alias: string
   city: string
   bio: string
+  hashtags: { id: string; slug: string; label: string }[]
 }) {
   const supabase = await createClient()
   const {
@@ -45,6 +47,29 @@ export async function updateProfile({
 
   if (error) {
     return { error: error.code === '23505' ? 'Ese alias ya está en uso.' : error.message }
+  }
+
+  // Sync hashtags: replace all existing with the new selection
+  await supabase.from('profile_hashtags').delete().eq('profile_id', user.id)
+
+  const resolvedIds: string[] = []
+  for (const tag of hashtags) {
+    if (tag.id.startsWith('new:')) {
+      const { data } = await supabase
+        .from('hashtags')
+        .upsert({ slug: tag.slug, label: tag.label }, { onConflict: 'slug' })
+        .select('id')
+        .single()
+      if (data) resolvedIds.push(data.id)
+    } else {
+      resolvedIds.push(tag.id)
+    }
+  }
+
+  if (resolvedIds.length > 0) {
+    await supabase
+      .from('profile_hashtags')
+      .insert(resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })))
   }
 
   revalidatePath('/dashboard')

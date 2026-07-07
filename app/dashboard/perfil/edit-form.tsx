@@ -3,18 +3,22 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { updateProfile } from '@/app/dashboard/actions'
+import { HashtagPicker, HashtagOption } from '@/components/hashtag-picker'
 import { Check } from 'lucide-react'
 
 export function EditForm({
   initial,
   role,
+  suggestions,
 }: {
-  initial: { alias: string; city: string; bio: string | null }
+  initial: { alias: string; city: string | null; bio: string | null; hashtags: HashtagOption[] }
   role: 'seeker' | 'volunteer'
+  suggestions: HashtagOption[]
 }) {
   const [alias, setAlias] = useState(initial.alias)
   const [city, setCity] = useState(initial.city ?? '')
   const [bio, setBio] = useState(initial.bio ?? '')
+  const [hashtags, setHashtags] = useState<HashtagOption[]>(initial.hashtags)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
@@ -26,7 +30,7 @@ export function EditForm({
     setError(null)
     setSaved(false)
 
-    const result = await updateProfile({ alias, city, bio })
+    const result = await updateProfile({ alias, city, bio, hashtags })
 
     if (result.error) {
       setError(result.error)
@@ -83,6 +87,18 @@ export function EditForm({
           className={`${inputClass} resize-none`}
         />
         <p className="mt-1 text-xs text-muted-foreground">{bio.length}/300</p>
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-medium">Tus hashtags</label>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Indica tu situación, hospital, diagnóstico...
+        </p>
+        <HashtagPicker
+          suggestions={suggestions}
+          selected={hashtags}
+          onChange={setHashtags}
+        />
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
