@@ -3,6 +3,38 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+export async function acceptConnection(connectionId: string): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase
+    .from('connections')
+    .update({ status: 'accepted' })
+    .eq('id', connectionId)
+    .eq('volunteer_id', user.id)
+
+  revalidatePath('/dashboard')
+}
+
+export async function rejectConnection(connectionId: string): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase
+    .from('connections')
+    .update({ status: 'rejected' })
+    .eq('id', connectionId)
+    .eq('volunteer_id', user.id)
+
+  revalidatePath('/dashboard')
+}
+
 export async function requestConnection(volunteerId: string) {
   const supabase = await createClient()
   const {
@@ -84,6 +116,20 @@ export async function sendMessage(connectionId: string, content: string) {
   } = await supabase.auth.getUser()
 
   if (!user) return { error: 'No autenticado' }
+
+  // Auto-accept if the volunteer replies to a pending request
+  const { data: conn } = await supabase
+    .from('connections')
+    .select('status, volunteer_id')
+    .eq('id', connectionId)
+    .single()
+
+  if (conn?.status === 'pending' && conn.volunteer_id === user.id) {
+    await supabase
+      .from('connections')
+      .update({ status: 'accepted' })
+      .eq('id', connectionId)
+  }
 
   const { data, error } = await supabase
     .from('messages')
