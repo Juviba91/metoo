@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { DashboardMatches } from '@/components/dashboard-matches'
 import { MapPin, MessageCircle, LogOut } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
+import { acceptConnection, rejectConnection } from '@/app/dashboard/actions'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 
@@ -142,6 +143,48 @@ export default async function DashboardPage() {
             <div className="grid gap-3 sm:grid-cols-2">
               {(connections as any[]).map((conn) => {
                 const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
+                const isPendingVolunteer = conn.status === 'pending' && profile.role === 'volunteer'
+
+                if (isPendingVolunteer) {
+                  return (
+                    <div key={conn.id} className="rounded-xl border border-border p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
+                          {other?.city && (
+                            <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <MapPin className="size-3" /> {other.city}
+                            </p>
+                          )}
+                        </div>
+                        <Link
+                          href={`/dashboard/chat/${conn.id}`}
+                          className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          Ver mensaje →
+                        </Link>
+                      </div>
+                      <div className="flex gap-2">
+                        <form action={acceptConnection.bind(null, conn.id)} className="flex-1">
+                          <Button type="submit" size="sm" className="w-full">
+                            Aceptar
+                          </Button>
+                        </form>
+                        <form action={rejectConnection.bind(null, conn.id)} className="flex-1">
+                          <Button
+                            type="submit"
+                            size="sm"
+                            variant="outline"
+                            className="w-full text-destructive hover:text-destructive"
+                          >
+                            Rechazar
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
+                  )
+                }
+
                 return (
                   <Link
                     key={conn.id}
