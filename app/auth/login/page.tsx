@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Eye, EyeOff } from 'lucide-react'
 
 type Mode = 'login' | 'register'
 
@@ -15,6 +16,7 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -97,15 +99,25 @@ function LoginForm() {
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium">Contraseña</label>
-          <input
-            type="password"
-            required
-            minLength={6}
-            placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              required
+              minLength={6}
+              placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-4 py-3 pr-11 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
         </div>
 
         {error && <p className="text-sm text-destructive">{error}</p>}
