@@ -19,18 +19,24 @@ export function ChatView({
   initialMessages,
   currentUserId,
   otherAlias,
+  initialStatus,
+  volunteerId,
 }: {
   connectionId: string
   initialMessages: Message[]
   currentUserId: string
   otherAlias: string
+  initialStatus: 'pending' | 'accepted' | 'rejected'
+  volunteerId: string
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [content, setContent] = useState('')
   const [sending, setSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
+  const [status, setStatus] = useState(initialStatus)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const isVolunteer = currentUserId === volunteerId
 
   // Scroll to bottom on mount and on new messages
   useEffect(() => {
@@ -40,6 +46,24 @@ export function ChatView({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length])
+
+  // Subscribe to connection status changes (so seeker sees accepted in real-time)
+  useEffect(() => {
+    if (status === 'accepted') return
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`conn-${connectionId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'connections', filter: `id=eq.${connectionId}` },
+        (payload) => {
+          const newStatus = (payload.new as any).status
+          if (newStatus) setStatus(newStatus)
+        },
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [connectionId, status])
 
   // Real-time subscription — receives messages from the OTHER user
   useEffect(() => {
@@ -114,6 +138,11 @@ export function ChatView({
       )
     }
 
+    // Volunteer auto-accepts on first reply
+    if (isVolunteer && status === 'pending') {
+      setStatus('accepted')
+    }
+
     setSending(false)
     inputRef.current?.focus()
   }
@@ -156,6 +185,15 @@ export function ChatView({
           <p className="text-xs text-muted-foreground">Conversación privada</p>
         </div>
       </header>
+
+      {/* Pending banner */}
+      {status === 'pending' && (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-center text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+          {isVolunteer
+            ? 'Al responder aceptarás esta solicitud automáticamente.'
+            : 'Tu solicitud está pendiente de respuesta.'}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">

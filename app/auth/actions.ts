@@ -8,3 +8,12 @@ export async function signOut() {
   await supabase.auth.signOut()
   redirect('/')
 }
+
+export async function resendConfirmation(): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user?.email) return
+  await supabase.auth.resend({ type: 'signup', email: user.email })
+}

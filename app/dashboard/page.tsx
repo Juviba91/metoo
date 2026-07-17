@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { DashboardMatches } from '@/components/dashboard-matches'
 import { MapPin, MessageCircle, LogOut } from 'lucide-react'
-import { signOut } from '@/app/auth/actions'
+import { signOut, resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection } from '@/app/dashboard/actions'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
@@ -88,6 +88,20 @@ export default async function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-4xl space-y-8 px-4 py-6 pb-24 sm:space-y-10 sm:px-6 sm:py-8 sm:pb-8">
+        {/* Email confirmation banner */}
+        {!user.email_confirmed_at && (
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/30">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              ✉️ Confirma tu correo para no perder el acceso a tu cuenta.
+            </p>
+            <form action={resendConfirmation}>
+              <Button type="submit" size="sm" variant="outline" className="shrink-0 text-xs">
+                Reenviar
+              </Button>
+            </form>
+          </div>
+        )}
+
         {/* Profile card */}
         <div className="rounded-xl border border-border bg-muted/30 p-4 sm:p-6">
           <div className="flex items-start justify-between gap-4">

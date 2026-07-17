@@ -129,6 +129,8 @@ export async function sendMessage(connectionId: string, content: string) {
       .from('connections')
       .update({ status: 'accepted' })
       .eq('id', connectionId)
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/chats')
   }
 
   const { data, error } = await supabase
