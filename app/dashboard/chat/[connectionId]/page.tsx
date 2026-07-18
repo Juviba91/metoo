@@ -46,6 +46,8 @@ export default async function ChatPage({
       initialMessages={messages ?? []}
       currentUserId={user.id}
       otherAlias={otherAlias ?? 'Usuario'}
+      initialStatus={connection.status as 'pending' | 'accepted' | 'rejected'}
+      volunteerId={connection.volunteer_id}
     />
   )
 }

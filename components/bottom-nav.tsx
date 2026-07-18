@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Rss, User } from 'lucide-react'
+import { Home, MessageCircle, Rss, User } from 'lucide-react'
 
 const items = [
   { href: '/dashboard', label: 'Inicio', icon: Home },
+  { href: '/dashboard/chats', label: 'Chats', icon: MessageCircle },
   { href: '/feed', label: 'Feed', icon: Rss },
   { href: '/dashboard/perfil', label: 'Perfil', icon: User },
 ]
@@ -18,7 +19,9 @@ export function BottomNav() {
       <div className="flex" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {items.map(({ href, label, icon: Icon }) => {
           const active =
-            pathname === href ||
+            (href === '/dashboard' && pathname === '/dashboard') ||
+            (href === '/dashboard/chats' &&
+              (pathname.startsWith('/dashboard/chats') || pathname.startsWith('/dashboard/chat/'))) ||
             (href === '/feed' && pathname.startsWith('/feed')) ||
             (href === '/dashboard/perfil' && pathname.startsWith('/dashboard/perfil'))
           return (
