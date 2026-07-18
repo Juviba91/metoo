@@ -4,6 +4,7 @@ import { EditForm } from './edit-form'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
+import { BottomNav } from '@/components/bottom-nav'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -13,13 +14,18 @@ export default async function PerfilPage() {
 
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, { data: allHashtags }] = await Promise.all([
+  const [{ data: profile }, { data: allHashtags }, { count: pendingCount }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
+    supabase
+      .from('connections')
+      .select('id', { count: 'exact', head: true })
+      .eq('volunteer_id', user.id)
+      .eq('status', 'pending'),
   ])
 
   if (!profile) redirect('/onboarding')
@@ -49,11 +55,14 @@ export default async function PerfilPage() {
             city: profile.city,
             bio: profile.bio,
             hashtags: profileHashtags,
+            isActive: profile.is_active ?? true,
           }}
           role={profile.role}
           suggestions={allHashtags ?? []}
         />
       </main>
+
+      <BottomNav pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0} />
     </div>
   )
 }

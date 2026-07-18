@@ -49,11 +49,18 @@ export default async function DashboardPage() {
           .order('created_at', { ascending: false }),
   ])
 
+  // Exclude rejected connections so seekers can re-contact after a rejection
   const sentTo = new Set(
-    (connections ?? []).map((c: any) =>
-      profile.role === 'seeker' ? c.volunteer_id : c.seeker_id,
-    ).filter(Boolean),
+    (connections ?? [])
+      .filter((c: any) => c.status !== 'rejected')
+      .map((c: any) => profile.role === 'seeker' ? c.volunteer_id : c.seeker_id)
+      .filter(Boolean),
   )
+
+  const pendingCount =
+    profile.role === 'volunteer'
+      ? (connections ?? []).filter((c: any) => c.status === 'pending').length
+      : 0
 
   const category = (profile.profile_categories as any[])?.[0]?.categories
   const ownHashtags = (profile.profile_hashtags as any[])
@@ -220,9 +227,17 @@ export default async function DashboardPage() {
           role={profile.role}
           sentTo={sentTo}
         />
+
+        <p className="pb-2 text-center text-xs text-muted-foreground">
+          <Link href="/guidelines" className="underline hover:text-foreground">
+            Normas de la comunidad
+          </Link>{' '}
+          · metoo no sustituye a un profesional. En crisis, llama al{' '}
+          <strong>024</strong>.
+        </p>
       </main>
 
-      <BottomNav />
+      <BottomNav pendingCount={pendingCount} />
     </div>
   )
 }

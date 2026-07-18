@@ -246,33 +246,47 @@ export function ChatView({
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <form
-        onSubmit={handleSend}
-        className="pb-safe flex flex-col gap-2 border-t border-border bg-background px-4 pt-3"
-      >
-        {sendError && <p className="text-xs text-destructive">{sendError}</p>}
-        <div className="flex items-center gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Escribe un mensaje..."
-            maxLength={2000}
-            autoComplete="off"
-            className="flex-1 rounded-full border border-border bg-muted/40 px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={sending || !content.trim()}
-            className="size-11 shrink-0 rounded-full"
+      {/* Rejected state */}
+      {status === 'rejected' ? (
+        <div className="border-t border-border bg-background px-4 py-5 text-center"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}>
+          <p className="mb-3 text-sm text-muted-foreground">Esta conversación ha terminado.</p>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
           >
-            <Send className="size-4" />
-          </Button>
+            Buscar otro voluntario →
+          </Link>
         </div>
-      </form>
+      ) : (
+        /* Input */
+        <form
+          onSubmit={handleSend}
+          className="pb-safe flex flex-col gap-2 border-t border-border bg-background px-4 pt-3"
+        >
+          {sendError && <p className="text-xs text-destructive">{sendError}</p>}
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Escribe un mensaje..."
+              maxLength={2000}
+              autoComplete="off"
+              className="flex-1 rounded-full border border-border bg-muted/40 px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={sending || !content.trim()}
+              className="size-11 shrink-0 rounded-full"
+            >
+              <Send className="size-4" />
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   )
 }

@@ -15,12 +15,13 @@ export default async function FeedPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, alias')
+    .select('id, alias, role')
     .eq('id', user.id)
     .single()
   if (!profile) redirect('/onboarding')
 
-  const { data } = await supabase
+  const [{ data }, { count: pendingCount }] = await Promise.all([
+    supabase
     .from('posts')
     .select(
       `id, content, created_at,
@@ -28,8 +29,16 @@ export default async function FeedPage() {
        post_hashtags(hashtag:hashtag_id(id, slug, label)),
        post_reactions(profile_id)`,
     )
-    .order('created_at', { ascending: false })
-    .limit(50)
+      .order('created_at', { ascending: false })
+      .limit(50),
+    profile.role === 'volunteer'
+      ? supabase
+          .from('connections')
+          .select('id', { count: 'exact', head: true })
+          .eq('volunteer_id', user.id)
+          .eq('status', 'pending')
+      : Promise.resolve({ count: 0 }),
+  ])
 
   const posts = (data ?? []) as any[]
 
@@ -42,7 +51,7 @@ export default async function FeedPage() {
         <PostList posts={posts} currentUserId={user.id} />
       </main>
 
-      <BottomNav />
+      <BottomNav pendingCount={pendingCount ?? 0} />
     </div>
   )
 }

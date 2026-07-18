@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart } from 'lucide-react'
 import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
 import { completeOnboarding } from './actions'
+import Link from 'next/link'
 
 export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[] }) {
   const router = useRouter()
   const [step, setStep] = useState(1)
+  const [accepted, setAccepted] = useState(false)
   const [role, setRole] = useState<'seeker' | 'volunteer' | null>(null)
   const [hashtags, setHashtags] = useState<HashtagOption[]>([])
   const [alias, setAlias] = useState('')
@@ -34,6 +36,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
     router.push('/dashboard')
   }
 
+  const totalSteps = 4
+
   return (
     <div className="w-full max-w-lg">
       <a href="/" className="mb-8 block text-center text-2xl font-bold tracking-tight">
@@ -41,15 +45,81 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
       </a>
 
       <div className="mb-10 flex items-center justify-center gap-2">
-        {[1, 2, 3].map((s) => (
+        {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
           <div
             key={s}
-            className={`h-1.5 w-12 rounded-full transition-colors ${s <= step ? 'bg-primary' : 'bg-muted'}`}
+            className={`h-1.5 w-10 rounded-full transition-colors ${s <= step ? 'bg-primary' : 'bg-muted'}`}
           />
         ))}
       </div>
 
+      {/* Paso 1 — Normas */}
       {step === 1 && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">Antes de empezar</h1>
+          <p className="mb-6 text-center text-muted-foreground">
+            Lee y acepta las normas de la comunidad
+          </p>
+
+          <div className="mb-6 space-y-4 rounded-xl border border-border bg-muted/20 p-5 text-sm leading-relaxed text-muted-foreground">
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Esto es apoyo entre iguales</p>
+              <p>
+                Los voluntarios comparten su experiencia personal, no son profesionales de salud
+                mental. Si estás en crisis, llama al{' '}
+                <strong className="text-foreground">024</strong>.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Tu identidad está protegida</p>
+              <p>
+                Solo comparte lo que quieras. Usa un alias y evita datos personales en el chat
+                (nombre real, teléfono, dirección).
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Respeto siempre</p>
+              <p>
+                Trato amable en todo momento. Nada de presión, insultos ni fines comerciales.
+                Cualquier incumplimiento puede suponer la suspensión de la cuenta.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Para voluntarios</p>
+              <p>
+                Habla desde tu experiencia, sin diagnósticos ni consejos médicos. Tu participación
+                es voluntaria — cuídate también a ti.
+              </p>
+            </div>
+          </div>
+
+          <label className="mb-6 flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={accepted}
+              onChange={(e) => setAccepted(e.target.checked)}
+              className="mt-0.5 size-4 shrink-0 accent-foreground"
+            />
+            <span className="text-sm text-muted-foreground">
+              He leído y acepto las{' '}
+              <Link
+                href="/guidelines"
+                target="_blank"
+                className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
+              >
+                normas de la comunidad
+              </Link>
+            </span>
+          </label>
+
+          <Button onClick={() => setStep(2)} disabled={!accepted} className="w-full gap-2">
+            Continuar <ArrowRight className="size-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Paso 2 — Rol */}
+      {step === 2 && (
         <div>
           <h1 className="mb-2 text-center text-2xl font-bold">¿Cómo puedo ayudarte?</h1>
           <p className="mb-8 text-center text-muted-foreground">Cuéntame qué te trae aquí</p>
@@ -57,7 +127,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             <button
               onClick={() => {
                 setRole('seeker')
-                setStep(2)
+                setStep(3)
               }}
               className="rounded-xl border-2 border-border p-6 text-left transition-all hover:border-primary hover:bg-muted/30"
             >
@@ -70,7 +140,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             <button
               onClick={() => {
                 setRole('volunteer')
-                setStep(2)
+                setStep(3)
               }}
               className="rounded-xl border-2 border-border p-6 text-left transition-all hover:border-primary hover:bg-muted/30"
             >
@@ -81,10 +151,14 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               </p>
             </button>
           </div>
+          <Button variant="outline" onClick={() => setStep(1)} className="mt-4 w-full">
+            Atrás
+          </Button>
         </div>
       )}
 
-      {step === 2 && (
+      {/* Paso 3 — Hashtags */}
+      {step === 3 && (
         <div>
           <h1 className="mb-2 text-center text-2xl font-bold">
             {role === 'seeker' ? '¿Qué estás viviendo?' : '¿En qué puedes acompañar?'}
@@ -94,11 +168,11 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
           </p>
           <HashtagPicker suggestions={suggestions} selected={hashtags} onChange={setHashtags} />
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
+            <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
               Atrás
             </Button>
             <Button
-              onClick={() => setStep(3)}
+              onClick={() => setStep(4)}
               disabled={hashtags.length === 0}
               className="flex-1 gap-2"
             >
@@ -108,7 +182,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
         </div>
       )}
 
-      {step === 3 && (
+      {/* Paso 4 — Perfil */}
+      {step === 4 && (
         <div>
           <h1 className="mb-2 text-center text-2xl font-bold">Tu perfil</h1>
           <p className="mb-8 text-center text-muted-foreground">
@@ -162,7 +237,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
+            <Button variant="outline" onClick={() => setStep(3)} className="flex-1">
               Atrás
             </Button>
             <Button
