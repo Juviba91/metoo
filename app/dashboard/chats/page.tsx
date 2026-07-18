@@ -4,6 +4,7 @@ import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 const statusLabel: Record<string, string> = {
   pending: 'Pendiente',
@@ -92,6 +93,7 @@ export default async function ChatsPage() {
         )}
       </main>
 
+      <SiteFooter />
       <BottomNav />
     </div>
   )

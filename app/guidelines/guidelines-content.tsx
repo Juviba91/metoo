@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { SiteFooter } from '@/components/site-footer'
 
 type Role = 'volunteer' | 'seeker'
 
@@ -435,12 +436,13 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
         {/* Contenido */}
         {role === 'volunteer' ? <VolunteerContent /> : <SeekerContent />}
 
-        {/* Footer */}
         <div className="mt-4 border-t border-border/60 pt-8 text-center text-xs text-muted-foreground">
           metoo no sustituye a un profesional de salud mental · En crisis, llama al{' '}
-          <strong className="text-foreground">024</strong> · hola@metoo.app
+          <strong className="text-foreground">024</strong>
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   )
 }
