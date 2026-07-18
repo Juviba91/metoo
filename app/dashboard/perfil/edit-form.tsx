@@ -11,7 +11,7 @@ export function EditForm({
   role,
   suggestions,
 }: {
-  initial: { alias: string; city: string | null; bio: string | null; hashtags: HashtagOption[] }
+  initial: { alias: string; city: string | null; bio: string | null; hashtags: HashtagOption[]; isActive: boolean }
   role: 'seeker' | 'volunteer'
   suggestions: HashtagOption[]
 }) {
@@ -19,6 +19,7 @@ export function EditForm({
   const [city, setCity] = useState(initial.city ?? '')
   const [bio, setBio] = useState(initial.bio ?? '')
   const [hashtags, setHashtags] = useState<HashtagOption[]>(initial.hashtags)
+  const [isActive, setIsActive] = useState(initial.isActive)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
@@ -30,7 +31,7 @@ export function EditForm({
     setError(null)
     setSaved(false)
 
-    const result = await updateProfile({ alias, city, bio, hashtags })
+    const result = await updateProfile({ alias, city, bio, hashtags, isActive })
 
     if (result.error) {
       setError(result.error)
@@ -100,6 +101,32 @@ export function EditForm({
           onChange={setHashtags}
         />
       </div>
+
+      {role === 'volunteer' && (
+        <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+          <div>
+            <p className="text-sm font-medium">Disponible para recibir solicitudes</p>
+            <p className="text-xs text-muted-foreground">
+              {isActive ? 'Tu perfil aparece en los resultados' : 'Tu perfil está oculto temporalmente'}
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isActive}
+            onClick={() => setIsActive((v) => !v)}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+              isActive ? 'bg-foreground' : 'bg-muted-foreground/30'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow-lg transition-transform ${
+                isActive ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+      )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 

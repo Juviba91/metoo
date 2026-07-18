@@ -17,6 +17,7 @@ export async function acceptConnection(connectionId: string): Promise<void> {
     .eq('volunteer_id', user.id)
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/chats')
 }
 
 export async function rejectConnection(connectionId: string): Promise<void> {
@@ -33,6 +34,7 @@ export async function rejectConnection(connectionId: string): Promise<void> {
     .eq('volunteer_id', user.id)
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/chats')
 }
 
 export async function requestConnection(volunteerId: string) {
@@ -60,11 +62,13 @@ export async function updateProfile({
   city,
   bio,
   hashtags,
+  isActive,
 }: {
   alias: string
   city: string
   bio: string
   hashtags: { id: string; slug: string; label: string }[]
+  isActive?: boolean
 }) {
   const supabase = await createClient()
   const {
@@ -74,7 +78,7 @@ export async function updateProfile({
 
   const { error } = await supabase
     .from('profiles')
-    .update({ alias: alias.trim(), city: city.trim(), bio: bio.trim() || null })
+    .update({ alias: alias.trim(), city: city.trim(), bio: bio.trim() || null, ...(isActive !== undefined && { is_active: isActive }) })
     .eq('id', user.id)
 
   if (error) {

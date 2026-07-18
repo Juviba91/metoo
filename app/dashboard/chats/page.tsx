@@ -41,6 +41,11 @@ export default async function ChatsPage() {
 
   const { data: connections } = await connectionsQuery
 
+  const pendingCount =
+    profile.role === 'volunteer'
+      ? (connections ?? []).filter((c: any) => c.status === 'pending').length
+      : 0
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -92,7 +97,7 @@ export default async function ChatsPage() {
         )}
       </main>
 
-      <BottomNav />
+      <BottomNav pendingCount={pendingCount} />
     </div>
   )
 }

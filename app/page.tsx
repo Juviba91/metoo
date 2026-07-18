@@ -179,7 +179,11 @@ export default function Page() {
       <footer className="border-t border-border px-6 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
           <span className="font-semibold text-foreground">metoo.</span>
-          <span>© 2025 metoo. Hecho con cuidado.</span>
+          <span>© 2026 metoo. Hecho con cuidado por{' '}
+            <a href="https://bay-apps.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline">
+              Bay Apps
+            </a>
+          </span>
           <div className="flex gap-6">
             <Link href="/privacidad" className="transition-colors hover:text-foreground">
               Privacidad
@@ -187,9 +191,9 @@ export default function Page() {
             <Link href="/terminos" className="transition-colors hover:text-foreground">
               Términos
             </Link>
-            <Link href="/contacto" className="transition-colors hover:text-foreground">
+            <a href="mailto:juan@bay-apps.com" className="transition-colors hover:text-foreground">
               Contacto
-            </Link>
+            </a>
           </div>
         </div>
       </footer>

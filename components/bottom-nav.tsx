@@ -11,7 +11,7 @@ const items = [
   { href: '/dashboard/perfil', label: 'Perfil', icon: User },
 ]
 
-export function BottomNav() {
+export function BottomNav({ pendingCount = 0 }: { pendingCount?: number }) {
   const pathname = usePathname()
 
   return (
@@ -24,15 +24,23 @@ export function BottomNav() {
               (pathname.startsWith('/dashboard/chats') || pathname.startsWith('/dashboard/chat/'))) ||
             (href === '/feed' && pathname.startsWith('/feed')) ||
             (href === '/dashboard/perfil' && pathname.startsWith('/dashboard/perfil'))
+          const showBadge = href === '/dashboard/chats' && pendingCount > 0
           return (
             <Link
               key={href}
               href={href}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-3 text-xs transition-colors ${
+              className={`relative flex flex-1 flex-col items-center gap-0.5 py-3 text-xs transition-colors ${
                 active ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
-              <Icon className={`size-5 ${active ? 'stroke-[2.5]' : 'stroke-[1.5]'}`} />
+              <div className="relative">
+                <Icon className={`size-5 ${active ? 'stroke-[2.5]' : 'stroke-[1.5]'}`} />
+                {showBadge && (
+                  <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
+                    {pendingCount > 9 ? '9+' : pendingCount}
+                  </span>
+                )}
+              </div>
               <span>{label}</span>
             </Link>
           )
