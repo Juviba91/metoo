@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, MessageCircle, Rss, User, LogOut } from 'lucide-react'
+import { Home, MessageCircle, Rss, User, LogOut, ArrowUpRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { signOut } from '@/app/auth/actions'
 
@@ -48,6 +48,14 @@ export function SiteHeader() {
             )
           })}
         </nav>
+
+        <Link
+          href="/guidelines"
+          target="_blank"
+          className="hidden items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+        >
+          Normas <ArrowUpRight className="size-3" />
+        </Link>
 
         <form action={signOut}>
           <Button variant="ghost" size="sm" type="submit" className="gap-2">
