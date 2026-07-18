@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { MapPin, MessageCircle } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
+import { SiteHeader } from '@/components/site-header'
 
 const statusLabel: Record<string, string> = {
   pending: 'Pendiente',
@@ -42,12 +43,7 @@ export default async function ChatsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center gap-3 px-6 py-4">
-          <MessageCircle className="size-5 text-muted-foreground" />
-          <span className="text-xl font-bold tracking-tight">Conversaciones</span>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="mx-auto max-w-4xl px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         {!connections || connections.length === 0 ? (
