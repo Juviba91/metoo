@@ -198,6 +198,10 @@ function LoginForm() {
         metoo no sustituye a un profesional de salud mental.
         <br />
         En emergencias llama al <strong>024</strong>.
+        <br />
+        <a href="/guidelines" className="mt-1 inline-block underline hover:text-foreground">
+          Normas de la comunidad
+        </a>
       </p>
     </div>
   )
