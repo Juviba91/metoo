@@ -8,7 +8,6 @@ import { acceptConnection, rejectConnection } from '@/app/dashboard/actions'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
-import { SiteFooter } from '@/components/site-footer'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -231,7 +230,6 @@ export default async function DashboardPage() {
         </p>
       </main>
 
-      <SiteFooter />
       <BottomNav />
     </div>
   )

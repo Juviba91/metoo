@@ -4,7 +4,6 @@ import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
-import { SiteFooter } from '@/components/site-footer'
 
 export default async function FeedPage() {
   const supabase = await createClient()
@@ -43,7 +42,6 @@ export default async function FeedPage() {
         <PostList posts={posts} currentUserId={user.id} />
       </main>
 
-      <SiteFooter />
       <BottomNav />
     </div>
   )
