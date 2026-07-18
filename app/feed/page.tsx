@@ -47,6 +47,12 @@ export default async function FeedPage() {
       <SiteHeader />
 
       <main className="mx-auto max-w-2xl space-y-4 px-4 py-4 pb-24 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-6">
+        <div>
+          <h1 className="text-lg font-semibold">Feed de la comunidad</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Comparte tu experiencia, un pensamiento o un recurso que te haya ayudado. Usa <strong className="text-foreground">#hashtags</strong> para que otros puedan encontrarte.
+          </p>
+        </div>
         <PostComposer alias={profile.alias} />
         <PostList posts={posts} currentUserId={user.id} />
       </main>

@@ -21,8 +21,8 @@ export default function PrivacidadPage() {
             <p>
               metoo es un servicio de apoyo entre pares. El responsable del tratamiento de tus datos es
               el equipo de metoo, contactable en{' '}
-              <a href="mailto:privacidad@metoo.es" className="text-foreground underline underline-offset-2">
-                privacidad@metoo.es
+              <a href="mailto:juan@bay-apps.com" className="text-foreground underline underline-offset-2">
+                juan@bay-apps.com
               </a>
               .
             </p>
@@ -80,8 +80,8 @@ export default function PrivacidadPage() {
             <p>
               Puedes solicitar en cualquier momento la eliminación de tu cuenta y todos tus datos
               escribiendo a{' '}
-              <a href="mailto:privacidad@metoo.es" className="text-foreground underline underline-offset-2">
-                privacidad@metoo.es
+              <a href="mailto:juan@bay-apps.com" className="text-foreground underline underline-offset-2">
+                juan@bay-apps.com
               </a>
               . Atendemos las solicitudes en un plazo máximo de 30 días.
             </p>
