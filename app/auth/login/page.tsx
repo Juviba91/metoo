@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
+import { SiteFooter } from '@/components/site-footer'
 
 type Mode = 'login' | 'register' | 'forgot'
 
@@ -209,10 +210,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-6">
-      <Suspense>
-        <LoginForm />
-      </Suspense>
+    <div className="flex min-h-screen flex-col">
+      <div className="flex flex-1 items-center justify-center px-6">
+        <Suspense>
+          <LoginForm />
+        </Suspense>
+      </div>
+      <SiteFooter />
     </div>
   )
 }

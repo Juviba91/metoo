@@ -4,6 +4,7 @@ import { EditForm } from './edit-form'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -54,6 +55,8 @@ export default async function PerfilPage() {
           suggestions={allHashtags ?? []}
         />
       </main>
+
+      <SiteFooter />
     </div>
   )
 }
