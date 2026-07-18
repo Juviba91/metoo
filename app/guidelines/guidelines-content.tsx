@@ -265,13 +265,12 @@ function SeekerContent() {
           tú lo decidas.
         </Item>
         <Item title="El chat es el primer paso, no el destino">
-          metoo sirve para romper el hielo. Cuando sientas confianza con el voluntario, podéis
-          intercambiar vuestro número, hablar por teléfono, videollamada o quedar en persona.
-          Ese es el objetivo.
+          metoo sirve para romper el hielo. Cuando sientas confianza con el voluntario,
+          te recomendamos intercambiar el número de teléfono para tener conversaciones más
+          fluidas — por llamada, WhatsApp o como prefiráis. Ese es el objetivo.
         </Item>
-        <Item title="Comparte a tu ritmo">
-          No hay prisa para compartir tu contacto. Hazlo cuando te sientas cómodo/a con la
-          persona, no antes.
+        <Item title="Comparte cuando te sientas listo/a">
+          No hay prisa. Hazlo cuando sientas que hay conexión real con esa persona, no antes.
         </Item>
         <Item title="Si algo no se siente bien, para">
           Puedes cerrar una conversación en cualquier momento y sin dar explicaciones. Y puedes
