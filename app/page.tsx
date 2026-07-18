@@ -25,8 +25,8 @@ const steps = [
   },
   {
     n: '03',
-    title: 'Habla sin miedo',
-    desc: 'Chat privado y seguro. Sin juicios. Solo alguien que entiende de verdad.',
+    title: 'Del chat a la vida real',
+    desc: 'Rompéis el hielo en el chat. Cuando estéis listos, os llamáis, os escribís o quedáis.',
   },
 ]
 

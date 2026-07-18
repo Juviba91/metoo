@@ -166,14 +166,23 @@ function VolunteerContent() {
         </Item>
       </Section>
 
-      <Section num="07" title="Privacidad y anonimato">
-        <Item title="Protege tu identidad">
-          Usa siempre tu alias. No compartas tu nombre real, teléfono, redes sociales ni
-          ningún dato que permita identificarte fuera de metoo.
+      <Section num="07" title="Del chat a la vida real">
+        <Highlight>
+          <p className="font-medium">metoo es el punto de partida, no el destino.</p>
+          <p className="mt-1">El chat sirve para el primer contacto. Cuando haya confianza,
+          lo natural es pasar a una llamada, una videollamada o un encuentro en persona.</p>
+        </Highlight>
+        <Item title="Comparte tu contacto cuando estéis listos">
+          Cuando sientas que hay conexión real con la persona que acompañas, puedes ofrecerle
+          tu número de teléfono o la forma de contacto que prefieras para seguir fuera de metoo.
+          No hay obligación ni prisa — que fluya.
         </Item>
-        <Item title="Protege la identidad de quien te escribe">
-          Lo que alguien te cuente es confidencial. No lo compartas fuera de la plataforma,
-          ni siquiera de forma anónima.
+        <Item title="Tu alias te protege al principio">
+          Empieza siempre con tu alias. Comparte tu nombre real u otros datos solo cuando tú
+          quieras y con quien tú quieras.
+        </Item>
+        <Item title="Lo que te cuenten, queda entre vosotros">
+          Lo que alguien comparte contigo es confidencial. No lo cuentes a terceros.
         </Item>
       </Section>
 
@@ -251,19 +260,26 @@ function SeekerContent() {
       </Section>
 
       <Section num="03" title="Tu privacidad y seguridad">
-        <Item title="Usa siempre tu alias">
-          Tu nombre de usuario es anónimo. No lo conectes con tu nombre real en las conversaciones.
+        <Item title="Empieza con tu alias">
+          Tu nombre de usuario es anónimo. No tienes que compartir tu nombre real hasta que
+          tú lo decidas.
         </Item>
-        <Item title="No compartas datos personales en el chat">
-          Nombre completo, teléfono, dirección, redes sociales o cualquier dato que permita
-          identificarte fuera de metoo.
+        <Item title="El chat es el primer paso, no el destino">
+          metoo sirve para romper el hielo. Cuando sientas confianza con el voluntario, podéis
+          intercambiar vuestro número, hablar por teléfono, videollamada o quedar en persona.
+          Ese es el objetivo.
+        </Item>
+        <Item title="Comparte a tu ritmo">
+          No hay prisa para compartir tu contacto. Hazlo cuando te sientas cómodo/a con la
+          persona, no antes.
         </Item>
         <Item title="Si algo no se siente bien, para">
-          Puedes cerrar una conversación en cualquier momento y sin dar explicaciones.
+          Puedes cerrar una conversación en cualquier momento y sin dar explicaciones. Y puedes
+          buscar otro voluntario.
         </Item>
         <Highlight>
-          Ningún voluntario debería pedirte datos personales, pedirte que pagues por nada
-          ni proponerte contactar fuera de metoo. Si esto ocurre, cierra la conversación.
+          Ningún voluntario debería pedirte dinero ni nada de valor. Si esto ocurre, cierra
+          la conversación inmediatamente.
         </Highlight>
       </Section>
 
