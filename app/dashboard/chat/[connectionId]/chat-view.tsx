@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendMessage } from '@/app/dashboard/actions'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Send } from 'lucide-react'
+import { ArrowLeft, Send, Flag } from 'lucide-react'
 import Link from 'next/link'
 
 type Message = {
@@ -180,10 +180,17 @@ export function ChatView({
         >
           <ArrowLeft className="size-4" />
         </Link>
-        <div>
+        <div className="flex-1">
           <p className="font-semibold">{otherAlias}</p>
           <p className="text-xs text-muted-foreground">Conversación privada</p>
         </div>
+        <a
+          href={`mailto:juan@bay-apps.com?subject=Reporte de usuario en metoo&body=Quiero reportar al usuario "${otherAlias}" por el siguiente motivo:%0A%0A`}
+          className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
+          title="Reportar usuario"
+        >
+          <Flag className="size-4" />
+        </a>
       </header>
 
       {/* Pending banner */}

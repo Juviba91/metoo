@@ -44,7 +44,7 @@ export default async function DashboardPage() {
           .order('created_at', { ascending: false })
       : supabase
           .from('connections')
-          .select('id, status, seeker_id, seeker:seeker_id(alias, city)')
+          .select('id, status, seeker_id, seeker:seeker_id(alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false }),
   ])
@@ -150,23 +150,52 @@ export default async function DashboardPage() {
                 const isPendingVolunteer = conn.status === 'pending' && profile.role === 'volunteer'
 
                 if (isPendingVolunteer) {
+                  const seekerCategory = (other as any)?.profile_categories?.[0]?.categories
+                  const seekerTags = ((other as any)?.profile_hashtags ?? [])
+                    .map((ph: any) => ph.hashtags)
+                    .filter(Boolean)
+                    .slice(0, 4)
                   return (
-                    <div key={conn.id} className="rounded-xl border border-border p-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
-                          {other?.city && (
-                            <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <MapPin className="size-3" /> {other.city}
-                            </p>
-                          )}
+                    <div key={conn.id} className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+                      <div className="mb-3">
+                        <div className="mb-2 flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                              {other?.city && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="size-3" /> {other.city}
+                                </span>
+                              )}
+                              {seekerCategory && (
+                                <span>{seekerCategory.emoji} {seekerCategory.name}</span>
+                              )}
+                            </div>
+                          </div>
+                          <Link
+                            href={`/dashboard/chat/${conn.id}`}
+                            className="shrink-0 text-xs text-muted-foreground hover:text-foreground hover:underline"
+                          >
+                            Ver mensaje →
+                          </Link>
                         </div>
-                        <Link
-                          href={`/dashboard/chat/${conn.id}`}
-                          className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          Ver mensaje →
-                        </Link>
+                        {(other as any)?.bio && (
+                          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                            {(other as any).bio}
+                          </p>
+                        )}
+                        {seekerTags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {seekerTags.map((tag: any) => (
+                              <span
+                                key={tag.id}
+                                className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground"
+                              >
+                                #{tag.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <form action={acceptConnection.bind(null, conn.id)} className="flex-1">

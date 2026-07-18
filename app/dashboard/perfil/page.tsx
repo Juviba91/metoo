@@ -60,6 +60,20 @@ export default async function PerfilPage() {
           role={profile.role}
           suggestions={allHashtags ?? []}
         />
+
+        <div className="mt-12 border-t border-border/60 pt-8">
+          <h2 className="mb-1 text-sm font-semibold text-destructive">Eliminar cuenta</h2>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Para eliminar permanentemente tu cuenta y todos tus datos escríbenos a{' '}
+            <a
+              href="mailto:juan@bay-apps.com?subject=Quiero eliminar mi cuenta de metoo"
+              className="underline hover:text-foreground"
+            >
+              juan@bay-apps.com
+            </a>
+            . Procesamos la solicitud en un máximo de 30 días.
+          </p>
+        </div>
       </main>
 
       <BottomNav pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0} />

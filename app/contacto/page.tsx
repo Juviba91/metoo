@@ -34,7 +34,7 @@ export default function ContactoPage() {
           </a>
 
           <a
-            href="mailto:juan@bay-apps.com"
+            href="mailto:juan@bay-apps.com?subject=Privacidad y datos — metoo"
             className="flex items-start gap-4 rounded-xl border border-border p-6 transition-colors hover:bg-muted/40"
           >
             <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-background">
@@ -42,7 +42,7 @@ export default function ContactoPage() {
             </div>
             <div>
               <h2 className="mb-1 font-semibold">Privacidad y datos</h2>
-              <p className="text-sm text-muted-foreground">privacidad@metoo.es</p>
+              <p className="text-sm text-muted-foreground">juan@bay-apps.com</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Solicitudes de eliminación de cuenta y datos
               </p>
