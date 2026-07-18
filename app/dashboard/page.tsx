@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { DashboardMatches } from '@/components/dashboard-matches'
 import { MapPin, MessageCircle } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
-import { acceptConnection, rejectConnection } from '@/app/dashboard/actions'
+import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
@@ -128,12 +128,28 @@ export default async function DashboardPage() {
                 </div>
               )}
             </div>
-            <Link
-              href="/dashboard/perfil"
-              className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              Editar
-            </Link>
+            <div className="flex shrink-0 items-center gap-2">
+              {profile.role === 'volunteer' && (
+                <form action={toggleAvailability.bind(null, !profile.is_active)}>
+                  <button
+                    type="submit"
+                    className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
+                      profile.is_active
+                        ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400'
+                        : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    {profile.is_active ? '● Activo' : '○ Pausado'}
+                  </button>
+                </form>
+              )}
+              <Link
+                href="/dashboard/perfil"
+                className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Editar
+              </Link>
+            </div>
           </div>
         </div>
 

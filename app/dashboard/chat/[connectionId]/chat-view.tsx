@@ -171,7 +171,7 @@ export function ChatView({
   }, [])
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex h-dvh flex-col bg-background">
       {/* Header */}
       <header className="flex items-center gap-3 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-sm">
         <Link
@@ -273,16 +273,23 @@ export function ChatView({
         >
           {sendError && <p className="text-xs text-destructive">{sendError}</p>}
           <div className="flex items-center gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Escribe un mensaje..."
-              maxLength={2000}
-              autoComplete="off"
-              className="flex-1 rounded-full border border-border bg-muted/40 px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-            />
+            <div className="relative flex-1">
+              <input
+                ref={inputRef}
+                type="text"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Escribe un mensaje..."
+                maxLength={2000}
+                autoComplete="off"
+                className="w-full rounded-full border border-border bg-muted/40 px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+              {content.length > 1500 && (
+                <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs tabular-nums ${content.length > 1900 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {2000 - content.length}
+                </span>
+              )}
+            </div>
             <Button
               type="submit"
               size="icon"

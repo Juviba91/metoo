@@ -113,6 +113,17 @@ export async function updateProfile({
   return { success: true }
 }
 
+export async function toggleAvailability(isActive: boolean): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase.from('profiles').update({ is_active: isActive }).eq('id', user.id)
+  revalidatePath('/dashboard')
+}
+
 export async function sendMessage(connectionId: string, content: string) {
   const supabase = await createClient()
   const {

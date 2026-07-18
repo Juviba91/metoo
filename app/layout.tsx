@@ -17,6 +17,18 @@ export const metadata: Metadata = {
     icon: '/icon-light-32x32.png',
     apple: '/apple-icon.png',
   },
+  openGraph: {
+    title: 'metoo — Apoyo entre personas que lo han vivido',
+    description: 'Conectamos a personas que pasan por momentos difíciles con voluntarios que han vivido la misma experiencia.',
+    type: 'website',
+    locale: 'es_ES',
+    siteName: 'metoo',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'metoo — Apoyo entre personas que lo han vivido',
+    description: 'Conectamos a personas que pasan por momentos difíciles con voluntarios que han vivido la misma experiencia.',
+  },
 }
 
 export const viewport: Viewport = {
