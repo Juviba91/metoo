@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapPin, Search, Users } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
 
@@ -26,6 +26,9 @@ export function DashboardMatches({
 }) {
   const [query, setQuery] = useState('')
   const [activeHashtag, setActiveHashtag] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(12)
+
+  useEffect(() => { setVisibleCount(12) }, [query, activeHashtag])
 
   // Build unique hashtag list from all matches
   const hashtagOptions = Array.from(
@@ -49,6 +52,8 @@ export function DashboardMatches({
     return matchesText && matchesTag
   })
 
+  const visible = filtered.slice(0, visibleCount)
+
   return (
     <div>
       <div className="mb-4 flex items-center gap-2">
@@ -58,6 +63,7 @@ export function DashboardMatches({
         </h2>
         <span className="text-sm text-muted-foreground">({filtered.length})</span>
       </div>
+
 
       {/* Text search */}
       <div className="mb-3 relative">
@@ -101,8 +107,9 @@ export function DashboardMatches({
       )}
 
       {filtered.length > 0 ? (
+        <>
         <div className="grid gap-4 sm:grid-cols-2">
-          {filtered.map((match) => {
+          {visible.map((match) => {
             const cat = match.profile_categories?.[0]?.categories
             const tags = (match.profile_hashtags ?? [])
               .map((ph) => ph.hashtags)
@@ -161,6 +168,15 @@ export function DashboardMatches({
             )
           })}
         </div>
+        {filtered.length > visibleCount && (
+          <button
+            onClick={() => setVisibleCount((n) => n + 12)}
+            className="mt-4 w-full rounded-lg border border-border py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Ver más ({filtered.length - visibleCount} restantes)
+          </button>
+        )}
+        </>
       ) : (
         <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
           <p className="mb-2 text-3xl">{query || activeHashtag ? '🔍' : '👥'}</p>

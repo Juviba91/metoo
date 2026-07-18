@@ -46,6 +46,25 @@ export default async function ChatsPage() {
       ? (connections ?? []).filter((c: any) => c.status === 'pending').length
       : 0
 
+  // Fetch latest message per connection
+  const connectionIds = (connections ?? []).map((c: any) => c.id)
+  let lastMessages: Record<string, { content: string; sender_id: string }> = {}
+
+  if (connectionIds.length > 0) {
+    const { data: msgs } = await supabase
+      .from('messages')
+      .select('connection_id, content, sender_id, created_at')
+      .in('connection_id', connectionIds)
+      .order('created_at', { ascending: false })
+      .limit(connectionIds.length * 3)
+
+    for (const msg of msgs ?? []) {
+      if (!lastMessages[msg.connection_id]) {
+        lastMessages[msg.connection_id] = { content: msg.content, sender_id: msg.sender_id }
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -65,31 +84,39 @@ export default async function ChatsPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             {(connections as any[]).map((conn) => {
               const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
+              const last = lastMessages[conn.id]
+              const lastIsMe = last?.sender_id === user.id
               return (
                 <Link
                   key={conn.id}
                   href={`/dashboard/chat/${conn.id}`}
-                  className="flex items-center justify-between rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+                  className="flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
                 >
-                  <div>
-                    <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
-                    {other?.city && (
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
+                      <span
+                        className={`shrink-0 text-xs font-medium ${
+                          conn.status === 'accepted'
+                            ? 'text-green-600'
+                            : conn.status === 'rejected'
+                              ? 'text-destructive'
+                              : 'text-muted-foreground'
+                        }`}
+                      >
+                        {statusLabel[conn.status] ?? conn.status}
+                      </span>
+                    </div>
+                    {last ? (
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {lastIsMe ? 'Tú: ' : ''}{last.content}
+                      </p>
+                    ) : other?.city ? (
                       <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                         <MapPin className="size-3" /> {other.city}
                       </p>
-                    )}
+                    ) : null}
                   </div>
-                  <span
-                    className={`text-xs font-medium ${
-                      conn.status === 'accepted'
-                        ? 'text-green-600'
-                        : conn.status === 'rejected'
-                          ? 'text-destructive'
-                          : 'text-muted-foreground'
-                    }`}
-                  >
-                    {statusLabel[conn.status] ?? conn.status}
-                  </span>
                 </Link>
               )
             })}
