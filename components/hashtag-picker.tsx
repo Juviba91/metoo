@@ -2,17 +2,9 @@
 
 import { useState } from 'react'
 import { X } from 'lucide-react'
+import { submitSuggestion } from '@/app/actions'
 
 export type HashtagOption = { id: string; slug: string; label: string }
-
-function toSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 export function HashtagPicker({
   suggestions,
@@ -24,24 +16,22 @@ export function HashtagPicker({
   onChange: (tags: HashtagOption[]) => void
 }) {
   const [query, setQuery] = useState('')
+  const [showSuggest, setShowSuggest] = useState(false)
+  const [suggestionText, setSuggestionText] = useState('')
+  const [suggestionSent, setSuggestionSent] = useState(false)
 
   const available = suggestions.filter((s) => !selected.some((sel) => sel.id === s.id))
   const queryTrimmed = query.trim()
-  const querySlug = toSlug(queryTrimmed)
 
   const filtered = queryTrimmed
     ? available.filter(
         (h) =>
           h.label.toLowerCase().includes(queryTrimmed.toLowerCase()) ||
-          h.slug.includes(querySlug),
+          h.slug.includes(queryTrimmed.toLowerCase()),
       )
     : available
 
-  const exactMatch = suggestions.find(
-    (h) =>
-      h.slug === querySlug || h.label.toLowerCase() === queryTrimmed.toLowerCase(),
-  )
-  const canCreate = queryTrimmed && !exactMatch && querySlug.length > 0
+  const showDropdown = queryTrimmed && filtered.length > 0
 
   function add(tag: HashtagOption) {
     if (selected.some((s) => s.id === tag.id)) return
@@ -56,18 +46,21 @@ export function HashtagPicker({
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       e.preventDefault()
-      if (exactMatch && !selected.some((s) => s.id === exactMatch.id)) {
-        add(exactMatch)
-      } else if (canCreate) {
-        add({ id: `new:${querySlug}`, slug: querySlug, label: queryTrimmed })
-      }
+      const match = filtered[0]
+      if (match) add(match)
     }
     if (e.key === 'Backspace' && query === '' && selected.length > 0) {
       remove(selected[selected.length - 1].id)
     }
   }
 
-  const showDropdown = queryTrimmed && (filtered.length > 0 || canCreate)
+  async function handleSuggest(e: React.FormEvent) {
+    e.preventDefault()
+    if (!suggestionText.trim()) return
+    await submitSuggestion(suggestionText.trim())
+    setSuggestionSent(true)
+    setSuggestionText('')
+  }
 
   return (
     <div>
@@ -97,7 +90,7 @@ export function HashtagPicker({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={selected.length === 0 ? 'Busca o escribe un hashtag...' : 'Añadir más...'}
+          placeholder={selected.length === 0 ? 'Busca un hashtag...' : 'Añadir más...'}
           className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
         />
 
@@ -114,25 +107,13 @@ export function HashtagPicker({
                 {tag.label}
               </button>
             ))}
-            {canCreate && (
-              <button
-                type="button"
-                onClick={() =>
-                  add({ id: `new:${querySlug}`, slug: querySlug, label: queryTrimmed })
-                }
-                className="w-full border-t border-border px-4 py-2.5 text-left text-sm hover:bg-muted/60"
-              >
-                Crear{' '}
-                <span className="font-medium text-primary">#{queryTrimmed}</span>
-              </button>
-            )}
           </div>
         )}
       </div>
 
       {!queryTrimmed && filtered.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {filtered.slice(0, 14).map((tag) => (
+          {filtered.slice(0, 20).map((tag) => (
             <button
               key={tag.id}
               type="button"
@@ -144,6 +125,42 @@ export function HashtagPicker({
           ))}
         </div>
       )}
+
+      <div className="mt-3">
+        {!showSuggest && !suggestionSent && (
+          <button
+            type="button"
+            onClick={() => setShowSuggest(true)}
+            className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            ¿No encuentras tu situación? Sugerirla
+          </button>
+        )}
+
+        {showSuggest && !suggestionSent && (
+          <form onSubmit={handleSuggest} className="flex gap-2">
+            <input
+              type="text"
+              value={suggestionText}
+              onChange={(e) => setSuggestionText(e.target.value)}
+              placeholder="Escribe tu sugerencia..."
+              maxLength={100}
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            />
+            <button
+              type="submit"
+              disabled={!suggestionText.trim()}
+              className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+            >
+              Enviar
+            </button>
+          </form>
+        )}
+
+        {suggestionSent && (
+          <p className="text-xs text-muted-foreground">Gracias, revisaremos tu sugerencia.</p>
+        )}
+      </div>
     </div>
   )
 }

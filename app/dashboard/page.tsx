@@ -94,8 +94,9 @@ export default async function DashboardPage() {
 
         {/* Profile card */}
         <div className="rounded-xl border border-border bg-muted/30 p-4 sm:p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
               <p className="mb-1 text-sm text-muted-foreground">
                 {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
               </p>
@@ -128,28 +129,29 @@ export default async function DashboardPage() {
                 </div>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              {profile.role === 'volunteer' && (
-                <form action={toggleAvailability.bind(null, !profile.is_active)}>
-                  <button
-                    type="submit"
-                    className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
-                      profile.is_active
-                        ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400'
-                        : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
-                  >
-                    {profile.is_active ? '● Activo' : '○ Pausado'}
-                  </button>
-                </form>
-              )}
-              <Link
-                href="/dashboard/perfil"
-                className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                Editar
-              </Link>
+              <div className="flex shrink-0 items-center gap-2">
+                <Link
+                  href="/dashboard/perfil"
+                  className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  Editar
+                </Link>
+              </div>
             </div>
+            {profile.role === 'volunteer' && (
+              <form action={toggleAvailability.bind(null, !profile.is_active)} className="self-start">
+                <button
+                  type="submit"
+                  className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
+                    profile.is_active
+                      ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400'
+                      : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                  {profile.is_active ? '● Disponible para ayudar' : '○ No disponible'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
 

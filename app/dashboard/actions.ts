@@ -88,19 +88,9 @@ export async function updateProfile({
   // Sync hashtags: replace all existing with the new selection
   await supabase.from('profile_hashtags').delete().eq('profile_id', user.id)
 
-  const resolvedIds: string[] = []
-  for (const tag of hashtags) {
-    if (tag.id.startsWith('new:')) {
-      const { data } = await supabase
-        .from('hashtags')
-        .upsert({ slug: tag.slug, label: tag.label }, { onConflict: 'slug' })
-        .select('id')
-        .single()
-      if (data) resolvedIds.push(data.id)
-    } else {
-      resolvedIds.push(tag.id)
-    }
-  }
+  const resolvedIds: string[] = hashtags
+    .filter((tag) => !tag.id.startsWith('new:'))
+    .map((tag) => tag.id)
 
   if (resolvedIds.length > 0) {
     await supabase
