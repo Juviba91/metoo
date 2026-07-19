@@ -103,6 +103,24 @@ export async function updateProfile({
   return { success: true }
 }
 
+export async function markConnectionRead(connectionId: string): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data: conn } = await supabase
+    .from('connections')
+    .select('seeker_id, volunteer_id')
+    .eq('id', connectionId)
+    .single()
+
+  if (!conn) return
+  const field = conn.seeker_id === user.id ? 'seeker_last_read_at' : 'volunteer_last_read_at'
+  await supabase.from('connections').update({ [field]: new Date().toISOString() }).eq('id', connectionId)
+}
+
 export async function toggleAvailability(isActive: boolean): Promise<void> {
   const supabase = await createClient()
   const {

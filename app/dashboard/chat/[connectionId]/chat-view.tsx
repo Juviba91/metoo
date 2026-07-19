@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { sendMessage } from '@/app/dashboard/actions'
+import { sendMessage, markConnectionRead } from '@/app/dashboard/actions'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Send, Flag } from 'lucide-react'
 import Link from 'next/link'
@@ -38,6 +38,11 @@ export function ChatView({
   const inputRef = useRef<HTMLInputElement>(null)
   const isVolunteer = currentUserId === volunteerId
 
+  // Mark as read on open
+  useEffect(() => {
+    markConnectionRead(connectionId)
+  }, [connectionId])
+
   // Scroll to bottom on mount and on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'instant' })
@@ -47,62 +52,77 @@ export function ChatView({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length])
 
-  // Subscribe to connection status changes (so seeker sees accepted in real-time)
+  // Subscribe to connection status changes with auto-reconnect
   useEffect(() => {
     if (status === 'accepted') return
     const supabase = createClient()
-    const channel = supabase
-      .channel(`conn-${connectionId}`)
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'connections', filter: `id=eq.${connectionId}` },
-        (payload) => {
-          const newStatus = (payload.new as any).status
-          if (newStatus) setStatus(newStatus)
-        },
-      )
-      .subscribe()
-    return () => { supabase.removeChannel(channel) }
+    let active = true
+    let ch: ReturnType<typeof supabase.channel> | null = null
+
+    function subscribeStatus() {
+      if (!active) return
+      ch = supabase
+        .channel(`conn-${connectionId}`)
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'connections', filter: `id=eq.${connectionId}` },
+          (payload) => {
+            const newStatus = (payload.new as any).status
+            if (newStatus) setStatus(newStatus)
+          },
+        )
+        .subscribe((s) => {
+          if ((s === 'CHANNEL_ERROR' || s === 'TIMED_OUT') && active) {
+            setTimeout(() => { if (ch) supabase.removeChannel(ch!); subscribeStatus() }, 3000)
+          }
+        })
+    }
+
+    subscribeStatus()
+    return () => { active = false; if (ch) supabase.removeChannel(ch) }
   }, [connectionId, status])
 
-  // Real-time subscription — receives messages from the OTHER user
+  // Real-time subscription for messages with auto-reconnect
   useEffect(() => {
     const supabase = createClient()
-    const channel = supabase
-      .channel(`chat-${connectionId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `connection_id=eq.${connectionId}`,
-        },
-        (payload) => {
-          const msg = payload.new as Message
-          setMessages((prev) => {
-            // Replace matching temp message (same sender + content) or add if new
-            const tempIdx = prev.findIndex(
-              (m) =>
-                m.id.startsWith('tmp-') &&
-                m.sender_id === msg.sender_id &&
-                m.content === msg.content,
-            )
-            if (tempIdx !== -1) {
-              const next = [...prev]
-              next[tempIdx] = msg
-              return next
-            }
-            if (prev.some((m) => m.id === msg.id)) return prev
-            return [...prev, msg]
-          })
-        },
-      )
-      .subscribe()
+    let active = true
+    let ch: ReturnType<typeof supabase.channel> | null = null
 
-    return () => {
-      supabase.removeChannel(channel)
+    function subscribeMessages() {
+      if (!active) return
+      ch = supabase
+        .channel(`chat-${connectionId}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'messages', filter: `connection_id=eq.${connectionId}` },
+          (payload) => {
+            const msg = payload.new as Message
+            setMessages((prev) => {
+              const tempIdx = prev.findIndex(
+                (m) =>
+                  m.id.startsWith('tmp-') &&
+                  m.sender_id === msg.sender_id &&
+                  m.content === msg.content,
+              )
+              if (tempIdx !== -1) {
+                const next = [...prev]
+                next[tempIdx] = msg
+                return next
+              }
+              if (prev.some((m) => m.id === msg.id)) return prev
+              return [...prev, msg]
+            })
+          },
+        )
+        .subscribe((s) => {
+          if ((s === 'CHANNEL_ERROR' || s === 'TIMED_OUT') && active) {
+            setTimeout(() => { if (ch) supabase.removeChannel(ch!); subscribeMessages() }, 3000)
+          }
+        })
     }
+
+    subscribeMessages()
+    return () => { active = false; if (ch) supabase.removeChannel(ch) }
   }, [connectionId])
 
   async function handleSend(e: React.FormEvent) {

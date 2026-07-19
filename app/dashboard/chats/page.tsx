@@ -39,7 +39,10 @@ export default async function ChatsPage() {
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false })
 
-  const { data: connections } = await connectionsQuery
+  const [{ data: connections }, { data: unreadData }] = await Promise.all([
+    connectionsQuery,
+    supabase.rpc('get_unread_count', { user_uuid: user.id }),
+  ])
 
   const pendingCount =
     profile.role === 'volunteer'
@@ -126,7 +129,7 @@ export default async function ChatsPage() {
         )}
       </main>
 
-      <BottomNav pendingCount={pendingCount} />
+      <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )
 }
