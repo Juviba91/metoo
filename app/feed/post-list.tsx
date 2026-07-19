@@ -46,9 +46,11 @@ function renderContent(content: string) {
 export function PostList({
   posts,
   currentUserId,
+  activeTag,
 }: {
   posts: Post[]
   currentUserId: string
+  activeTag: string | null
 }) {
   const [reactions, setReactions] = useState<Record<string, { count: number; mine: boolean }>>(() => {
     const state: Record<string, { count: number; mine: boolean }> = {}
@@ -73,7 +75,9 @@ export function PostList({
   if (posts.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-muted-foreground">
-        Todavía no hay publicaciones. ¡Sé el primero en compartir!
+        {activeTag
+          ? `No hay publicaciones con #${activeTag} todavía.`
+          : 'Todavía no hay publicaciones. ¡Sé el primero en compartir!'}
       </p>
     )
   }

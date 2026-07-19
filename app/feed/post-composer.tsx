@@ -9,6 +9,7 @@ export function PostComposer({ alias }: { alias: string }) {
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [published, setPublished] = useState(false)
 
   const tags = content.match(/#([a-záéíóúüñA-ZÁÉÍÓÚÜÑ0-9_-]+)/g) ?? []
 
@@ -26,6 +27,8 @@ export function PostComposer({ alias }: { alias: string }) {
 
     setContent('')
     setLoading(false)
+    setPublished(true)
+    setTimeout(() => setPublished(false), 3000)
   }
 
   return (
@@ -55,6 +58,7 @@ export function PostComposer({ alias }: { alias: string }) {
         <span className="text-xs text-muted-foreground">{content.length}/500</span>
         <div className="flex items-center gap-2">
           {error && <span className="text-xs text-destructive">{error}</span>}
+          {published && <span className="text-xs text-green-600">¡Publicado!</span>}
           <Button
             size="sm"
             onClick={handleSubmit}

@@ -46,22 +46,24 @@ export default async function ChatsPage() {
       ? (connections ?? []).filter((c: any) => c.status === 'pending').length
       : 0
 
-  // Fetch latest message per connection
+  // Fetch latest message per connection — one parallel query per connection guarantees correctness
   const connectionIds = (connections ?? []).map((c: any) => c.id)
   let lastMessages: Record<string, { content: string; sender_id: string }> = {}
 
   if (connectionIds.length > 0) {
-    const { data: msgs } = await supabase
-      .from('messages')
-      .select('connection_id, content, sender_id, created_at')
-      .in('connection_id', connectionIds)
-      .order('created_at', { ascending: false })
-      .limit(connectionIds.length * 3)
-
-    for (const msg of msgs ?? []) {
-      if (!lastMessages[msg.connection_id]) {
-        lastMessages[msg.connection_id] = { content: msg.content, sender_id: msg.sender_id }
-      }
+    const results = await Promise.all(
+      connectionIds.map((id: string) =>
+        supabase
+          .from('messages')
+          .select('connection_id, content, sender_id')
+          .eq('connection_id', id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ),
+    )
+    for (const { data } of results) {
+      if (data) lastMessages[data.connection_id] = { content: data.content, sender_id: data.sender_id }
     }
   }
 
