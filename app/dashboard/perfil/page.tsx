@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
+import { FeedbackForm } from '@/components/feedback-form'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -62,6 +63,11 @@ export default async function PerfilPage() {
         />
 
         <div className="mt-12 border-t border-border/60 pt-8">
+          <h2 className="mb-3 text-sm font-semibold">Feedback</h2>
+          <FeedbackForm />
+        </div>
+
+        <div className="mt-8 border-t border-border/60 pt-8">
           <h2 className="mb-1 text-sm font-semibold text-destructive">Eliminar cuenta</h2>
           <p className="text-xs leading-relaxed text-muted-foreground">
             Para eliminar permanentemente tu cuenta y todos tus datos escríbenos a{' '}
