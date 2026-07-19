@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
-import { toggleReaction } from './actions'
+import { toggleReaction, fetchMorePosts } from './actions'
 
 type Hashtag = { id: string; slug: string; label: string }
 
@@ -44,17 +44,23 @@ function renderContent(content: string) {
 }
 
 export function PostList({
-  posts,
+  posts: initialPosts,
   currentUserId,
   activeTag,
+  initialLimit = 50,
 }: {
   posts: Post[]
   currentUserId: string
   activeTag: string | null
+  initialLimit?: number
 }) {
+  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(initialPosts.length >= initialLimit)
+
   const [reactions, setReactions] = useState<Record<string, { count: number; mine: boolean }>>(() => {
     const state: Record<string, { count: number; mine: boolean }> = {}
-    for (const post of posts) {
+    for (const post of initialPosts) {
       state[post.id] = {
         count: post.post_reactions.length,
         mine: post.post_reactions.some((r) => r.profile_id === currentUserId),
@@ -62,6 +68,25 @@ export function PostList({
     }
     return state
   })
+
+  async function handleLoadMore() {
+    if (loadingMore) return
+    setLoadingMore(true)
+    const { posts: more } = await fetchMorePosts(posts.length, activeTag)
+    if (more.length < 20) setHasMore(false)
+    setPosts((prev) => [...prev, ...more])
+    setReactions((prev) => {
+      const next = { ...prev }
+      for (const post of more as Post[]) {
+        next[post.id] = {
+          count: post.post_reactions.length,
+          mine: post.post_reactions.some((r) => r.profile_id === currentUserId),
+        }
+      }
+      return next
+    })
+    setLoadingMore(false)
+  }
 
   async function handleReaction(postId: string) {
     const current = reactions[postId] ?? { count: 0, mine: false }
@@ -84,7 +109,7 @@ export function PostList({
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => {
+      {posts.map((post: Post) => {
         const r = reactions[post.id] ?? { count: 0, mine: false }
         const hashtags = post.post_hashtags.map((ph) => ph.hashtag).filter(Boolean) as Hashtag[]
 
@@ -130,6 +155,16 @@ export function PostList({
           </article>
         )
       })}
+
+      {hasMore && (
+        <button
+          onClick={handleLoadMore}
+          disabled={loadingMore}
+          className="w-full rounded-lg border border-border py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+        >
+          {loadingMore ? 'Cargando...' : 'Ver más'}
+        </button>
+      )}
     </div>
   )
 }

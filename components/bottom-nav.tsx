@@ -11,8 +11,9 @@ const items = [
   { href: '/dashboard/perfil', label: 'Perfil', icon: User },
 ]
 
-export function BottomNav({ pendingCount = 0 }: { pendingCount?: number }) {
+export function BottomNav({ pendingCount = 0, chatUnread = 0 }: { pendingCount?: number; chatUnread?: number }) {
   const pathname = usePathname()
+  const totalChats = pendingCount + chatUnread
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-sm sm:hidden">
@@ -24,7 +25,7 @@ export function BottomNav({ pendingCount = 0 }: { pendingCount?: number }) {
               (pathname.startsWith('/dashboard/chats') || pathname.startsWith('/dashboard/chat/'))) ||
             (href === '/feed' && pathname.startsWith('/feed')) ||
             (href === '/dashboard/perfil' && pathname.startsWith('/dashboard/perfil'))
-          const showBadge = href === '/dashboard/chats' && pendingCount > 0
+          const showBadge = href === '/dashboard/chats' && totalChats > 0
           return (
             <Link
               key={href}
@@ -37,7 +38,7 @@ export function BottomNav({ pendingCount = 0 }: { pendingCount?: number }) {
                 <Icon className={`size-5 ${active ? 'stroke-[2.5]' : 'stroke-[1.5]'}`} />
                 {showBadge && (
                   <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
-                    {pendingCount > 9 ? '9+' : pendingCount}
+                    {totalChats > 9 ? '9+' : totalChats}
                   </span>
                 )}
               </div>

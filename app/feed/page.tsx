@@ -28,17 +28,24 @@ export default async function FeedPage({
 
   const { tag: activeTag } = await searchParams
 
-  const [{ data }, { count: pendingCount }] = await Promise.all([
-    supabase
-    .from('posts')
-    .select(
-      `id, content, created_at,
-       author:author_id(alias),
-       post_hashtags(hashtag:hashtag_id(id, slug, label)),
-       post_reactions(profile_id)`,
-    )
-      .order('created_at', { ascending: false })
-      .limit(50),
+  const postsSelect = `id, content, created_at, author:author_id(alias), post_hashtags(hashtag:hashtag_id(id, slug, label)), post_reactions(profile_id)`
+
+  // When filtering by tag, resolve at DB level so results aren't limited to the top 50
+  const buildPostsQuery = async () => {
+    let q = supabase.from('posts').select(postsSelect).order('created_at', { ascending: false }).limit(50)
+    if (activeTag) {
+      const { data: hashtag } = await supabase.from('hashtags').select('id').eq('slug', activeTag).maybeSingle()
+      if (hashtag) {
+        const { data: phs } = await supabase.from('post_hashtags').select('post_id').eq('hashtag_id', hashtag.id)
+        if (phs?.length) q = q.in('id', phs.map((ph: any) => ph.post_id))
+        else return { data: [] }
+      }
+    }
+    return q
+  }
+
+  const [postsResult, { count: pendingCount }, { data: unreadData }] = await Promise.all([
+    buildPostsQuery(),
     profile.role === 'volunteer'
       ? supabase
           .from('connections')
@@ -46,14 +53,10 @@ export default async function FeedPage({
           .eq('volunteer_id', user.id)
           .eq('status', 'pending')
       : Promise.resolve({ count: 0 }),
+    supabase.rpc('get_unread_count', { user_uuid: user.id }),
   ])
 
-  const allPosts = (data ?? []) as any[]
-  const posts = activeTag
-    ? allPosts.filter((p) =>
-        (p.post_hashtags as any[]).some((ph) => ph.hashtag?.slug === activeTag),
-      )
-    : allPosts
+  const posts = (postsResult.data ?? []) as any[]
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,10 +84,10 @@ export default async function FeedPage({
         )}
 
         <PostComposer alias={profile.alias} />
-        <PostList posts={posts} currentUserId={user.id} activeTag={activeTag ?? null} />
+        <PostList posts={posts} currentUserId={user.id} activeTag={activeTag ?? null} initialLimit={50} />
       </main>
 
-      <BottomNav pendingCount={pendingCount ?? 0} />
+      <BottomNav pendingCount={pendingCount ?? 0} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )
 }

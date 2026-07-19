@@ -56,6 +56,29 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
   return { success: true }
 }
 
+export async function fetchMorePosts(offset: number, tag: string | null = null) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { posts: [] as any[] }
+
+  const postsSelect = `id, content, created_at, author:author_id(alias), post_hashtags(hashtag:hashtag_id(id, slug, label)), post_reactions(profile_id)`
+  let q = supabase.from('posts').select(postsSelect).order('created_at', { ascending: false }).range(offset, offset + 19)
+
+  if (tag) {
+    const { data: hashtag } = await supabase.from('hashtags').select('id').eq('slug', tag).maybeSingle()
+    if (hashtag) {
+      const { data: phs } = await supabase.from('post_hashtags').select('post_id').eq('hashtag_id', hashtag.id)
+      if (phs?.length) q = q.in('id', phs.map((ph: any) => ph.post_id))
+      else return { posts: [] as any[] }
+    }
+  }
+
+  const { data } = await q
+  return { posts: (data ?? []) as any[] }
+}
+
 export async function toggleReaction(postId: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const {

@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
   const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
 
-  const [{ data: matches }, { data: connections }] = await Promise.all([
+  const [{ data: matches }, { data: connections }, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
@@ -47,6 +47,8 @@ export default async function DashboardPage() {
           .select('id, status, seeker_id, seeker:seeker_id(alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false }),
+
+    supabase.rpc('get_unread_count', { user_uuid: user.id }),
   ])
 
   // Exclude rejected connections so seekers can re-contact after a rejection
@@ -61,6 +63,7 @@ export default async function DashboardPage() {
     profile.role === 'volunteer'
       ? (connections ?? []).filter((c: any) => c.status === 'pending').length
       : 0
+  const chatUnread = (unreadData as number) ?? 0
 
   const category = (profile.profile_categories as any[])?.[0]?.categories
   const ownHashtags = (profile.profile_hashtags as any[])
@@ -284,7 +287,7 @@ export default async function DashboardPage() {
         </p>
       </main>
 
-      <BottomNav pendingCount={pendingCount} />
+      <BottomNav pendingCount={pendingCount} chatUnread={chatUnread} />
     </div>
   )
 }
