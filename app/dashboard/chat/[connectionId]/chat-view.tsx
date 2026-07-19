@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendMessage, markConnectionRead } from '@/app/dashboard/actions'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Send, Flag } from 'lucide-react'
+import { ArrowLeft, Send } from 'lucide-react'
 import Link from 'next/link'
+import { ReportButton } from '@/components/report-button'
 
 type Message = {
   id: string
@@ -19,6 +20,7 @@ export function ChatView({
   initialMessages,
   currentUserId,
   otherAlias,
+  reportedId,
   initialStatus,
   volunteerId,
 }: {
@@ -26,6 +28,7 @@ export function ChatView({
   initialMessages: Message[]
   currentUserId: string
   otherAlias: string
+  reportedId: string
   initialStatus: 'pending' | 'accepted' | 'rejected'
   volunteerId: string
 }) {
@@ -205,13 +208,7 @@ export function ChatView({
           <p className="font-semibold">{otherAlias}</p>
           <p className="text-xs text-muted-foreground">Conversación privada</p>
         </div>
-        <a
-          href={`mailto:juan@bay-apps.com?subject=Reporte de usuario en metoo&body=Quiero reportar al usuario "${otherAlias}" por el siguiente motivo:%0A%0A`}
-          className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
-          title="Reportar usuario"
-        >
-          <Flag className="size-4" />
-        </a>
+        <ReportButton reportedId={reportedId} connectionId={connectionId} />
       </header>
 
       {/* Pending banner */}
