@@ -4,8 +4,14 @@ import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
+import Link from 'next/link'
+import { X } from 'lucide-react'
 
-export default async function FeedPage() {
+export default async function FeedPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string }>
+}) {
   const supabase = await createClient()
 
   const {
@@ -19,6 +25,8 @@ export default async function FeedPage() {
     .eq('id', user.id)
     .single()
   if (!profile) redirect('/onboarding')
+
+  const { tag: activeTag } = await searchParams
 
   const [{ data }, { count: pendingCount }] = await Promise.all([
     supabase
@@ -40,7 +48,12 @@ export default async function FeedPage() {
       : Promise.resolve({ count: 0 }),
   ])
 
-  const posts = (data ?? []) as any[]
+  const allPosts = (data ?? []) as any[]
+  const posts = activeTag
+    ? allPosts.filter((p) =>
+        (p.post_hashtags as any[]).some((ph) => ph.hashtag?.slug === activeTag),
+      )
+    : allPosts
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,8 +66,22 @@ export default async function FeedPage() {
             Comparte tu experiencia, un pensamiento o un recurso que te haya ayudado. Usa <strong className="text-foreground">#hashtags</strong> para que otros puedan encontrarte.
           </p>
         </div>
+
+        {activeTag && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Filtrando por</span>
+            <Link
+              href="/feed"
+              className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
+            >
+              #{activeTag}
+              <X className="size-3" />
+            </Link>
+          </div>
+        )}
+
         <PostComposer alias={profile.alias} />
-        <PostList posts={posts} currentUserId={user.id} />
+        <PostList posts={posts} currentUserId={user.id} activeTag={activeTag ?? null} />
       </main>
 
       <BottomNav pendingCount={pendingCount ?? 0} />

@@ -176,6 +176,7 @@ export function ChatView({
       <header className="flex items-center gap-3 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-sm">
         <Link
           href="/dashboard"
+          aria-label="Volver"
           className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft className="size-4" />

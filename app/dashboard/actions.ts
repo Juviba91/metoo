@@ -122,12 +122,19 @@ export async function sendMessage(connectionId: string, content: string) {
 
   if (!user) return { error: 'No autenticado' }
 
+  const trimmed = content.trim()
+  if (!trimmed || trimmed.length > 2000) return { error: 'Mensaje no válido' }
+
   // Auto-accept if the volunteer replies to a pending request
   const { data: conn } = await supabase
     .from('connections')
-    .select('status, volunteer_id')
+    .select('status, volunteer_id, seeker_id')
     .eq('id', connectionId)
     .single()
+
+  if (!conn || (conn.seeker_id !== user.id && conn.volunteer_id !== user.id)) {
+    return { error: 'No autorizado' }
+  }
 
   if (conn?.status === 'pending' && conn.volunteer_id === user.id) {
     await supabase
@@ -143,7 +150,7 @@ export async function sendMessage(connectionId: string, content: string) {
     .insert({
       connection_id: connectionId,
       sender_id: user.id,
-      content: content.trim(),
+      content: trimmed,
     })
     .select('id, sender_id, content, created_at')
     .single()
