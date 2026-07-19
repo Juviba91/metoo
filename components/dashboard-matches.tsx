@@ -64,47 +64,47 @@ export function DashboardMatches({
         <span className="text-sm text-muted-foreground">({filtered.length})</span>
       </div>
 
-
-      {/* Text search */}
-      <div className="mb-3 relative">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Buscar por alias, ciudad o descripción..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-lg border border-border bg-background py-2.5 pl-9 pr-4 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-        />
-      </div>
-
-      {/* Hashtag filter chips */}
+      {/* Hashtag filter chips — primary filter */}
       {hashtagOptions.length > 0 && (
-        <div className="no-scrollbar mb-5 flex gap-2 overflow-x-auto pb-1">
-          <button
-            onClick={() => setActiveHashtag(null)}
-            className={`shrink-0 rounded-full border px-3 py-1 text-sm transition-colors ${
-              !activeHashtag
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
-            }`}
-          >
-            Todos
-          </button>
-          {hashtagOptions.map((h) => (
-            <button
-              key={h.slug}
-              onClick={() => setActiveHashtag(activeHashtag === h.slug ? null : h.slug)}
-              className={`shrink-0 rounded-full border px-3 py-1 text-sm transition-colors ${
-                activeHashtag === h.slug
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
-              }`}
-            >
-              #{h.label}
-            </button>
-          ))}
+        <div className="mb-4">
+          <p className="mb-2 text-xs font-medium text-muted-foreground">Filtrar por situación</p>
+          <div className="flex flex-wrap gap-2">
+            {hashtagOptions.map((h) => (
+              <button
+                key={h.slug}
+                onClick={() => setActiveHashtag(activeHashtag === h.slug ? null : h.slug)}
+                className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                  activeHashtag === h.slug
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground'
+                }`}
+              >
+                #{h.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Text search — secondary */}
+      <div className="relative mb-5">
+        <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Buscar por nombre o ciudad..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full rounded-full border border-border bg-muted/30 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20"
+        />
+        {query && (
+          <button
+            onClick={() => setQuery('')}
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            ×
+          </button>
+        )}
+      </div>
 
       {filtered.length > 0 ? (
         <>
