@@ -125,6 +125,13 @@ export default async function PublicProfilePage({
                 No disponible en este momento
               </div>
             )
+          ) : existingConn && existingConn.status !== 'rejected' ? (
+            <Link
+              href={`/dashboard/chat/${existingConn.id}`}
+              className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            >
+              Ver conversación →
+            </Link>
           ) : (
             <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
               Esperando contacto

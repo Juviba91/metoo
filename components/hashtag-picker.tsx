@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import { submitSuggestion } from '@/app/actions'
+import { createHashtag } from '@/app/actions'
 
 export type HashtagOption = { id: string; slug: string; label: string }
 
@@ -16,9 +16,8 @@ export function HashtagPicker({
   onChange: (tags: HashtagOption[]) => void
 }) {
   const [query, setQuery] = useState('')
-  const [showSuggest, setShowSuggest] = useState(false)
-  const [suggestionText, setSuggestionText] = useState('')
-  const [suggestionSent, setSuggestionSent] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
   const available = suggestions.filter((s) => !selected.some((sel) => sel.id === s.id))
   const queryTrimmed = query.trim()
@@ -31,35 +30,48 @@ export function HashtagPicker({
       )
     : available
 
-  const showDropdown = queryTrimmed && filtered.length > 0
+  const exactMatch = filtered.some(
+    (h) => h.label.toLowerCase() === queryTrimmed.toLowerCase(),
+  )
+  const showDropdown = !!queryTrimmed
+  const showCreate = queryTrimmed.length >= 2 && !exactMatch
 
   function add(tag: HashtagOption) {
     if (selected.some((s) => s.id === tag.id)) return
     onChange([...selected, tag])
     setQuery('')
+    setCreateError(null)
   }
 
   function remove(id: string) {
     onChange(selected.filter((h) => h.id !== id))
   }
 
+  async function handleCreate() {
+    if (!queryTrimmed || creating) return
+    setCreating(true)
+    setCreateError(null)
+    const result = await createHashtag(queryTrimmed)
+    setCreating(false)
+    if (result.error) {
+      setCreateError(result.error)
+      return
+    }
+    if (result.hashtag) add(result.hashtag)
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       e.preventDefault()
-      const match = filtered[0]
-      if (match) add(match)
+      if (filtered[0]) {
+        add(filtered[0])
+      } else if (showCreate) {
+        handleCreate()
+      }
     }
     if (e.key === 'Backspace' && query === '' && selected.length > 0) {
       remove(selected[selected.length - 1].id)
     }
-  }
-
-  async function handleSuggest(e: React.FormEvent) {
-    e.preventDefault()
-    if (!suggestionText.trim()) return
-    await submitSuggestion(suggestionText.trim())
-    setSuggestionSent(true)
-    setSuggestionText('')
   }
 
   return (
@@ -88,9 +100,9 @@ export function HashtagPicker({
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setCreateError(null) }}
           onKeyDown={handleKeyDown}
-          placeholder={selected.length === 0 ? 'Busca un hashtag...' : 'Añadir más...'}
+          placeholder={selected.length === 0 ? 'Busca o crea un hashtag...' : 'Añadir más...'}
           className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
         />
 
@@ -107,9 +119,21 @@ export function HashtagPicker({
                 {tag.label}
               </button>
             ))}
+            {showCreate && (
+              <button
+                type="button"
+                onClick={handleCreate}
+                disabled={creating}
+                className="w-full border-t border-border px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-muted/60 disabled:opacity-50"
+              >
+                {creating ? 'Creando...' : <>Crear <span className="font-medium text-foreground">#{queryTrimmed}</span></>}
+              </button>
+            )}
           </div>
         )}
       </div>
+
+      {createError && <p className="mt-1 text-xs text-destructive">{createError}</p>}
 
       {!queryTrimmed && filtered.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
@@ -125,42 +149,6 @@ export function HashtagPicker({
           ))}
         </div>
       )}
-
-      <div className="mt-3">
-        {!showSuggest && !suggestionSent && (
-          <button
-            type="button"
-            onClick={() => setShowSuggest(true)}
-            className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-          >
-            ¿No encuentras tu situación? Sugerirla
-          </button>
-        )}
-
-        {showSuggest && !suggestionSent && (
-          <form onSubmit={handleSuggest} className="flex gap-2">
-            <input
-              type="text"
-              value={suggestionText}
-              onChange={(e) => setSuggestionText(e.target.value)}
-              placeholder="Escribe tu sugerencia..."
-              maxLength={100}
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-            />
-            <button
-              type="submit"
-              disabled={!suggestionText.trim()}
-              className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-            >
-              Enviar
-            </button>
-          </form>
-        )}
-
-        {suggestionSent && (
-          <p className="text-xs text-muted-foreground">Gracias, revisaremos tu sugerencia.</p>
-        )}
-      </div>
     </div>
   )
 }

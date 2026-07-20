@@ -29,3 +29,43 @@ export async function submitSuggestion(suggestion: string) {
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function createHashtag(
+  label: string,
+): Promise<{ hashtag?: { id: string; slug: string; label: string }; error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const trimmed = label.trim().slice(0, 50)
+  if (!trimmed) return { error: 'Hashtag vacío' }
+
+  const slug = trimmed
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  if (!slug) return { error: 'Hashtag no válido' }
+
+  // Return existing if slug already taken
+  const { data: existing } = await supabase
+    .from('hashtags')
+    .select('id, slug, label')
+    .eq('slug', slug)
+    .single()
+
+  if (existing) return { hashtag: existing }
+
+  const { data, error } = await supabase
+    .from('hashtags')
+    .insert({ slug, label: trimmed })
+    .select('id, slug, label')
+    .single()
+
+  if (error) return { error: error.message }
+  return { hashtag: data! }
+}
