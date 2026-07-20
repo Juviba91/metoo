@@ -29,10 +29,11 @@ export default async function ChatPage({
     connection.seeker_id === user.id || connection.volunteer_id === user.id
   if (!isMember) notFound()
 
-  const otherAlias =
-    user.id === connection.seeker_id
-      ? (connection.volunteer as any)?.alias
-      : (connection.seeker as any)?.alias
+  const isSeeker = user.id === connection.seeker_id
+  const otherAlias = isSeeker
+    ? (connection.volunteer as any)?.alias
+    : (connection.seeker as any)?.alias
+  const reportedId = isSeeker ? connection.volunteer_id : connection.seeker_id
 
   const { data: messages } = await supabase
     .from('messages')
@@ -46,6 +47,7 @@ export default async function ChatPage({
       initialMessages={messages ?? []}
       currentUserId={user.id}
       otherAlias={otherAlias ?? 'Usuario'}
+      reportedId={reportedId}
       initialStatus={connection.status as 'pending' | 'accepted' | 'rejected'}
       volunteerId={connection.volunteer_id}
     />

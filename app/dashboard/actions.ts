@@ -103,6 +103,39 @@ export async function updateProfile({
   return { success: true }
 }
 
+export async function reportUser(
+  reportedId: string,
+  connectionId: string,
+  reason: string,
+  description?: string,
+): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { data: conn } = await supabase
+    .from('connections')
+    .select('seeker_id, volunteer_id')
+    .eq('id', connectionId)
+    .single()
+
+  if (!conn || (conn.seeker_id !== user.id && conn.volunteer_id !== user.id)) {
+    return { error: 'No autorizado' }
+  }
+
+  await supabase.from('reports').insert({
+    reporter_id: user.id,
+    reported_id: reportedId,
+    connection_id: connectionId,
+    reason,
+    description: description?.trim() || null,
+  })
+
+  return { success: true }
+}
+
 export async function markConnectionRead(connectionId: string): Promise<void> {
   const supabase = await createClient()
   const {
