@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
 import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 const statusLabel: Record<string, string> = {
   pending: 'Pendiente',
@@ -132,6 +133,7 @@ export default async function ChatsPage() {
         <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )

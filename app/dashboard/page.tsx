@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
 import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -292,6 +293,7 @@ export default async function DashboardPage() {
         <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={pendingCount} chatUnread={chatUnread} />
     </div>
   )

@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackForm } from '@/components/feedback-form'
 import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -85,6 +86,7 @@ export default async function PerfilPage() {
         <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0} />
     </div>
   )

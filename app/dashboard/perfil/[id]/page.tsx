@@ -6,6 +6,7 @@ import { ContactButton } from '@/components/contact-button'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 export default async function PublicProfilePage({
   params,
@@ -143,6 +144,7 @@ export default async function PublicProfilePage({
         <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav
         pendingCount={(pendingResult as any).count ?? 0}
         chatUnread={(unreadData as number) ?? 0}

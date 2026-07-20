@@ -1,24 +1,33 @@
-export function SiteFooter() {
+import Link from 'next/link'
+
+export function SiteFooter({ className }: { className?: string }) {
   return (
-    <footer className="border-t border-border/60 bg-background py-6 text-center text-xs text-muted-foreground">
-      <p className="font-medium text-foreground/70">Bay Apps</p>
-      <p className="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <a
-          href="https://bay-apps.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-foreground hover:underline"
-        >
-          bay-apps.com
-        </a>
-        <span className="text-border">·</span>
-        <a
-          href="mailto:juan@bay-apps.com"
-          className="hover:text-foreground hover:underline"
-        >
-          juan@bay-apps.com
-        </a>
-      </p>
+    <footer className={`border-t border-border px-6 py-8 ${className ?? ''}`}>
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
+        <span className="font-semibold text-foreground">metoo.</span>
+        <span>
+          © 2026 metoo. Hecho con cuidado por{' '}
+          <a
+            href="https://bay-apps.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-foreground"
+          >
+            Bay Apps
+          </a>
+        </span>
+        <div className="flex gap-6">
+          <Link href="/privacidad" className="transition-colors hover:text-foreground">
+            Privacidad
+          </Link>
+          <Link href="/terminos" className="transition-colors hover:text-foreground">
+            Términos
+          </Link>
+          <a href="mailto:juan@bay-apps.com" className="transition-colors hover:text-foreground">
+            Contacto
+          </a>
+        </div>
+      </div>
     </footer>
   )
 }
