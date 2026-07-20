@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
   const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
 
-  const [{ data: matches }, { data: connections }, { data: unreadData }] = await Promise.all([
+  const [{ data: matches }, { data: connections }, { data: unreadData }, { data: allHashtags }] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
@@ -49,6 +49,8 @@ export default async function DashboardPage() {
           .order('created_at', { ascending: false }),
 
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
+
+    supabase.from('hashtags').select('id, slug, label').order('label'),
   ])
 
   // Exclude rejected connections so seekers can re-contact after a rejection
@@ -119,7 +121,7 @@ export default async function DashboardPage() {
               {profile.bio && (
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
               )}
-              {ownHashtags.length > 0 && (
+              {ownHashtags.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {ownHashtags.map((tag: any) => (
                     <span
@@ -130,6 +132,13 @@ export default async function DashboardPage() {
                     </span>
                   ))}
                 </div>
+              ) : (
+                <Link
+                  href="/dashboard/perfil"
+                  className="mt-3 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                >
+                  + Añade hashtags a tu perfil para aparecer en búsquedas
+                </Link>
               )}
             </div>
               <div className="flex shrink-0 items-center gap-2">
@@ -276,6 +285,7 @@ export default async function DashboardPage() {
           matches={(matches ?? []) as any}
           role={profile.role}
           sentTo={sentTo}
+          allHashtags={(allHashtags ?? []) as any}
         />
 
         <p className="pb-2 text-center text-xs text-muted-foreground">
