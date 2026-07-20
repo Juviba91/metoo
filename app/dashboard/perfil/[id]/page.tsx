@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
+import { FooterDisclaimer } from '@/components/footer-disclaimer'
 
 export default async function PublicProfilePage({
   params,
@@ -138,6 +139,8 @@ export default async function PublicProfilePage({
             </div>
           )}
         </div>
+
+        <FooterDisclaimer />
       </main>
 
       <BottomNav

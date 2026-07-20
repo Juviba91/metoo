@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackForm } from '@/components/feedback-form'
+import { FooterDisclaimer } from '@/components/footer-disclaimer'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -80,6 +81,8 @@ export default async function PerfilPage() {
             . Procesamos la solicitud en un máximo de 30 días.
           </p>
         </div>
+
+        <FooterDisclaimer />
       </main>
 
       <BottomNav pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0} />
