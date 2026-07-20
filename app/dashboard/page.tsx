@@ -8,6 +8,8 @@ import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/da
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
+import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -79,10 +81,10 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto max-w-4xl space-y-8 px-4 py-6 pb-24 sm:space-y-10 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:space-y-10 sm:px-6 sm:py-8 sm:pb-8">
         {/* Email confirmation banner */}
         {!user.email_confirmed_at && (
           <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/30">
@@ -288,15 +290,10 @@ export default async function DashboardPage() {
           allHashtags={(allHashtags ?? []) as any}
         />
 
-        <p className="pb-2 text-center text-xs text-muted-foreground">
-          <Link href="/guidelines" className="underline hover:text-foreground">
-            Normas de la comunidad
-          </Link>{' '}
-          · metoo no sustituye a un profesional. En crisis, llama al{' '}
-          <strong>024</strong>.
-        </p>
+        <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={pendingCount} chatUnread={chatUnread} />
     </div>
   )

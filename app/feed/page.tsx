@@ -4,6 +4,8 @@ import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
+import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 
@@ -59,10 +61,10 @@ export default async function FeedPage({
   const posts = (postsResult.data ?? []) as any[]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto max-w-2xl space-y-4 px-4 py-4 pb-24 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-6">
+      <main className="mx-auto w-full max-w-2xl flex-1 space-y-4 px-4 py-4 pb-24 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-6">
         <div>
           <h1 className="text-lg font-semibold">Feed de la comunidad</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -85,8 +87,10 @@ export default async function FeedPage({
 
         <PostComposer alias={profile.alias} />
         <PostList posts={posts} currentUserId={user.id} activeTag={activeTag ?? null} initialLimit={50} />
+        <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={pendingCount ?? 0} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )

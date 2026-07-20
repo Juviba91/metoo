@@ -4,6 +4,8 @@ import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
+import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 const statusLabel: Record<string, string> = {
   pending: 'Pendiente',
@@ -71,10 +73,10 @@ export default async function ChatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto max-w-4xl px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         {!connections || connections.length === 0 ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
             <p className="mb-2 text-3xl">💬</p>
@@ -127,8 +129,11 @@ export default async function ChatsPage() {
             })}
           </div>
         )}
+
+        <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )

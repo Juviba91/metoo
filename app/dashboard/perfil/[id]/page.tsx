@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
+import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 export default async function PublicProfilePage({
   params,
@@ -69,10 +71,10 @@ export default async function PublicProfilePage({
     .filter(Boolean) ?? []
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto max-w-2xl px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         <Link
           href="/dashboard"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -125,14 +127,24 @@ export default async function PublicProfilePage({
                 No disponible en este momento
               </div>
             )
+          ) : existingConn && existingConn.status !== 'rejected' ? (
+            <Link
+              href={`/dashboard/chat/${existingConn.id}`}
+              className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            >
+              Ver conversación →
+            </Link>
           ) : (
             <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
               Esperando contacto
             </div>
           )}
         </div>
+
+        <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav
         pendingCount={(pendingResult as any).count ?? 0}
         chatUnread={(unreadData as number) ?? 0}

@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackForm } from '@/components/feedback-form'
+import { FooterDisclaimer } from '@/components/footer-disclaimer'
+import { SiteFooter } from '@/components/site-footer'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -36,7 +38,7 @@ export default async function PerfilPage() {
     .filter(Boolean) ?? []
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       {/* Mobile sub-header with back button */}
       <div className="flex items-center gap-3 border-b border-border/40 px-6 py-3 sm:hidden">
@@ -49,7 +51,7 @@ export default async function PerfilPage() {
         <h1 className="font-semibold">Editar perfil</h1>
       </div>
 
-      <main className="mx-auto max-w-lg px-6 py-8">
+      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-8">
         <EditForm
           initial={{
             alias: profile.alias,
@@ -80,8 +82,11 @@ export default async function PerfilPage() {
             . Procesamos la solicitud en un máximo de 30 días.
           </p>
         </div>
+
+        <FooterDisclaimer />
       </main>
 
+      <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0} />
     </div>
   )
