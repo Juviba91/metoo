@@ -45,27 +45,29 @@ export async function createHashtag(
   const slug = trimmed
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
   if (!slug) return { error: 'Hashtag no válido' }
 
-  // Return existing if slug already taken
-  const { data: existing } = await supabase
-    .from('hashtags')
-    .select('id, slug, label')
-    .eq('slug', slug)
-    .single()
-
-  if (existing) return { hashtag: existing }
-
+  // Upsert: if slug exists return it, otherwise insert
   const { data, error } = await supabase
     .from('hashtags')
-    .insert({ slug, label: trimmed })
+    .upsert({ slug, label: trimmed }, { onConflict: 'slug', ignoreDuplicates: true })
     .select('id, slug, label')
     .single()
 
-  if (error) return { error: error.message }
-  return { hashtag: data! }
+  if (error) {
+    // Fallback: fetch the existing row if upsert returned no data
+    const { data: existing } = await supabase
+      .from('hashtags')
+      .select('id, slug, label')
+      .eq('slug', slug)
+      .single()
+    if (existing) return { hashtag: existing }
+    return { error: error.message }
+  }
+
+  return { hashtag: data }
 }
