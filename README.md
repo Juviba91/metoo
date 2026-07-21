@@ -78,7 +78,7 @@ Never upload:
 - Authentication secrets.
 - Any sensitive information.
 
-Use `.env.example` as a reference for the required environment variables.
+Use `.env.local.example` as a reference for the required environment variables.
 
 ---
 
@@ -87,8 +87,10 @@ Use `.env.example` as a reference for the required environment variables.
 To run the project locally:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/metoo.git
+git clone https://github.com/juviba91/metoo.git
 cd metoo
 npm install
+cp .env.local.example .env.local
+# Fill in your Supabase URL and anon key in .env.local
 npm run dev
-``
+```
