@@ -33,10 +33,13 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
       return
     }
 
-    router.push('/dashboard')
+    setStep(5)
+    setLoading(false)
+    setTimeout(() => router.push('/dashboard'), 3000)
   }
 
   const totalSteps = 4
+  const stepLabels = ['Normas', 'Tu rol', 'Hashtags', 'Perfil']
 
   return (
     <div className="w-full max-w-lg">
@@ -44,14 +47,21 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
         metoo.
       </a>
 
-      <div className="mb-10 flex items-center justify-center gap-2">
-        {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
-          <div
-            key={s}
-            className={`h-1.5 w-10 rounded-full transition-colors ${s <= step ? 'bg-primary' : 'bg-muted'}`}
-          />
-        ))}
-      </div>
+      {step <= totalSteps && (
+        <div className="mb-10">
+          <div className="mb-2 flex items-center justify-center gap-2">
+            {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
+              <div
+                key={s}
+                className={`h-1.5 w-10 rounded-full transition-colors ${s <= step ? 'bg-primary' : 'bg-muted'}`}
+              />
+            ))}
+          </div>
+          <p className="text-center text-xs text-muted-foreground">
+            Paso {step} de {totalSteps} — {stepLabels[step - 1]}
+          </p>
+        </div>
+      )}
 
       {/* Paso 1 — Normas */}
       {step === 1 && (
@@ -179,6 +189,22 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               Continuar <ArrowRight className="size-4" />
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* Paso 5 — Bienvenida */}
+      {step === 5 && (
+        <div className="py-8 text-center">
+          <div className="mb-6 text-5xl">💛</div>
+          <h1 className="mb-3 text-2xl font-bold">
+            Bienvenido{role === 'volunteer' ? ' al equipo' : ''}, {alias}
+          </h1>
+          <p className="mb-8 text-muted-foreground">
+            {role === 'volunteer'
+              ? 'Gracias por querer acompañar. Recibirás solicitudes de personas que han vivido lo que tú has vivido.'
+              : 'Ya estás dentro. Vamos a conectarte con alguien que ha pasado por lo mismo.'}
+          </p>
+          <p className="text-xs text-muted-foreground">Entrando a metoo...</p>
         </div>
       )}
 
