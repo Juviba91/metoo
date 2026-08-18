@@ -38,7 +38,7 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
 
     const { data: hashtag } = await supabase
       .from('hashtags')
-      .upsert({ slug, label }, { onConflict: 'slug' })
+      .upsert({ slug, label }, { onConflict: 'slug', ignoreDuplicates: true })
       .select('id')
       .single()
 

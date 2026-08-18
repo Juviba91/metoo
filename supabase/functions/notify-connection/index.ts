@@ -4,6 +4,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://support-network-app.vercel.app'
 
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') {
@@ -54,7 +55,7 @@ Deno.serve(async (req: Request) => {
         <p>Hola,</p>
         <p><strong>${seeker?.alias ?? 'Alguien'}</strong> ha pedido contactar contigo en metoo.</p>
         <p>Entra a la app para aceptar o rechazar la solicitud.</p>
-        <p><a href="https://support-network-app.vercel.app/dashboard">Ver solicitud →</a></p>
+        <p><a href="${APP_URL}/dashboard">Ver solicitud →</a></p>
         <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
         <p style="font-size:0.75rem;color:#9ca3af;">
           metoo — apoyo entre personas que lo han vivido.<br />

@@ -94,3 +94,38 @@ cp .env.local.example .env.local
 # Fill in your Supabase URL and anon key in .env.local
 npm run dev
 ```
+
+---
+
+## Email notifications (production setup)
+
+metoo sends email notifications when a new message or connection request arrives. This requires:
+
+1. A [Resend](https://resend.com) account with a verified sending domain.
+2. Two Supabase Edge Functions deployed: `notify-message` and `notify-connection`.
+3. Two Supabase database webhooks pointing to each function.
+
+### Deploy Edge Functions
+
+```bash
+supabase functions deploy notify-message
+supabase functions deploy notify-connection
+```
+
+### Set secrets
+
+```bash
+supabase secrets set RESEND_API_KEY=re_your_key_here
+supabase secrets set APP_URL=https://your-domain.com
+```
+
+### Create database webhooks
+
+In the Supabase dashboard → Database → Webhooks, create:
+
+| Name | Table | Events | URL |
+|---|---|---|---|
+| notify-message | messages | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-message` |
+| notify-connection | connections | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-connection` |
+
+Both webhooks should include the `Authorization: Bearer <anon-key>` header.
