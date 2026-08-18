@@ -157,6 +157,45 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Volunteer role */}
+      <section className="mx-auto max-w-5xl px-6 py-14 sm:py-20">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="mb-3 text-center text-2xl font-bold sm:text-3xl">
+            ¿Qué hace un voluntario?
+          </h2>
+          <p className="mb-10 text-center text-muted-foreground">
+            Un voluntario en metoo no es psicólogo ni terapeuta. Es alguien que ha pasado por algo
+            parecido y decide compartir esa experiencia de forma honesta.
+          </p>
+          <div className="grid gap-6 sm:grid-cols-3">
+            <div className="rounded-xl border border-border p-5">
+              <p className="mb-2 text-2xl">👂</p>
+              <h3 className="mb-1 font-semibold">Escucha desde la experiencia</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Comparte cómo lo viviste tú — qué te ayudó, qué fue difícil, qué harías diferente.
+                Sin teorías, sin manuales.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border p-5">
+              <p className="mb-2 text-2xl">🤝</p>
+              <h3 className="mb-1 font-semibold">Acompaña sin restar</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                No se quita hierro a lo que el otro siente, aunque a ti ya no te pese. El dolor de
+                cada persona es válido en su momento.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border p-5">
+              <p className="mb-2 text-2xl">🚧</p>
+              <h3 className="mb-1 font-semibold">Conoce tus límites</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                No se actúa como psicólogo ni se dan diagnósticos. Si alguien necesita ayuda
+                profesional, se le dice con cariño.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Bottom CTA */}
       <section className="mx-auto max-w-3xl px-6 py-16 text-center sm:py-24">
         <h2 className="mb-4 text-3xl font-bold sm:text-4xl">¿Listo para dar el primer paso?</h2>

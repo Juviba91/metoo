@@ -13,6 +13,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
   const [step, setStep] = useState(1)
   const [accepted, setAccepted] = useState(false)
   const [role, setRole] = useState<'seeker' | 'volunteer' | null>(null)
+  const [roleConfirmed, setRoleConfirmed] = useState(false)
   const [hashtags, setHashtags] = useState<HashtagOption[]>([])
   const [alias, setAlias] = useState('')
   const [city, setCity] = useState('')
@@ -129,7 +130,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
       )}
 
       {/* Paso 2 — Rol */}
-      {step === 2 && (
+      {step === 2 && !roleConfirmed && (
         <div>
           <h1 className="mb-2 text-center text-2xl font-bold">¿Cómo puedo ayudarte?</h1>
           <p className="mb-8 text-center text-muted-foreground">Cuéntame qué te trae aquí</p>
@@ -148,11 +149,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               </p>
             </button>
             <button
-              onClick={() => {
-                setRole('volunteer')
-                setStep(3)
-              }}
-              className="rounded-xl border-2 border-border p-6 text-left transition-all hover:border-primary hover:bg-muted/30"
+              onClick={() => setRole('volunteer')}
+              className={`rounded-xl border-2 p-6 text-left transition-all hover:border-primary hover:bg-muted/30 ${role === 'volunteer' ? 'border-primary bg-muted/30' : 'border-border'}`}
             >
               <div className="mb-3 text-3xl">💛</div>
               <h3 className="mb-1 font-semibold">Quiero ayudar</h3>
@@ -161,9 +159,63 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               </p>
             </button>
           </div>
-          <Button variant="outline" onClick={() => setStep(1)} className="mt-4 w-full">
+          {role === 'volunteer' && (
+            <Button onClick={() => setRoleConfirmed(true)} className="mt-4 w-full gap-2">
+              Continuar <ArrowRight className="size-4" />
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => setStep(1)} className="mt-3 w-full">
             Atrás
           </Button>
+        </div>
+      )}
+
+      {/* Paso 2b — Rol voluntario: qué se espera */}
+      {step === 2 && roleConfirmed && role === 'volunteer' && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">Tu rol como voluntario</h1>
+          <p className="mb-6 text-center text-muted-foreground">
+            Antes de continuar, es importante que esto quede claro
+          </p>
+          <div className="mb-6 space-y-4 rounded-xl border border-border bg-muted/20 p-5 text-sm leading-relaxed text-muted-foreground">
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Hablas desde tu experiencia</p>
+              <p>
+                Compartes cómo lo viviste tú — qué te ayudó, qué fue difícil, qué harías
+                diferente. Das recomendaciones prácticas si las tienes. Sin teorías, sin manuales.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">No quitas hierro</p>
+              <p>
+                Aunque a ti ya no te pese, el dolor de la otra persona es real en su momento.
+                Escucha sin minimizar ni comparar sufrimientos.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">No eres psicólogo</p>
+              <p>
+                No das diagnósticos ni actúas como terapeuta. Si sientes que alguien necesita ayuda
+                profesional, se lo dices con cariño y le orientas al{' '}
+                <strong className="text-foreground">024</strong>.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Cuídate también a ti</p>
+              <p>
+                Acompañar puede remover cosas. Si en algún momento sientes que no puedes más, está
+                bien parar. Tu bienestar importa.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setRoleConfirmed(false)} className="flex-1">
+              Atrás
+            </Button>
+            <Button onClick={() => setStep(3)} className="flex-1 gap-2">
+              Lo entiendo, continuar <ArrowRight className="size-4" />
+            </Button>
+          </div>
         </div>
       )}
 
@@ -178,7 +230,11 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
           </p>
           <HashtagPicker suggestions={suggestions} selected={hashtags} onChange={setHashtags} />
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={() => setStep(2)}
+              className="flex-1"
+            >
               Atrás
             </Button>
             <Button
