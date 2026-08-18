@@ -26,13 +26,22 @@ function timeAgo(dateStr: string): string {
   return `hace ${Math.floor(hours / 24)}d`
 }
 
+function labelToSlug(label: string): string {
+  return label
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 function renderContent(content: string) {
   const parts = content.split(/(#[a-záéíóúüñA-ZÁÉÍÓÚÜÑ0-9_-]+)/g)
   return parts.map((part, i) =>
     part.startsWith('#') ? (
       <Link
         key={i}
-        href={`/feed?tag=${encodeURIComponent(part.slice(1).toLowerCase())}`}
+        href={`/feed?tag=${encodeURIComponent(labelToSlug(part.slice(1)))}`}
         className="font-medium text-primary hover:underline"
       >
         {part}
