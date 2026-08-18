@@ -19,12 +19,12 @@ type Match = {
 export function DashboardMatches({
   matches,
   role,
-  sentTo,
+  connectedTo,
   allHashtags = [],
 }: {
   matches: Match[]
   role: 'seeker' | 'volunteer'
-  sentTo: Set<string>
+  connectedTo: Record<string, string>
   allHashtags?: Hashtag[]
 }) {
   const [query, setQuery] = useState('')
@@ -173,7 +173,14 @@ export function DashboardMatches({
 
                   <div className="mt-auto flex flex-col gap-2">
                     {role === 'seeker' ? (
-                      <ContactButton volunteerId={match.id} alreadySent={sentTo.has(match.id)} />
+                      <ContactButton volunteerId={match.id} alreadySent={!!connectedTo[match.id]} />
+                    ) : connectedTo[match.id] ? (
+                      <Link
+                        href={`/dashboard/chat/${connectedTo[match.id]}`}
+                        className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+                      >
+                        Ver conversación →
+                      </Link>
                     ) : (
                       <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
                         Esperando contacto
