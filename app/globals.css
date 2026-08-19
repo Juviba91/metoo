@@ -144,3 +144,11 @@
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
 }
+
+/* Prevent iOS Safari from zooming in when focusing inputs (requires font-size >= 16px).
+   Placed outside @layer so it takes precedence over Tailwind utility classes. */
+input:not([type='checkbox']):not([type='radio']):not([type='range']),
+textarea,
+select {
+  font-size: 1rem;
+}

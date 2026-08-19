@@ -35,9 +35,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  if (user && !user.email_confirmed_at && (path.startsWith('/dashboard') || path.startsWith('/onboarding'))) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/verificar'
+    return NextResponse.redirect(url)
+  }
+
   if (user && path === '/auth/login') {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = user.email_confirmed_at ? '/dashboard' : '/auth/verificar'
     return NextResponse.redirect(url)
   }
 

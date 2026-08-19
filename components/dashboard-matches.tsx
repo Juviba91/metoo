@@ -130,12 +130,21 @@ export function DashboardMatches({
                 <div key={match.id} className="flex flex-col rounded-xl border border-border p-5">
                   <div className="mb-2 flex items-start justify-between">
                     <div>
-                      <Link
-                        href={`/dashboard/perfil/${match.id}`}
-                        className="font-semibold hover:underline"
-                      >
-                        {match.alias}
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/dashboard/perfil/${match.id}`}
+                          className="font-semibold hover:underline"
+                        >
+                          {match.alias}
+                        </Link>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          role === 'seeker'
+                            ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                            : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+                        }`}>
+                          {role === 'seeker' ? '💛 Voluntario' : '🤝 Busca apoyo'}
+                        </span>
+                      </div>
                       {match.city && (
                         <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                           <MapPin className="size-3" /> {match.city}
@@ -173,7 +182,11 @@ export function DashboardMatches({
 
                   <div className="mt-auto flex flex-col gap-2">
                     {role === 'seeker' ? (
-                      <ContactButton volunteerId={match.id} alreadySent={!!connectedTo[match.id]} />
+                      <ContactButton
+                        volunteerId={match.id}
+                        alreadySent={!!connectedTo[match.id]}
+                        connectionId={connectedTo[match.id]}
+                      />
                     ) : connectedTo[match.id] ? (
                       <Link
                         href={`/dashboard/chat/${connectedTo[match.id]}`}
@@ -182,8 +195,13 @@ export function DashboardMatches({
                         Ver conversación →
                       </Link>
                     ) : (
-                      <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
-                        Esperando contacto
+                      <div className="space-y-1">
+                        <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
+                          Esperando contacto
+                        </div>
+                        <p className="text-center text-xs text-muted-foreground/70">
+                          Esta persona aún no te ha escrito. Las personas que buscan apoyo inician el contacto.
+                        </p>
                       </div>
                     )}
                     <Link
