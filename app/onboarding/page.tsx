@@ -11,14 +11,14 @@ export default async function OnboardingPage() {
   if (!user) redirect('/auth/login')
 
   const { data: existingProfile } = await supabase
-    .from('metoo_profiles')
+    .from('profiles')
     .select('id')
     .eq('id', user.id)
     .single()
   if (existingProfile) redirect('/dashboard')
 
   const { data: hashtags } = await supabase
-    .from('metoo_hashtags')
+    .from('hashtags')
     .select('id, slug, label')
     .order('label')
 

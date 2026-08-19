@@ -20,7 +20,7 @@ export default async function ChatsPage() {
   if (!user) redirect('/auth/login')
 
   const { data: profile } = await supabase
-    .from('metoo_profiles')
+    .from('profiles')
     .select('id, role')
     .eq('id', user.id)
     .single()
@@ -30,12 +30,12 @@ export default async function ChatsPage() {
   const connectionsQuery =
     profile.role === 'seeker'
       ? supabase
-          .from('metoo_connections')
+          .from('connections')
           .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city)')
           .eq('seeker_id', user.id)
           .order('created_at', { ascending: false })
       : supabase
-          .from('metoo_connections')
+          .from('connections')
           .select('id, status, seeker_id, seeker:seeker_id(alias, city)')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false })
@@ -58,7 +58,7 @@ export default async function ChatsPage() {
     const results = await Promise.all(
       connectionIds.map((id: string) =>
         supabase
-          .from('metoo_messages')
+          .from('messages')
           .select('connection_id, content, sender_id')
           .eq('connection_id', id)
           .order('created_at', { ascending: false })
