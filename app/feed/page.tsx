@@ -4,7 +4,6 @@ import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
-import { FooterDisclaimer } from '@/components/footer-disclaimer'
 import { SiteFooter } from '@/components/site-footer'
 import Link from 'next/link'
 import { X } from 'lucide-react'
@@ -87,7 +86,6 @@ export default async function FeedPage({
 
         <PostComposer alias={profile.alias} />
         <PostList posts={posts} currentUserId={user.id} activeTag={activeTag ?? null} initialLimit={50} />
-        <FooterDisclaimer />
       </main>
 
       <SiteFooter className="hidden sm:block" />

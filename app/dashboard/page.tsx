@@ -8,7 +8,6 @@ import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/da
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
-import { FooterDisclaimer } from '@/components/footer-disclaimer'
 import { SiteFooter } from '@/components/site-footer'
 
 export default async function DashboardPage() {
@@ -72,8 +71,8 @@ export default async function DashboardPage() {
       : 0
   const chatUnread = (unreadData as number) ?? 0
 
-  const category = (profile.profile_categories as any[])?.[0]?.categories
-  const ownHashtags = (profile.profile_hashtags as any[])
+  const category = (profile.metoo_profile_categories as any[])?.[0]?.categories
+  const ownHashtags = (profile.metoo_profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
 
@@ -293,7 +292,6 @@ export default async function DashboardPage() {
           allHashtags={(allHashtags ?? []) as any}
         />
 
-        <FooterDisclaimer />
       </main>
 
       <SiteFooter className="hidden sm:block" />

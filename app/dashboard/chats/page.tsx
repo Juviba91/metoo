@@ -4,7 +4,6 @@ import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
-import { FooterDisclaimer } from '@/components/footer-disclaimer'
 import { SiteFooter } from '@/components/site-footer'
 
 const statusLabel: Record<string, string> = {
@@ -130,7 +129,6 @@ export default async function ChatsPage() {
           </div>
         )}
 
-        <FooterDisclaimer />
       </main>
 
       <SiteFooter className="hidden sm:block" />

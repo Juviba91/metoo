@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackForm } from '@/components/feedback-form'
-import { FooterDisclaimer } from '@/components/footer-disclaimer'
 import { SiteFooter } from '@/components/site-footer'
 
 export default async function PerfilPage() {
@@ -33,7 +32,7 @@ export default async function PerfilPage() {
 
   if (!profile) redirect('/onboarding')
 
-  const profileHashtags = (profile.profile_hashtags as any[])
+  const profileHashtags = (profile.metoo_profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
 
@@ -92,7 +91,6 @@ export default async function PerfilPage() {
           </p>
         </div>
 
-        <FooterDisclaimer />
       </main>
 
       <SiteFooter className="hidden sm:block" />

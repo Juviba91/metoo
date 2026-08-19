@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
-import { FooterDisclaimer } from '@/components/footer-disclaimer'
 import { SiteFooter } from '@/components/site-footer'
 
 export default async function PublicProfilePage({
@@ -65,8 +64,8 @@ export default async function PublicProfilePage({
   const existingConn = connectionResult.data
   const alreadySent = !!existingConn && existingConn.status !== 'rejected'
 
-  const category = (profile.profile_categories as any[])?.[0]?.categories
-  const hashtags = (profile.profile_hashtags as any[])
+  const category = (profile.metoo_profile_categories as any[])?.[0]?.categories
+  const hashtags = (profile.metoo_profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
 
@@ -141,7 +140,6 @@ export default async function PublicProfilePage({
           )}
         </div>
 
-        <FooterDisclaimer />
       </main>
 
       <SiteFooter className="hidden sm:block" />
