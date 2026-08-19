@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { requestConnection } from '@/app/dashboard/actions'
 import { Heart, Loader2, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
+import { track } from '@vercel/analytics/react'
 
 export function ContactButton({
   volunteerId,
@@ -51,6 +52,7 @@ export function ContactButton({
     if (result.connectionId) setConnectionId(result.connectionId)
     setSent(true)
     setLoading(false)
+    track('connection_requested')
   }
 
   return (

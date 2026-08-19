@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
-import { FooterDisclaimer } from '@/components/footer-disclaimer'
 import { SiteFooter } from '@/components/site-footer'
 
 export default async function PublicProfilePage({
@@ -24,11 +23,11 @@ export default async function PublicProfilePage({
   if (id === user.id) redirect('/dashboard/perfil')
 
   const [{ data: viewer }, { data: profile }] = await Promise.all([
-    supabase.from('profiles').select('id, role').eq('id', user.id).single(),
+    supabase.from('metoo_profiles').select('id, role').eq('id', user.id).single(),
     supabase
-      .from('profiles')
+      .from('metoo_profiles')
       .select(
-        'id, alias, city, bio, role, is_active, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))',
+        'id, alias, city, bio, role, is_active, metoo_profile_categories(category_id, metoo_categories(slug, name, emoji)), metoo_profile_hashtags(hashtag_id, metoo_hashtags(id, slug, label))',
       )
       .eq('id', id)
       .single(),
@@ -41,13 +40,13 @@ export default async function PublicProfilePage({
   const [connectionResult, { data: unreadData }, pendingResult] = await Promise.all([
     viewer.role === 'seeker'
       ? supabase
-          .from('connections')
+          .from('metoo_connections')
           .select('id, status')
           .eq('seeker_id', user.id)
           .eq('volunteer_id', id)
           .maybeSingle()
       : supabase
-          .from('connections')
+          .from('metoo_connections')
           .select('id, status')
           .eq('volunteer_id', user.id)
           .eq('seeker_id', id)
@@ -55,7 +54,7 @@ export default async function PublicProfilePage({
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
     viewer.role === 'volunteer'
       ? supabase
-          .from('connections')
+          .from('metoo_connections')
           .select('id', { count: 'exact', head: true })
           .eq('volunteer_id', user.id)
           .eq('status', 'pending')
@@ -65,8 +64,8 @@ export default async function PublicProfilePage({
   const existingConn = connectionResult.data
   const alreadySent = !!existingConn && existingConn.status !== 'rejected'
 
-  const category = (profile.profile_categories as any[])?.[0]?.categories
-  const hashtags = (profile.profile_hashtags as any[])
+  const category = (profile.metoo_profile_categories as any[])?.[0]?.categories
+  const hashtags = (profile.metoo_profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
 
@@ -141,7 +140,6 @@ export default async function PublicProfilePage({
           )}
         </div>
 
-        <FooterDisclaimer />
       </main>
 
       <SiteFooter className="hidden sm:block" />

@@ -7,7 +7,7 @@ export async function submitFeedback(content: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
 
-  const { error } = await supabase.from('feedback').insert({
+  const { error } = await supabase.from('metoo_feedback').insert({
     profile_id: user.id,
     content: content.trim(),
   })
@@ -21,7 +21,7 @@ export async function submitSuggestion(suggestion: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
 
-  const { error } = await supabase.from('hashtag_suggestions').insert({
+  const { error } = await supabase.from('metoo_hashtag_suggestions').insert({
     profile_id: user.id,
     suggestion: suggestion.trim(),
   })
@@ -53,7 +53,7 @@ export async function createHashtag(
 
   // Upsert: if slug exists return it, otherwise insert
   const { data, error } = await supabase
-    .from('hashtags')
+    .from('metoo_hashtags')
     .upsert({ slug, label: trimmed }, { onConflict: 'slug', ignoreDuplicates: true })
     .select('id, slug, label')
     .single()
@@ -61,7 +61,7 @@ export async function createHashtag(
   if (error) {
     // Fallback: fetch the existing row if upsert returned no data
     const { data: existing } = await supabase
-      .from('hashtags')
+      .from('metoo_hashtags')
       .select('id, slug, label')
       .eq('slug', slug)
       .single()

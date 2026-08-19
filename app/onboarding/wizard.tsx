@@ -7,6 +7,7 @@ import { ArrowRight, Heart } from 'lucide-react'
 import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
 import { completeOnboarding } from './actions'
 import Link from 'next/link'
+import { track } from '@vercel/analytics/react'
 
 export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[] }) {
   const router = useRouter()
@@ -34,6 +35,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
       return
     }
 
+    track('onboarding_completed', { role: role! })
     setStep(5)
     setLoading(false)
     setTimeout(() => router.push('/dashboard'), 3000)

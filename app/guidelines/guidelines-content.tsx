@@ -452,8 +452,8 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
         {role === 'volunteer' ? <VolunteerContent /> : <SeekerContent />}
 
         <div className="mt-4 border-t border-border/60 pt-8 text-center text-xs text-muted-foreground">
-          metoo no sustituye a un profesional de salud mental · En crisis, llama al{' '}
-          <strong className="text-foreground">024</strong>
+          metoo no sustituye a un profesional de salud mental · Si lo necesitas, el{' '}
+          <strong className="text-foreground">024</strong> te escucha
         </div>
       </main>
 
