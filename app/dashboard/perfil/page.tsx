@@ -48,10 +48,19 @@ export default async function PerfilPage() {
         >
           <ArrowLeft className="size-4" />
         </Link>
-        <h1 className="font-semibold">Editar perfil</h1>
+        <div className="flex flex-1 items-center gap-2">
+          <h1 className="font-semibold">Editar perfil</h1>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            profile.role === 'volunteer'
+              ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+              : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+          }`}>
+            {profile.role === 'volunteer' ? '💛 Voluntario' : '🤝 Busca apoyo'}
+          </span>
+        </div>
       </div>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-8">
+      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-8 pb-28 sm:pb-8">
         <EditForm
           initial={{
             alias: profile.alias,

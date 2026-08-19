@@ -48,7 +48,7 @@ export function EditForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="mb-1.5 block text-sm font-medium">Alias</label>
+        <label className="mb-1.5 block text-sm font-medium">Nombre de usuario</label>
         <input
           type="text"
           value={alias}

@@ -77,8 +77,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               <p className="mb-1 font-semibold text-foreground">Personas reales, no profesionales</p>
               <p>
                 Los voluntarios comparten su experiencia vivida, no son psicólogos ni terapeutas.
-                Si estás en crisis, llama al{' '}
-                <strong className="text-foreground">024</strong>.
+                Si lo necesitas, el{' '}
+                <strong className="text-foreground">024</strong> te escucha.
               </p>
             </div>
             <div>
@@ -196,8 +196,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               <p className="mb-1 font-semibold text-foreground">No eres psicólogo</p>
               <p>
                 No das diagnósticos ni actúas como terapeuta. Si sientes que alguien necesita ayuda
-                profesional, se lo dices con cariño y le orientas al{' '}
-                <strong className="text-foreground">024</strong>.
+                profesional, se lo dices con cariño y le mencionas que el{' '}
+                <strong className="text-foreground">024</strong> está disponible.
               </p>
             </div>
             <div>
