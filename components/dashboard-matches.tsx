@@ -175,8 +175,13 @@ export function DashboardMatches({
                     {role === 'seeker' ? (
                       <ContactButton volunteerId={match.id} alreadySent={sentTo.has(match.id)} />
                     ) : (
-                      <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
-                        Esperando contacto
+                      <div className="space-y-1">
+                        <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
+                          Esperando contacto
+                        </div>
+                        <p className="text-center text-xs text-muted-foreground/70">
+                          Esta persona aún no te ha escrito. Las personas que buscan apoyo inician el contacto.
+                        </p>
                       </div>
                     )}
                     <Link

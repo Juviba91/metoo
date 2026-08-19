@@ -62,8 +62,7 @@ function LoginForm() {
         return
       }
       if (!data.session) {
-        setInfo('Confirma tu email para continuar (revisa el buzón de entrada y spam).')
-        setLoading(false)
+        router.push('/auth/verificar')
         return
       }
     }
