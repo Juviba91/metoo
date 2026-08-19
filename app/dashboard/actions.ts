@@ -45,16 +45,16 @@ export async function requestConnection(volunteerId: string) {
 
   if (!user) return { error: 'No autenticado' }
 
-  const { error } = await supabase.from('connections').insert({
+  const { data, error } = await supabase.from('connections').insert({
     seeker_id: user.id,
     volunteer_id: volunteerId,
     status: 'pending',
-  })
+  }).select('id').single()
 
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard')
-  return { success: true }
+  return { success: true, connectionId: data.id as string }
 }
 
 export async function updateProfile({
