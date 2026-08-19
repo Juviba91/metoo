@@ -19,14 +19,14 @@ async function requireAdmin() {
 export async function toggleProfileActive(profileId: string, isActive: boolean) {
   await requireAdmin()
   const admin = createAdminClient()
-  await admin.from('profiles').update({ is_active: isActive }).eq('id', profileId)
+  await admin.from('metoo_profiles').update({ is_active: isActive }).eq('id', profileId)
   revalidatePath('/admin')
 }
 
 export async function deleteUserAccount(userId: string) {
   await requireAdmin()
   const admin = createAdminClient()
-  await admin.from('profiles').delete().eq('id', userId)
+  await admin.from('metoo_profiles').delete().eq('id', userId)
   await admin.auth.admin.deleteUser(userId)
   revalidatePath('/admin')
 }
@@ -34,6 +34,6 @@ export async function deleteUserAccount(userId: string) {
 export async function resolveReport(reportId: string) {
   await requireAdmin()
   const admin = createAdminClient()
-  await admin.from('reports').update({ resolved: true }).eq('id', reportId)
+  await admin.from('metoo_reports').update({ resolved: true }).eq('id', reportId)
   revalidatePath('/admin')
 }

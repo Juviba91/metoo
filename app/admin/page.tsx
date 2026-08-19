@@ -24,17 +24,17 @@ export default async function AdminPage() {
     { count: messageCount },
   ] = await Promise.all([
     admin
-      .from('profiles')
+      .from('metoo_profiles')
       .select('id, alias, role, city, is_active, created_at')
       .order('created_at', { ascending: false }),
     admin.auth.admin.listUsers({ perPage: 1000 }),
     admin
-      .from('reports')
-      .select('id, reporter_id, reported_id, reason, description, resolved, created_at, profiles!reported_id(alias)')
+      .from('metoo_reports')
+      .select('id, reporter_id, reported_id, reason, description, resolved, created_at, metoo_profiles!reported_id(alias)')
       .order('created_at', { ascending: false })
       .limit(50),
-    admin.from('connections').select('id', { count: 'exact', head: true }),
-    admin.from('messages').select('id', { count: 'exact', head: true }),
+    admin.from('metoo_connections').select('id', { count: 'exact', head: true }),
+    admin.from('metoo_messages').select('id', { count: 'exact', head: true }),
   ])
 
   const emailMap = Object.fromEntries(

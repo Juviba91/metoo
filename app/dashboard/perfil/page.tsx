@@ -19,13 +19,13 @@ export default async function PerfilPage() {
 
   const [{ data: profile }, { data: allHashtags }, { count: pendingCount }] = await Promise.all([
     supabase
-      .from('profiles')
-      .select('alias, city, bio, role, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .from('metoo_profiles')
+      .select('alias, city, bio, role, is_active, metoo_profile_hashtags(hashtag_id, metoo_hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
-    supabase.from('hashtags').select('id, slug, label').order('label'),
+    supabase.from('metoo_hashtags').select('id, slug, label').order('label'),
     supabase
-      .from('connections')
+      .from('metoo_connections')
       .select('id', { count: 'exact', head: true })
       .eq('volunteer_id', user.id)
       .eq('status', 'pending'),

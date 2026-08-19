@@ -16,7 +16,7 @@ export default async function ChatPage({
   if (!user) redirect('/auth/login')
 
   const { data: connection } = await supabase
-    .from('connections')
+    .from('metoo_connections')
     .select(
       'id, status, seeker_id, volunteer_id, seeker:seeker_id(alias), volunteer:volunteer_id(alias)',
     )
@@ -36,7 +36,7 @@ export default async function ChatPage({
   const reportedId = isSeeker ? connection.volunteer_id : connection.seeker_id
 
   const { data: messages } = await supabase
-    .from('messages')
+    .from('metoo_messages')
     .select('id, sender_id, content, created_at')
     .eq('connection_id', connectionId)
     .order('created_at', { ascending: true })
