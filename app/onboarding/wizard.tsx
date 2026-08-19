@@ -74,32 +74,32 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
 
           <div className="mb-6 space-y-4 rounded-xl border border-border bg-muted/20 p-5 text-sm leading-relaxed text-muted-foreground">
             <div>
-              <p className="mb-1 font-semibold text-foreground">Esto es apoyo entre iguales</p>
+              <p className="mb-1 font-semibold text-foreground">Personas reales, no profesionales</p>
               <p>
-                Los voluntarios comparten su experiencia personal, no son profesionales de salud
-                mental. Si estás en crisis, llama al{' '}
+                Los voluntarios comparten su experiencia vivida, no son psicólogos ni terapeutas.
+                Si estás en crisis, llama al{' '}
                 <strong className="text-foreground">024</strong>.
               </p>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-foreground">Tu identidad está protegida</p>
+              <p className="mb-1 font-semibold text-foreground">Tu privacidad, primero</p>
               <p>
-                Solo comparte lo que quieras. Usa un alias y evita datos personales en el chat
-                (nombre real, teléfono, dirección).
+                Usa un nombre de usuario y comparte solo lo que quieras. Evita datos personales
+                en el chat como tu nombre real, teléfono o dirección.
               </p>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-foreground">Respeto siempre</p>
+              <p className="mb-1 font-semibold text-foreground">Un espacio de respeto</p>
               <p>
-                Trato amable en todo momento. Nada de presión, insultos ni fines comerciales.
-                Cualquier incumplimiento puede suponer la suspensión de la cuenta.
+                Aquí todos pasamos por algo difícil. Trato amable siempre, sin presiones ni
+                fines comerciales.
               </p>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-foreground">Para voluntarios</p>
+              <p className="mb-1 font-semibold text-foreground">Si eres voluntario</p>
               <p>
-                Habla desde tu experiencia, sin diagnósticos ni consejos médicos. Tu participación
-                es voluntaria — cuídate también a ti.
+                Habla desde lo que viviste, sin diagnósticos. Tu participación es libre —
+                cuídate también a ti.
               </p>
             </div>
           </div>
@@ -269,11 +269,11 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
         <div>
           <h1 className="mb-2 text-center text-2xl font-bold">Tu perfil</h1>
           <p className="mb-8 text-center text-muted-foreground">
-            Elige un alias anónimo y dinos dónde estás
+            Elige un nombre de usuario anónimo y dinos dónde estás
           </p>
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Alias</label>
+              <label className="mb-1.5 block text-sm font-medium">Nombre de usuario</label>
               <input
                 type="text"
                 placeholder="Ej: luna_azul, padre_fuerte..."
