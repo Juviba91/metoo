@@ -55,13 +55,16 @@ export default async function DashboardPage() {
     supabase.from('hashtags').select('id, slug, label').order('label'),
   ])
 
-  // Exclude rejected connections so seekers can re-contact after a rejection
-  const sentTo = new Set(
+  // Map otherUserId -> connectionId for non-rejected connections
+  const connectedTo = Object.fromEntries(
     (connections ?? [])
       .filter((c: any) => c.status !== 'rejected')
-      .map((c: any) => profile.role === 'seeker' ? c.volunteer_id : c.seeker_id)
-      .filter(Boolean),
-  )
+      .map((c: any) => {
+        const otherId = profile.role === 'seeker' ? c.volunteer_id : c.seeker_id
+        return [otherId, c.id] as const
+      })
+      .filter(([otherId]) => Boolean(otherId)),
+  ) as Record<string, string>
 
   const pendingCount =
     profile.role === 'volunteer'
@@ -286,7 +289,7 @@ export default async function DashboardPage() {
         <DashboardMatches
           matches={(matches ?? []) as any}
           role={profile.role}
-          sentTo={sentTo}
+          connectedTo={connectedTo}
           allHashtags={(allHashtags ?? []) as any}
         />
 
