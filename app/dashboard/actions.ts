@@ -11,7 +11,7 @@ export async function acceptConnection(connectionId: string): Promise<void> {
   if (!user) return
 
   await supabase
-    .from('metoo_connections')
+    .from('connections')
     .update({ status: 'accepted' })
     .eq('id', connectionId)
     .eq('volunteer_id', user.id)
@@ -28,7 +28,7 @@ export async function rejectConnection(connectionId: string): Promise<void> {
   if (!user) return
 
   await supabase
-    .from('metoo_connections')
+    .from('connections')
     .update({ status: 'rejected' })
     .eq('id', connectionId)
     .eq('volunteer_id', user.id)
@@ -45,7 +45,7 @@ export async function requestConnection(volunteerId: string) {
 
   if (!user) return { error: 'No autenticado' }
 
-  const { data, error } = await supabase.from('metoo_connections').insert({
+  const { data, error } = await supabase.from('connections').insert({
     seeker_id: user.id,
     volunteer_id: volunteerId,
     status: 'pending',
@@ -77,7 +77,7 @@ export async function updateProfile({
   if (!user) return { error: 'No autenticado' }
 
   const { error } = await supabase
-    .from('metoo_profiles')
+    .from('profiles')
     .update({ alias: alias.trim(), city: city.trim(), bio: bio.trim() || null, ...(isActive !== undefined && { is_active: isActive }) })
     .eq('id', user.id)
 
@@ -86,7 +86,7 @@ export async function updateProfile({
   }
 
   // Sync hashtags: replace all existing with the new selection
-  await supabase.from('metoo_profile_hashtags').delete().eq('profile_id', user.id)
+  await supabase.from('profile_hashtags').delete().eq('profile_id', user.id)
 
   const resolvedIds: string[] = hashtags
     .filter((tag) => !tag.id.startsWith('new:'))
@@ -94,7 +94,7 @@ export async function updateProfile({
 
   if (resolvedIds.length > 0) {
     await supabase
-      .from('metoo_profile_hashtags')
+      .from('profile_hashtags')
       .insert(resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })))
   }
 
@@ -116,7 +116,7 @@ export async function reportUser(
   if (!user) return { error: 'No autenticado' }
 
   const { data: conn } = await supabase
-    .from('metoo_connections')
+    .from('connections')
     .select('seeker_id, volunteer_id')
     .eq('id', connectionId)
     .single()
@@ -125,7 +125,7 @@ export async function reportUser(
     return { error: 'No autorizado' }
   }
 
-  await supabase.from('metoo_reports').insert({
+  await supabase.from('reports').insert({
     reporter_id: user.id,
     reported_id: reportedId,
     connection_id: connectionId,
@@ -144,14 +144,14 @@ export async function markConnectionRead(connectionId: string): Promise<void> {
   if (!user) return
 
   const { data: conn } = await supabase
-    .from('metoo_connections')
+    .from('connections')
     .select('seeker_id, volunteer_id')
     .eq('id', connectionId)
     .single()
 
   if (!conn) return
   const field = conn.seeker_id === user.id ? 'seeker_last_read_at' : 'volunteer_last_read_at'
-  await supabase.from('metoo_connections').update({ [field]: new Date().toISOString() }).eq('id', connectionId)
+  await supabase.from('connections').update({ [field]: new Date().toISOString() }).eq('id', connectionId)
 }
 
 export async function toggleAvailability(isActive: boolean): Promise<void> {
@@ -161,7 +161,7 @@ export async function toggleAvailability(isActive: boolean): Promise<void> {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  await supabase.from('metoo_profiles').update({ is_active: isActive }).eq('id', user.id)
+  await supabase.from('profiles').update({ is_active: isActive }).eq('id', user.id)
   revalidatePath('/dashboard')
 }
 
@@ -178,7 +178,7 @@ export async function sendMessage(connectionId: string, content: string) {
 
   // Auto-accept if the volunteer replies to a pending request
   const { data: conn } = await supabase
-    .from('metoo_connections')
+    .from('connections')
     .select('status, volunteer_id, seeker_id')
     .eq('id', connectionId)
     .single()
@@ -189,7 +189,7 @@ export async function sendMessage(connectionId: string, content: string) {
 
   if (conn?.status === 'pending' && conn.volunteer_id === user.id) {
     await supabase
-      .from('metoo_connections')
+      .from('connections')
       .update({ status: 'accepted' })
       .eq('id', connectionId)
     revalidatePath('/dashboard')
@@ -197,7 +197,7 @@ export async function sendMessage(connectionId: string, content: string) {
   }
 
   const { data, error } = await supabase
-    .from('metoo_messages')
+    .from('messages')
     .insert({
       connection_id: connectionId,
       sender_id: user.id,

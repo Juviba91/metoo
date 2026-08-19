@@ -19,8 +19,8 @@ export default async function DashboardPage() {
   if (!user) redirect('/auth/login')
 
   const { data: profile } = await supabase
-    .from('metoo_profiles')
-    .select('*, bio, metoo_profile_categories(category_id, metoo_categories(slug, name, emoji)), metoo_profile_hashtags(hashtag_id, metoo_hashtags(id, slug, label))')
+    .from('profiles')
+    .select('*, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
     .eq('id', user.id)
     .single()
 
@@ -30,8 +30,8 @@ export default async function DashboardPage() {
 
   const [{ data: matches }, { data: connections }, { data: unreadData }, { data: allHashtags }] = await Promise.all([
     supabase
-      .from('metoo_profiles')
-      .select('id, alias, city, bio, metoo_profile_categories(category_id, metoo_categories(slug, name, emoji)), metoo_profile_hashtags(hashtag_id, metoo_hashtags(id, slug, label))')
+      .from('profiles')
+      .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('role', oppositeRole)
       .eq('is_active', true)
       .neq('id', user.id)
@@ -39,19 +39,19 @@ export default async function DashboardPage() {
 
     profile.role === 'seeker'
       ? supabase
-          .from('metoo_connections')
+          .from('connections')
           .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city)')
           .eq('seeker_id', user.id)
           .order('created_at', { ascending: false })
       : supabase
-          .from('metoo_connections')
-          .select('id, status, seeker_id, seeker:seeker_id(alias, city, bio, metoo_profile_categories(category_id, metoo_categories(slug, name, emoji)), metoo_profile_hashtags(hashtag_id, metoo_hashtags(id, slug, label)))')
+          .from('connections')
+          .select('id, status, seeker_id, seeker:seeker_id(alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false }),
 
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
 
-    supabase.from('metoo_hashtags').select('id, slug, label').order('label'),
+    supabase.from('hashtags').select('id, slug, label').order('label'),
   ])
 
   // Map otherUserId -> connectionId for non-rejected connections
@@ -71,8 +71,8 @@ export default async function DashboardPage() {
       : 0
   const chatUnread = (unreadData as number) ?? 0
 
-  const category = (profile.metoo_profile_categories as any[])?.[0]?.categories
-  const ownHashtags = (profile.metoo_profile_hashtags as any[])
+  const category = (profile.profile_categories as any[])?.[0]?.categories
+  const ownHashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
 

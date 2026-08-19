@@ -18,13 +18,13 @@ export default async function PerfilPage() {
 
   const [{ data: profile }, { data: allHashtags }, { count: pendingCount }] = await Promise.all([
     supabase
-      .from('metoo_profiles')
-      .select('alias, city, bio, role, is_active, metoo_profile_hashtags(hashtag_id, metoo_hashtags(id, slug, label))')
+      .from('profiles')
+      .select('alias, city, bio, role, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
-    supabase.from('metoo_hashtags').select('id, slug, label').order('label'),
+    supabase.from('hashtags').select('id, slug, label').order('label'),
     supabase
-      .from('metoo_connections')
+      .from('connections')
       .select('id', { count: 'exact', head: true })
       .eq('volunteer_id', user.id)
       .eq('status', 'pending'),
@@ -32,7 +32,7 @@ export default async function PerfilPage() {
 
   if (!profile) redirect('/onboarding')
 
-  const profileHashtags = (profile.metoo_profile_hashtags as any[])
+  const profileHashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
 

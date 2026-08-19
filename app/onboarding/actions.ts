@@ -33,7 +33,7 @@ export async function completeOnboarding({
 
   if (!user) return { error: 'No autenticado' }
 
-  const { error: profileError } = await supabase.from('metoo_profiles').insert({
+  const { error: profileError } = await supabase.from('profiles').insert({
     id: user.id,
     alias: alias.trim(),
     role,
@@ -55,7 +55,7 @@ export async function completeOnboarding({
 
   if (resolvedIds.length > 0) {
     await supabase
-      .from('metoo_profile_hashtags')
+      .from('profile_hashtags')
       .insert(resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })))
   }
 
@@ -63,13 +63,13 @@ export async function completeOnboarding({
   const matchingTag = hashtags.find((h) => CATEGORY_SLUGS.includes(h.slug))
   if (matchingTag) {
     const { data: cat } = await supabase
-      .from('metoo_categories')
+      .from('categories')
       .select('id')
       .eq('slug', matchingTag.slug)
       .single()
     if (cat) {
       await supabase
-        .from('metoo_profile_categories')
+        .from('profile_categories')
         .insert({ profile_id: user.id, category_id: cat.id })
     }
   }

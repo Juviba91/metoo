@@ -10,7 +10,7 @@ export default async function GuidelinesPage() {
   let defaultRole: 'volunteer' | 'seeker' | null = null
   if (user) {
     const { data: profile } = await supabase
-      .from('metoo_profiles')
+      .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
