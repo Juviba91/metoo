@@ -24,18 +24,28 @@ export function ReportButton({
   const [description, setDescription] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   function handleClose() {
     setOpen(false)
-    setTimeout(() => { setReason(''); setDescription(''); setDone(false) }, 300)
+    setTimeout(() => { setReason(''); setDescription(''); setDone(false); setError(null) }, 300)
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!reason || submitting) return
+    if (reason === 'Otro' && !description.trim()) {
+      setError('Por favor describe el motivo')
+      return
+    }
     setSubmitting(true)
-    await reportUser(reportedId, connectionId, reason, description)
+    setError(null)
+    const result = await reportUser(reportedId, connectionId, reason, description)
     setSubmitting(false)
+    if (result.error) {
+      setError(result.error)
+      return
+    }
     setDone(true)
     setTimeout(handleClose, 2000)
   }
@@ -73,6 +83,7 @@ export function ReportButton({
               </p>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
+                {error && <p className="rounded bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>}
                 <div className="space-y-2">
                   {REASONS.map((r) => (
                     <label

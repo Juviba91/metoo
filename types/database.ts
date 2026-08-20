@@ -73,17 +73,20 @@ export type Database = {
         Row: {
           id: string
           slug: string
-          label: string
+          name: string
+          emoji: string
         }
         Insert: {
           id?: string
           slug: string
-          label: string
+          name: string
+          emoji: string
         }
         Update: {
           id?: string
           slug?: string
-          label?: string
+          name?: string
+          emoji?: string
         }
       }
       profile_categories: {
@@ -200,6 +203,7 @@ export type Database = {
           connection_id: string | null
           reason: string
           description: string | null
+          resolved: boolean
           created_at: string
         }
         Insert: {
@@ -209,6 +213,7 @@ export type Database = {
           connection_id?: string | null
           reason: string
           description?: string | null
+          resolved?: boolean
           created_at?: string
         }
         Update: {
@@ -218,6 +223,7 @@ export type Database = {
           connection_id?: string | null
           reason?: string
           description?: string | null
+          resolved?: boolean
           created_at?: string
         }
       }

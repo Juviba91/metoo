@@ -36,19 +36,23 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
     const slug = toSlug(label)
     if (!slug) continue
 
-    const { data: hashtag } = await supabase
+    const { data: hashtag, error: hashtagError } = await supabase
       .from('hashtags')
       .upsert({ slug, label }, { onConflict: 'slug', ignoreDuplicates: true })
       .select('id')
       .single()
 
-    if (hashtag) {
-      await supabase
-        .from('post_hashtags')
-        .upsert(
-          { post_id: post.id, hashtag_id: hashtag.id },
-          { onConflict: 'post_id,hashtag_id', ignoreDuplicates: true },
-        )
+    if (hashtagError || !hashtag) continue
+
+    const { error: phError } = await supabase
+      .from('post_hashtags')
+      .upsert(
+        { post_id: post.id, hashtag_id: hashtag.id },
+        { onConflict: 'post_id,hashtag_id', ignoreDuplicates: true },
+      )
+
+    if (phError) {
+      console.error('Error creating post_hashtag:', phError)
     }
   }
 
@@ -94,15 +98,25 @@ export async function toggleReaction(postId: string): Promise<{ success?: boolea
     .maybeSingle()
 
   if (existing) {
-    await supabase
+    const { error: deleteError } = await supabase
       .from('post_reactions')
       .delete()
       .eq('post_id', postId)
       .eq('profile_id', user.id)
+
+    if (deleteError) {
+      console.error('Error removing reaction:', deleteError)
+      return { error: 'Error al remover reacción' }
+    }
   } else {
-    await supabase
+    const { error: insertError } = await supabase
       .from('post_reactions')
       .insert({ post_id: postId, profile_id: user.id })
+
+    if (insertError) {
+      console.error('Error adding reaction:', insertError)
+      return { error: 'Error al agregar reacción' }
+    }
   }
 
   revalidatePath('/feed')

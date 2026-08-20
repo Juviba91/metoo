@@ -54,23 +54,33 @@ export async function completeOnboarding({
   const resolvedIds = hashtags.filter((tag) => !tag.id.startsWith('new:')).map((tag) => tag.id)
 
   if (resolvedIds.length > 0) {
-    await supabase
+    const { error: hashtagError } = await supabase
       .from('profile_hashtags')
       .insert(resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })))
+
+    if (hashtagError) {
+      console.error('Error saving hashtags:', hashtagError)
+      return { error: 'Error al guardar hashtags. Por favor intenta de nuevo.' }
+    }
   }
 
   // Derive a category for the matching system from the selected hashtags
   const matchingTag = hashtags.find((h) => CATEGORY_SLUGS.includes(h.slug))
   if (matchingTag) {
-    const { data: cat } = await supabase
+    const { data: cat, error: catError } = await supabase
       .from('categories')
       .select('id')
       .eq('slug', matchingTag.slug)
       .single()
-    if (cat) {
-      await supabase
+
+    if (!catError && cat) {
+      const { error: catLinkError } = await supabase
         .from('profile_categories')
         .insert({ profile_id: user.id, category_id: cat.id })
+
+      if (catLinkError) {
+        console.error('Error linking category:', catLinkError)
+      }
     }
   }
 
