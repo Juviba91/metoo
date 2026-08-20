@@ -22,6 +22,10 @@ export default async function AdminPage() {
     { data: reports },
     { count: connectionCount },
     { count: messageCount },
+    { count: blockCount },
+    { count: failedEmailCount },
+    { count: pendingEmailCount },
+    { count: rateLimitCount },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -36,6 +40,10 @@ export default async function AdminPage() {
       .limit(50),
     admin.from('connections').select('id', { count: 'exact', head: true }),
     admin.from('messages').select('id', { count: 'exact', head: true }),
+    admin.from('blocks').select('id', { count: 'exact', head: true }),
+    admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
+    admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    admin.from('rate_limits').select('id', { count: 'exact', head: true }).gte('window_start', new Date(Date.now() - 3600000).toISOString()),
   ])
 
   const emailMap = Object.fromEntries(
@@ -77,9 +85,13 @@ export default async function AdminPage() {
             { label: 'Buscadores', value: seekers },
             { label: 'Conexiones', value: connectionCount ?? 0 },
             { label: 'Mensajes', value: messageCount ?? 0 },
+            { label: 'Bloqueos', value: blockCount ?? 0 },
+            { label: 'Emails fallidos', value: failedEmailCount ?? 0, highlight: failedEmailCount ? 'text-destructive' : '' },
+            { label: 'Emails pendientes', value: pendingEmailCount ?? 0 },
+            { label: 'Rate limits (1h)', value: rateLimitCount ?? 0 },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-border p-4 text-center">
-              <p className="text-2xl font-bold">{s.value}</p>
+            <div key={s.label} className={`rounded-xl border border-border p-4 text-center ${s.highlight ? s.highlight : ''}`}>
+              <p className={`text-2xl font-bold ${s.highlight}`}>{s.value}</p>
               <p className="text-xs text-muted-foreground">{s.label}</p>
             </div>
           ))}

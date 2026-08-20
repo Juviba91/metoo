@@ -124,8 +124,22 @@ export async function queueEmail(
   subject: string,
   htmlBody: string,
   fromEmail?: string,
+  userId?: string,
 ): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
+
+  // Check if user has disabled email notifications
+  if (userId) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email_notifications_enabled')
+      .eq('id', userId)
+      .single()
+
+    if (profile && !profile.email_notifications_enabled) {
+      return { success: true } // Silently skip if notifications disabled
+    }
+  }
 
   const { error } = await supabase.from('email_queue').insert({
     recipient_email: recipientEmail,
@@ -137,6 +151,23 @@ export async function queueEmail(
   if (error) {
     console.error('Error queueing email:', error)
     return { error: 'Error al enviar email' }
+  }
+
+  return { success: true }
+}
+
+export async function toggleEmailNotifications(enabled: boolean): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ email_notifications_enabled: enabled })
+    .eq('id', user.id)
+
+  if (error) {
+    return { error: 'Error al actualizar preferencias' }
   }
 
   return { success: true }

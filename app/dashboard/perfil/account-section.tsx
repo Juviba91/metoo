@@ -5,13 +5,17 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { resendConfirmation } from '@/app/auth/actions'
 import { sendPasswordReset } from '@/app/auth/actions'
-import { Mail, Key, CheckCircle2, Shield } from 'lucide-react'
+import { toggleEmailNotifications } from '@/app/safety/actions'
+import { Mail, Key, CheckCircle2, Shield, Bell } from 'lucide-react'
 
-export function AccountSection({ email, emailConfirmed }: { email?: string; emailConfirmed: boolean }) {
+export function AccountSection({ email, emailConfirmed, emailNotificationsEnabled = true }: { email?: string; emailConfirmed: boolean; emailNotificationsEnabled?: boolean }) {
   const [resendLoading, setResendLoading] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(emailNotificationsEnabled)
   const [resendMessage, setResendMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [resetMessage, setResetMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [notificationsMessage, setNotificationsMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   async function handleResendConfirmation() {
     setResendLoading(true)
@@ -35,6 +39,22 @@ export function AccountSection({ email, emailConfirmed }: { email?: string; emai
       setResetMessage({ type: 'error', text: result.error || 'Error al enviar el correo.' })
     }
     setResetLoading(false)
+  }
+
+  async function handleToggleNotifications() {
+    setNotificationsLoading(true)
+    setNotificationsMessage(null)
+    const result = await toggleEmailNotifications(!notificationsEnabled)
+    if (result.success) {
+      setNotificationsEnabled(!notificationsEnabled)
+      setNotificationsMessage({
+        type: 'success',
+        text: notificationsEnabled ? 'Notificaciones deshabilitadas' : 'Notificaciones habilitadas'
+      })
+    } else {
+      setNotificationsMessage({ type: 'error', text: result.error || 'Error al actualizar preferencias.' })
+    }
+    setNotificationsLoading(false)
   }
 
   return (
@@ -104,6 +124,39 @@ export function AccountSection({ email, emailConfirmed }: { email?: string; emai
           {resetMessage && (
             <p className={`mt-2 text-xs ${resetMessage.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
               {resetMessage.text}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Email notifications section */}
+      <div className="rounded-lg border border-border px-4 py-3">
+        <div className="flex items-start gap-3">
+          <Bell className="mt-0.5 size-4 text-muted-foreground" />
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground">Notificaciones por correo</p>
+            <p className="text-sm font-medium">
+              {notificationsEnabled ? 'Habilitadas' : 'Deshabilitadas'}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Recibe notificaciones sobre nuevos mensajes y solicitudes de conexión
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleToggleNotifications}
+            disabled={notificationsLoading}
+            className="w-full text-xs"
+          >
+            {notificationsLoading ? 'Actualizando...' : notificationsEnabled ? 'Desactivar' : 'Activar'}
+          </Button>
+          {notificationsMessage && (
+            <p className={`mt-2 text-xs ${notificationsMessage.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+              {notificationsMessage.text}
             </p>
           )}
         </div>

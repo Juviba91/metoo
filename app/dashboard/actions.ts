@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkRateLimit } from '@/app/safety/actions'
+import { checkRateLimit, isUserBlocked } from '@/app/safety/actions'
 
 export async function acceptConnection(connectionId: string): Promise<void> {
   const supabase = await createClient()
@@ -233,6 +233,25 @@ export async function sendMessage(connectionId: string, content: string) {
 
   if (!conn || (conn.seeker_id !== user.id && conn.volunteer_id !== user.id)) {
     return { error: 'No autorizado' }
+  }
+
+  // Check if either user has blocked the other
+  const otherUserId = conn.seeker_id === user.id ? conn.volunteer_id : conn.seeker_id
+  const isBlocked = await isUserBlocked(otherUserId)
+  if (isBlocked) {
+    return { error: 'No puedes enviar mensajes a este usuario' }
+  }
+
+  // Check if the other user has blocked you
+  const { data: blockByOther } = await supabase
+    .from('blocks')
+    .select('id')
+    .eq('blocker_id', otherUserId)
+    .eq('blocked_id', user.id)
+    .maybeSingle()
+
+  if (blockByOther) {
+    return { error: 'No puedes enviar mensajes a este usuario' }
   }
 
   if (conn?.status === 'pending' && conn.volunteer_id === user.id) {
