@@ -5,6 +5,7 @@ import { DashboardMatches } from '@/components/dashboard-matches'
 import { MapPin, MessageCircle } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
+import { getBlockedUsers } from '@/app/safety/actions'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
@@ -27,6 +28,18 @@ export default async function DashboardPage() {
   if (!profile) redirect('/onboarding')
 
   const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
+
+  // Get blocked users to filter them out
+  const blockedIds = await getBlockedUsers()
+
+  // Also get users who have blocked the current user
+  const { data: blockedByData } = await supabase
+    .from('blocks')
+    .select('blocker_id')
+    .eq('blocked_id', user.id)
+
+  const blockedByIds = (blockedByData ?? []).map(b => b.blocker_id)
+  const allBlockedIds = new Set([...blockedIds, ...blockedByIds])
 
   const [{ data: matches }, { data: connections }, { data: unreadData }, { data: allHashtags }] = await Promise.all([
     supabase
@@ -286,7 +299,7 @@ export default async function DashboardPage() {
 
         {/* Matches with search */}
         <DashboardMatches
-          matches={(matches ?? []) as any}
+          matches={(matches ?? []).filter((m: any) => !allBlockedIds.has(m.id)) as any}
           role={profile.role}
           connectedTo={connectedTo}
           allHashtags={(allHashtags ?? []) as any}

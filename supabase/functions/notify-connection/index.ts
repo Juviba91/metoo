@@ -50,33 +50,26 @@ Deno.serve(async (req: Request) => {
     return new Response('No volunteer email', { status: 200 })
   }
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: FROM_EMAIL,
-      to: volunteer.email,
-      subject: `${seeker?.alias ?? 'Alguien'} quiere conectar contigo en metoo`,
-      html: `
-        <p>Hola,</p>
-        <p><strong>${seeker?.alias ?? 'Alguien'}</strong> ha pedido contactar contigo en metoo.</p>
-        <p>Entra a la app para aceptar o rechazar la solicitud.</p>
-        <p><a href="${APP_URL}/dashboard">Ver solicitud →</a></p>
-        <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
-        <p style="font-size:0.75rem;color:#9ca3af;">
-          metoo — apoyo entre personas que lo han vivido.<br />
-          Si no quieres recibir estos avisos, desactívalos en tu perfil.
-        </p>
-      `,
-    }),
+  // Queue email for delivery with retry logic
+  const { error: queueError } = await supabase.from('email_queue').insert({
+    recipient_email: volunteer.email,
+    subject: `${seeker?.alias ?? 'Alguien'} quiere conectar contigo en metoo`,
+    html_body: `
+      <p>Hola,</p>
+      <p><strong>${seeker?.alias ?? 'Alguien'}</strong> ha pedido contactar contigo en metoo.</p>
+      <p>Entra a la app para aceptar o rechazar la solicitud.</p>
+      <p><a href="${APP_URL}/dashboard">Ver solicitud →</a></p>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
+      <p style="font-size:0.75rem;color:#9ca3af;">
+        metoo — apoyo entre personas que lo han vivido.<br />
+        Si no quieres recibir estos avisos, desactívalos en tu perfil.
+      </p>
+    `,
+    from_email: FROM_EMAIL,
   })
 
-  if (!res.ok) {
-    const err = await res.text()
-    console.error('Resend error:', err)
+  if (queueError) {
+    console.error('Error queuing email:', queueError)
   }
 
   return new Response('ok', { status: 200 })

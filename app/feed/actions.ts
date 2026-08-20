@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { checkRateLimit } from '@/app/safety/actions'
 
 function toSlug(text: string): string {
   return text
@@ -21,6 +22,9 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
 
   const trimmed = content.trim()
   if (!trimmed || trimmed.length > 500) return { error: 'Contenido inválido' }
+
+  const { allowed } = await checkRateLimit('post_create')
+  if (!allowed) return { error: 'Has alcanzado el límite de publicaciones. Intenta más tarde.' }
 
   const { data: post, error } = await supabase
     .from('posts')

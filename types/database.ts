@@ -227,6 +227,93 @@ export type Database = {
           created_at?: string
         }
       }
+      blocks: {
+        Row: {
+          id: string
+          blocker_id: string
+          blocked_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          blocker_id: string
+          blocked_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          blocker_id?: string
+          blocked_id?: string
+          created_at?: string
+        }
+      }
+      email_queue: {
+        Row: {
+          id: string
+          recipient_email: string
+          subject: string
+          html_body: string
+          from_email: string
+          retry_count: number
+          max_retries: number
+          next_retry_at: string
+          error_message: string | null
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          recipient_email: string
+          subject: string
+          html_body: string
+          from_email?: string
+          retry_count?: number
+          max_retries?: number
+          next_retry_at?: string
+          error_message?: string | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          recipient_email?: string
+          subject?: string
+          html_body?: string
+          from_email?: string
+          retry_count?: number
+          max_retries?: number
+          next_retry_at?: string
+          error_message?: string | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      rate_limits: {
+        Row: {
+          id: string
+          user_id: string
+          action: string
+          count: number
+          window_start: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          action: string
+          count?: number
+          window_start?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          action?: string
+          count?: number
+          window_start?: string
+        }
+      }
     }
     Functions: {
       get_unread_count: {
@@ -247,6 +334,9 @@ export type Message = Database['public']['Tables']['messages']['Row']
 export type Feedback = Database['public']['Tables']['feedback']['Row']
 export type HashtagSuggestion = Database['public']['Tables']['hashtag_suggestions']['Row']
 export type Report = Database['public']['Tables']['reports']['Row']
+export type Block = Database['public']['Tables']['blocks']['Row']
+export type EmailQueue = Database['public']['Tables']['email_queue']['Row']
+export type RateLimit = Database['public']['Tables']['rate_limits']['Row']
 
 export type ConnectionStatus = Connection['status']
 export type UserRole = Profile['role']
