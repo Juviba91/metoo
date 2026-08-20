@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackForm } from '@/components/feedback-form'
 import { SiteFooter } from '@/components/site-footer'
+import { AccountSection } from './account-section'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -71,6 +72,11 @@ export default async function PerfilPage() {
           role={profile.role}
           suggestions={allHashtags ?? []}
         />
+
+        <div className="mt-12 border-t border-border/60 pt-8">
+          <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>
+          <AccountSection email={user.email} emailConfirmed={!!user.email_confirmed_at} />
+        </div>
 
         <div className="mt-12 border-t border-border/60 pt-8">
           <h2 className="mb-3 text-sm font-semibold">Feedback</h2>
