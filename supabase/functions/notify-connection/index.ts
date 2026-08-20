@@ -32,15 +32,23 @@ Deno.serve(async (req: Request) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
   // Get seeker alias
-  const { data: seeker } = await supabase
+  const { data: seeker, error: seekerError } = await supabase
     .from('profiles')
     .select('alias')
     .eq('id', connection.seeker_id)
     .single()
 
+  if (seekerError) {
+    console.error('Seeker not found:', seekerError)
+    return new Response('Seeker not found', { status: 200 })
+  }
+
   // Get volunteer email
-  const { data: { user: volunteer } } = await supabase.auth.admin.getUserById(connection.volunteer_id)
-  if (!volunteer?.email) return new Response('No volunteer email', { status: 200 })
+  const { data: { user: volunteer }, error: volunteerError } = await supabase.auth.admin.getUserById(connection.volunteer_id)
+  if (volunteerError || !volunteer?.email) {
+    console.error('Volunteer not found:', volunteerError)
+    return new Response('No volunteer email', { status: 200 })
+  }
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',

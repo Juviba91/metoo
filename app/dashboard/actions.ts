@@ -175,6 +175,7 @@ export async function markConnectionRead(connectionId: string): Promise<void> {
     .single()
 
   if (!conn) return
+  if (conn.seeker_id !== user.id && conn.volunteer_id !== user.id) return
   const field = conn.seeker_id === user.id ? 'seeker_last_read_at' : 'volunteer_last_read_at'
 
   const { error } = await supabase

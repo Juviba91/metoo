@@ -37,17 +37,25 @@ Deno.serve(async (req: Request) => {
   const recipientId =
     conn.seeker_id === message.sender_id ? conn.volunteer_id : conn.seeker_id
 
-  const { data: sender } = await supabase
+  const { data: sender, error: senderError } = await supabase
     .from('profiles')
     .select('alias')
     .eq('id', message.sender_id)
     .single()
 
-  const { data: { user: recipientUser } } = await supabase.auth.admin.getUserById(recipientId)
-  if (!recipientUser?.email) return new Response('No recipient email', { status: 200 })
+  if (!sender || senderError) {
+    console.error('Sender not found:', senderError)
+    return new Response('Sender not found', { status: 200 })
+  }
+
+  const { data: { user: recipientUser }, error: recipientError } = await supabase.auth.admin.getUserById(recipientId)
+  if (recipientError || !recipientUser?.email) {
+    console.error('Recipient not found:', recipientError)
+    return new Response('No recipient email', { status: 200 })
+  }
 
   const chatUrl = `${APP_URL}/dashboard/chat/${message.connection_id}`
-  const senderAlias = sender?.alias ?? 'Alguien'
+  const senderAlias = sender.alias ?? 'Alguien'
   const preview = message.content.substring(0, 200) + (message.content.length > 200 ? '…' : '')
 
   const res = await fetch('https://api.resend.com/emails', {
