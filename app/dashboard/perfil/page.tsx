@@ -20,7 +20,7 @@ export default async function PerfilPage() {
   const [{ data: profile }, { data: allHashtags }, { count: pendingCount }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, email_notifications_enabled, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
@@ -75,7 +75,7 @@ export default async function PerfilPage() {
 
         <div className="mt-12 border-t border-border/60 pt-8">
           <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>
-          <AccountSection email={user.email} emailConfirmed={!!user.email_confirmed_at} />
+          <AccountSection email={user.email} emailConfirmed={!!user.email_confirmed_at} emailNotificationsEnabled={profile.email_notifications_enabled} />
         </div>
 
         <div className="mt-12 border-t border-border/60 pt-8">
