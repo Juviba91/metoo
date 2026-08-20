@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { resendConfirmation } from '@/app/auth/actions'
 import { sendPasswordReset } from '@/app/auth/actions'
-import { Mail, Key, CheckCircle2 } from 'lucide-react'
+import { Mail, Key, CheckCircle2, Shield } from 'lucide-react'
 
 export function AccountSection({ email, emailConfirmed }: { email?: string; emailConfirmed: boolean }) {
   const [resendLoading, setResendLoading] = useState(false)
@@ -105,6 +106,28 @@ export function AccountSection({ email, emailConfirmed }: { email?: string; emai
               {resetMessage.text}
             </p>
           )}
+        </div>
+      </div>
+
+      {/* Blocked users section */}
+      <div className="rounded-lg border border-border px-4 py-3">
+        <div className="flex items-start gap-3">
+          <Shield className="mt-0.5 size-4 text-muted-foreground" />
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground">Usuarios bloqueados</p>
+            <p className="text-sm font-medium">Gestionar bloqueos</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Los usuarios bloqueados no podrán contactarte
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <Link href="/dashboard/perfil/blocked" className="w-full">
+            <Button size="sm" variant="outline" className="w-full text-xs">
+              Ver usuarios bloqueados
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
