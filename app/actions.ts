@@ -58,7 +58,7 @@ export async function createHashtag(
     .select('id, slug, label')
     .single()
 
-  if (error) {
+  if (error || !data) {
     // Fallback: fetch the existing row if upsert returned no data
     const { data: existing } = await supabase
       .from('hashtags')
@@ -66,7 +66,7 @@ export async function createHashtag(
       .eq('slug', slug)
       .single()
     if (existing) return { hashtag: existing }
-    return { error: error.message }
+    return { error: error?.message || 'Error al crear hashtag' }
   }
 
   return { hashtag: data }
