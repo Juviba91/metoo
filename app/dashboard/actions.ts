@@ -62,7 +62,7 @@ export async function requestConnection(volunteerId: string) {
     status: 'pending',
   }).select('id').single()
 
-  if (error) return { error: error.message }
+  if (error || !data) return { error: error?.message || 'Error al enviar solicitud' }
 
   revalidatePath('/dashboard')
   return { success: true, connectionId: data.id as string }
@@ -252,6 +252,6 @@ export async function sendMessage(connectionId: string, content: string) {
     .select('id, sender_id, content, created_at')
     .single()
 
-  if (error) return { error: error.message }
+  if (error || !data) return { error: error?.message || 'Error al enviar el mensaje' }
   return { success: true, message: data }
 }

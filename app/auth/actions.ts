@@ -9,16 +9,18 @@ export async function signOut() {
   redirect('/')
 }
 
-export async function resendConfirmation(): Promise<void> {
+export async function resendConfirmation(): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user?.email) return
+  if (!user?.email) return { error: 'No autenticado' }
   const { error } = await supabase.auth.resend({ type: 'signup', email: user.email })
   if (error) {
     console.error('Error resending confirmation email:', error)
+    return { error: 'Error al enviar el correo' }
   }
+  return { success: true }
 }
 
 export async function sendPasswordReset(): Promise<{ success?: boolean; error?: string }> {
