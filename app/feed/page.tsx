@@ -40,6 +40,8 @@ export default async function FeedPage({
         const { data: phs } = await supabase.from('post_hashtags').select('post_id').eq('hashtag_id', hashtag.id)
         if (phs?.length) q = q.in('id', phs.map((ph: any) => ph.post_id))
         else return { data: [] }
+      } else {
+        return { data: [] }
       }
     }
     return q

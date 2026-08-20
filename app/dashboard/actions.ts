@@ -54,6 +54,7 @@ export async function requestConnection(volunteerId: string) {
   } = await supabase.auth.getUser()
 
   if (!user) return { error: 'No autenticado' }
+  if (user.id === volunteerId) return { error: 'No puedes contactarte a ti mismo' }
 
   const { data, error } = await supabase.from('connections').insert({
     seeker_id: user.id,
@@ -61,7 +62,7 @@ export async function requestConnection(volunteerId: string) {
     status: 'pending',
   }).select('id').single()
 
-  if (error) return { error: error.message }
+  if (error || !data) return { error: error?.message || 'Error al enviar solicitud' }
 
   revalidatePath('/dashboard')
   return { success: true, connectionId: data.id as string }
@@ -175,6 +176,7 @@ export async function markConnectionRead(connectionId: string): Promise<void> {
     .single()
 
   if (!conn) return
+  if (conn.seeker_id !== user.id && conn.volunteer_id !== user.id) return
   const field = conn.seeker_id === user.id ? 'seeker_last_read_at' : 'volunteer_last_read_at'
 
   const { error } = await supabase
@@ -250,6 +252,6 @@ export async function sendMessage(connectionId: string, content: string) {
     .select('id, sender_id, content, created_at')
     .single()
 
-  if (error) return { error: error.message }
+  if (error || !data) return { error: error?.message || 'Error al enviar el mensaje' }
   return { success: true, message: data }
 }

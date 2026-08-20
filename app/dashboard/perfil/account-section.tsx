@@ -15,11 +15,11 @@ export function AccountSection({ email, emailConfirmed }: { email?: string; emai
   async function handleResendConfirmation() {
     setResendLoading(true)
     setResendMessage(null)
-    try {
-      await resendConfirmation()
+    const result = await resendConfirmation()
+    if (result.success) {
       setResendMessage({ type: 'success', text: 'Correo de verificación enviado. Revisa tu bandeja de entrada.' })
-    } catch (error) {
-      setResendMessage({ type: 'error', text: 'Error al enviar el correo. Intenta de nuevo.' })
+    } else {
+      setResendMessage({ type: 'error', text: result.error || 'Error al enviar el correo.' })
     }
     setResendLoading(false)
   }
