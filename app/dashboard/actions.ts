@@ -10,11 +10,16 @@ export async function acceptConnection(connectionId: string): Promise<void> {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  await supabase
+  const { error } = await supabase
     .from('connections')
     .update({ status: 'accepted' })
     .eq('id', connectionId)
     .eq('volunteer_id', user.id)
+
+  if (error) {
+    console.error('Error accepting connection:', error)
+    return
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/chats')
@@ -27,11 +32,16 @@ export async function rejectConnection(connectionId: string): Promise<void> {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  await supabase
+  const { error } = await supabase
     .from('connections')
     .update({ status: 'rejected' })
     .eq('id', connectionId)
     .eq('volunteer_id', user.id)
+
+  if (error) {
+    console.error('Error rejecting connection:', error)
+    return
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/chats')
@@ -86,16 +96,26 @@ export async function updateProfile({
   }
 
   // Sync hashtags: replace all existing with the new selection
-  await supabase.from('profile_hashtags').delete().eq('profile_id', user.id)
+  const { error: deleteError } = await supabase.from('profile_hashtags').delete().eq('profile_id', user.id)
+
+  if (deleteError) {
+    console.error('Error deleting hashtags:', deleteError)
+    return { error: 'Error al actualizar hashtags' }
+  }
 
   const resolvedIds: string[] = hashtags
     .filter((tag) => !tag.id.startsWith('new:'))
     .map((tag) => tag.id)
 
   if (resolvedIds.length > 0) {
-    await supabase
+    const { error: insertError } = await supabase
       .from('profile_hashtags')
       .insert(resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })))
+
+    if (insertError) {
+      console.error('Error inserting hashtags:', insertError)
+      return { error: 'Error al guardar hashtags' }
+    }
   }
 
   revalidatePath('/dashboard')
@@ -125,13 +145,18 @@ export async function reportUser(
     return { error: 'No autorizado' }
   }
 
-  await supabase.from('reports').insert({
+  const { error: reportError } = await supabase.from('reports').insert({
     reporter_id: user.id,
     reported_id: reportedId,
     connection_id: connectionId,
     reason,
     description: description?.trim() || null,
   })
+
+  if (reportError) {
+    console.error('Error creating report:', reportError)
+    return { error: 'Error al crear el reporte' }
+  }
 
   return { success: true }
 }
@@ -151,7 +176,15 @@ export async function markConnectionRead(connectionId: string): Promise<void> {
 
   if (!conn) return
   const field = conn.seeker_id === user.id ? 'seeker_last_read_at' : 'volunteer_last_read_at'
-  await supabase.from('connections').update({ [field]: new Date().toISOString() }).eq('id', connectionId)
+
+  const { error } = await supabase
+    .from('connections')
+    .update({ [field]: new Date().toISOString() })
+    .eq('id', connectionId)
+
+  if (error) {
+    console.error('Error marking connection as read:', error)
+  }
 }
 
 export async function toggleAvailability(isActive: boolean): Promise<void> {
@@ -161,7 +194,13 @@ export async function toggleAvailability(isActive: boolean): Promise<void> {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  await supabase.from('profiles').update({ is_active: isActive }).eq('id', user.id)
+  const { error } = await supabase.from('profiles').update({ is_active: isActive }).eq('id', user.id)
+
+  if (error) {
+    console.error('Error updating availability:', error)
+    return
+  }
+
   revalidatePath('/dashboard')
 }
 
@@ -188,12 +227,17 @@ export async function sendMessage(connectionId: string, content: string) {
   }
 
   if (conn?.status === 'pending' && conn.volunteer_id === user.id) {
-    await supabase
+    const { error: updateError } = await supabase
       .from('connections')
       .update({ status: 'accepted' })
       .eq('id', connectionId)
-    revalidatePath('/dashboard')
-    revalidatePath('/dashboard/chats')
+
+    if (updateError) {
+      console.error('Error auto-accepting connection:', updateError)
+    } else {
+      revalidatePath('/dashboard')
+      revalidatePath('/dashboard/chats')
+    }
   }
 
   const { data, error } = await supabase

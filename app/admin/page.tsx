@@ -26,7 +26,8 @@ export default async function AdminPage() {
     admin
       .from('profiles')
       .select('id, alias, role, city, is_active, created_at')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(500),
     admin.auth.admin.listUsers({ perPage: 1000 }),
     admin
       .from('reports')
