@@ -54,6 +54,7 @@ export async function requestConnection(volunteerId: string) {
   } = await supabase.auth.getUser()
 
   if (!user) return { error: 'No autenticado' }
+  if (user.id === volunteerId) return { error: 'No puedes contactarte a ti mismo' }
 
   const { data, error } = await supabase.from('connections').insert({
     seeker_id: user.id,
