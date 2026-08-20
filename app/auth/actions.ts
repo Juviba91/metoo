@@ -15,7 +15,10 @@ export async function resendConfirmation(): Promise<void> {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user?.email) return
-  await supabase.auth.resend({ type: 'signup', email: user.email })
+  const { error } = await supabase.auth.resend({ type: 'signup', email: user.email })
+  if (error) {
+    console.error('Error resending confirmation email:', error)
+  }
 }
 
 export async function sendPasswordReset(): Promise<{ success?: boolean; error?: string }> {

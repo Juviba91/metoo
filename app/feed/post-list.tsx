@@ -99,11 +99,18 @@ export function PostList({
 
   async function handleReaction(postId: string) {
     const current = reactions[postId] ?? { count: 0, mine: false }
+    const optimisticUpdate = { count: current.mine ? current.count - 1 : current.count + 1, mine: !current.mine }
     setReactions((prev) => ({
       ...prev,
-      [postId]: { count: current.mine ? current.count - 1 : current.count + 1, mine: !current.mine },
+      [postId]: optimisticUpdate,
     }))
-    await toggleReaction(postId)
+    const result = await toggleReaction(postId)
+    if (result.error) {
+      setReactions((prev) => ({
+        ...prev,
+        [postId]: current,
+      }))
+    }
   }
 
   if (posts.length === 0) {
