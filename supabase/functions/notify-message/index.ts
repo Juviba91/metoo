@@ -58,35 +58,28 @@ Deno.serve(async (req: Request) => {
   const senderAlias = sender.alias ?? 'Alguien'
   const preview = message.content.substring(0, 200) + (message.content.length > 200 ? '…' : '')
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: FROM_EMAIL,
-      to: recipientUser.email,
-      subject: `${senderAlias} te ha enviado un mensaje en metoo`,
-      html: `
-        <p>Hola,</p>
-        <p><strong>${senderAlias}</strong> te ha enviado un mensaje en metoo:</p>
-        <blockquote style="border-left:3px solid #e5e7eb;padding-left:1rem;color:#6b7280;">
-          ${preview}
-        </blockquote>
-        <p><a href="${chatUrl}">Ver conversación →</a></p>
-        <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
-        <p style="font-size:0.75rem;color:#9ca3af;">
-          metoo — apoyo entre personas que lo han vivido.<br />
-          Si no quieres recibir estos avisos, desactívalos en tu perfil.
-        </p>
-      `,
-    }),
+  // Queue email for delivery with retry logic
+  const { error: queueError } = await supabase.from('email_queue').insert({
+    recipient_email: recipientUser.email,
+    subject: `${senderAlias} te ha enviado un mensaje en metoo`,
+    html_body: `
+      <p>Hola,</p>
+      <p><strong>${senderAlias}</strong> te ha enviado un mensaje en metoo:</p>
+      <blockquote style="border-left:3px solid #e5e7eb;padding-left:1rem;color:#6b7280;">
+        ${preview}
+      </blockquote>
+      <p><a href="${chatUrl}">Ver conversación →</a></p>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
+      <p style="font-size:0.75rem;color:#9ca3af;">
+        metoo — apoyo entre personas que lo han vivido.<br />
+        Si no quieres recibir estos avisos, desactívalos en tu perfil.
+      </p>
+    `,
+    from_email: FROM_EMAIL,
   })
 
-  if (!res.ok) {
-    const err = await res.text()
-    console.error('Resend error:', err)
+  if (queueError) {
+    console.error('Error queuing email:', queueError)
   }
 
   return new Response('ok', { status: 200 })

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { checkRateLimit } from '@/app/safety/actions'
 
 export async function acceptConnection(connectionId: string): Promise<void> {
   const supabase = await createClient()
@@ -55,6 +56,9 @@ export async function requestConnection(volunteerId: string) {
 
   if (!user) return { error: 'No autenticado' }
   if (user.id === volunteerId) return { error: 'No puedes contactarte a ti mismo' }
+
+  const { allowed } = await checkRateLimit('connection_request')
+  if (!allowed) return { error: 'Has alcanzado el límite de solicitudes. Intenta más tarde.' }
 
   const { data, error } = await supabase.from('connections').insert({
     seeker_id: user.id,
@@ -216,6 +220,9 @@ export async function sendMessage(connectionId: string, content: string) {
 
   const trimmed = content.trim()
   if (!trimmed || trimmed.length > 2000) return { error: 'Mensaje no válido' }
+
+  const { allowed } = await checkRateLimit('message')
+  if (!allowed) return { error: 'Has alcanzado el límite de mensajes. Intenta más tarde.' }
 
   // Auto-accept if the volunteer replies to a pending request
   const { data: conn } = await supabase
