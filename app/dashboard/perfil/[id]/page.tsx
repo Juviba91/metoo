@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation'
 import { MapPin, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
+import { BlockButton } from '@/components/block-button'
+import { isUserBlocked } from '@/app/safety/actions'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteFooter } from '@/components/site-footer'
@@ -37,7 +39,7 @@ export default async function PublicProfilePage({
   if (!profile) notFound()
   if (profile.role === viewer.role) notFound()
 
-  const [connectionResult, { data: unreadData }, pendingResult] = await Promise.all([
+  const [connectionResult, { data: unreadData }, pendingResult, isBlocked] = await Promise.all([
     viewer.role === 'seeker'
       ? supabase
           .from('connections')
@@ -59,6 +61,7 @@ export default async function PublicProfilePage({
           .eq('volunteer_id', user.id)
           .eq('status', 'pending')
       : Promise.resolve({ count: 0 }),
+    isUserBlocked(id),
   ])
 
   const existingConn = connectionResult.data
@@ -118,26 +121,29 @@ export default async function PublicProfilePage({
             <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
           )}
 
-          {viewer.role === 'seeker' ? (
-            profile.is_active ? (
-              <ContactButton volunteerId={id} alreadySent={alreadySent} />
+          <div className="space-y-3">
+            {viewer.role === 'seeker' ? (
+              profile.is_active ? (
+                <ContactButton volunteerId={id} alreadySent={alreadySent} />
+              ) : (
+                <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
+                  No disponible en este momento
+                </div>
+              )
+            ) : existingConn && existingConn.status !== 'rejected' ? (
+              <Link
+                href={`/dashboard/chat/${existingConn.id}`}
+                className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+              >
+                Ver conversación →
+              </Link>
             ) : (
               <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
-                No disponible en este momento
+                Esperando contacto
               </div>
-            )
-          ) : existingConn && existingConn.status !== 'rejected' ? (
-            <Link
-              href={`/dashboard/chat/${existingConn.id}`}
-              className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
-            >
-              Ver conversación →
-            </Link>
-          ) : (
-            <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
-              Esperando contacto
-            </div>
-          )}
+            )}
+            <BlockButton userId={id} isBlocked={isBlocked} />
+          </div>
         </div>
 
       </main>
