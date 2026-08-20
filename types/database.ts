@@ -73,17 +73,20 @@ export type Database = {
         Row: {
           id: string
           slug: string
-          label: string
+          name: string
+          emoji: string
         }
         Insert: {
           id?: string
           slug: string
-          label: string
+          name: string
+          emoji: string
         }
         Update: {
           id?: string
           slug?: string
-          label?: string
+          name?: string
+          emoji?: string
         }
       }
       profile_categories: {
