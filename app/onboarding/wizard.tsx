@@ -46,9 +46,9 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
 
   return (
     <div className="w-full max-w-lg">
-      <a href="/" className="mb-8 block text-center text-2xl font-bold tracking-tight">
+      <Link href="/" className="mb-8 block text-center text-2xl font-bold tracking-tight">
         metoo.
-      </a>
+      </Link>
 
       {step <= totalSteps && (
         <div className="mb-10">

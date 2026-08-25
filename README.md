@@ -198,9 +198,34 @@ Ambos con la cabecera `Authorization: Bearer <anon-key>`.
 
 ### Reintentos
 
-`process-email-queue` hay que invocarla periódicamente (cada pocos minutos) para
-que reintente los envíos fallidos, con `x-cron-secret`. Si no se programa, un
-email que falle no se reintenta nunca — el envío normal sigue funcionando igual.
+Ya están programados con `pg_cron` (ver
+`supabase/migrations/20260825_schedule_email_retries.sql`):
+
+| Job | Cada | Qué hace |
+|---|---|---|
+| `drain-email-queue` | 5 min | Invoca `process-email-queue` si hay algo pendiente |
+| `purge-rate-limits` | Diario | Borra contadores de rate limit caducados |
+
+El secreto se genera dentro de la base de datos y vive cifrado en Vault, así que
+no aparece en el repositorio. Para leerlo y configurarlo en las Edge Functions:
+
+```sql
+-- En el SQL Editor de Supabase
+select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret';
+```
+
+```bash
+supabase secrets set CRON_SECRET=<el valor anterior>
+```
+
+Para comprobar que la cadena funciona:
+
+```sql
+select status_code, content from net._http_response order by created desc limit 1;
+```
+
+`200` es correcto. `500 Not configured` significa que falta `CRON_SECRET` en los
+secretos de las Edge Functions. `401` significa que no coincide con el de Vault.
 
 ---
 

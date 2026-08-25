@@ -1,6 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import { deliverEmail } from '../_shared/email.ts'
+import { deliverEmail, escapeHtml } from '../_shared/email.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -46,14 +46,18 @@ Deno.serve(async (req: Request) => {
     return new Response('No volunteer email', { status: 200 })
   }
 
+  const seekerAlias = seeker?.alias ?? 'Alguien'
+  // El alias lo elige el usuario: se escapa antes de meterlo en el HTML
+  const safeAlias = escapeHtml(seekerAlias)
+
   const result = await deliverEmail(supabase, RESEND_API_KEY, {
     to: volunteer.email,
     from: FROM_EMAIL,
     recipientUserId: connection.volunteer_id,
-    subject: `${seeker?.alias ?? 'Alguien'} quiere conectar contigo en metoo`,
+    subject: `${seekerAlias} quiere conectar contigo en metoo`,
     html: `
       <p>Hola,</p>
-      <p><strong>${seeker?.alias ?? 'Alguien'}</strong> ha pedido contactar contigo en metoo.</p>
+      <p><strong>${safeAlias}</strong> ha pedido contactar contigo en metoo.</p>
       <p>Entra a la app para aceptar o rechazar la solicitud.</p>
       <p><a href="${APP_URL}/dashboard">Ver solicitud →</a></p>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />

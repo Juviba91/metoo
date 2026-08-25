@@ -16,6 +16,12 @@ export default async function AdminPage() {
 
   const admin = createAdminClient()
 
+  // react-hooks/purity está pensada para componentes de cliente: aquí estamos
+  // en un Server Component asíncrono que se ejecuta una vez por petición, así
+  // que leer el reloj es correcto.
+  // eslint-disable-next-line react-hooks/purity
+  const lastHour = new Date(Date.now() - 3600_000).toISOString()
+
   const [
     { data: profiles },
     { data: authResult },
@@ -43,7 +49,7 @@ export default async function AdminPage() {
     admin.from('blocks').select('id', { count: 'exact', head: true }),
     admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
     admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    admin.from('rate_limits').select('id', { count: 'exact', head: true }).gte('window_start', new Date(Date.now() - 3600000).toISOString()),
+    admin.from('rate_limits').select('id', { count: 'exact', head: true }).gte('window_start', lastHour),
   ])
 
   const emailMap = Object.fromEntries(

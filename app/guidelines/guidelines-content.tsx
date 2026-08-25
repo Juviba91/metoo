@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { SiteFooter } from '@/components/site-footer'
 
@@ -409,7 +410,7 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/60 px-6 py-5">
-        <a href="/" className="text-xl font-bold tracking-tight">metoo.</a>
+        <Link href="/" className="text-xl font-bold tracking-tight">metoo.</Link>
       </header>
 
       <main className="mx-auto max-w-2xl px-6 py-12 pb-20">

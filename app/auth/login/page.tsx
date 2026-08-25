@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -79,9 +80,9 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-sm">
-      <a href="/" className="mb-10 block text-center text-2xl font-bold tracking-tight">
+      <Link href="/" className="mb-10 block text-center text-2xl font-bold tracking-tight">
         metoo.
-      </a>
+      </Link>
 
       {mode !== 'forgot' ? (
         <>

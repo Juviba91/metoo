@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { resendConfirmation } from '@/app/auth/actions'
@@ -12,9 +13,9 @@ export default async function VerificarPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
-      <a href="/" className="mb-10 text-2xl font-bold tracking-tight">
+      <Link href="/" className="mb-10 text-2xl font-bold tracking-tight">
         metoo.
-      </a>
+      </Link>
 
       <div className="mb-6 text-5xl">✉️</div>
       <h1 className="mb-2 text-2xl font-bold">Confirma tu correo</h1>

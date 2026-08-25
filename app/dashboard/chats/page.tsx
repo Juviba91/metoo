@@ -61,7 +61,7 @@ export default async function ChatsPage() {
 
   // Fetch latest message per connection — one parallel query per connection guarantees correctness
   const connectionIds = connections.map((c: any) => c.id)
-  let lastMessages: Record<string, { content: string; sender_id: string }> = {}
+  const lastMessages: Record<string, { content: string; sender_id: string }> = {}
 
   if (connectionIds.length > 0) {
     const results = await Promise.all(
