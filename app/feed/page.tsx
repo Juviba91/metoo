@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getHiddenUserIds } from '@/app/safety/actions'
 import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import { BottomNav } from '@/components/bottom-nav'
@@ -31,9 +32,13 @@ export default async function FeedPage({
 
   const postsSelect = `id, content, created_at, author:author_id(alias), post_hashtags(hashtag:hashtag_id(id, slug, label)), post_reactions(profile_id)`
 
+  // Los posts de usuarios bloqueados (en cualquier sentido) no se muestran
+  const hiddenIds = await getHiddenUserIds()
+
   // When filtering by tag, resolve at DB level so results aren't limited to the top 50
   const buildPostsQuery = async () => {
     let q = supabase.from('posts').select(postsSelect).order('created_at', { ascending: false }).limit(50)
+    if (hiddenIds.length > 0) q = q.not('author_id', 'in', `(${hiddenIds.join(',')})`)
     if (activeTag) {
       const { data: hashtag } = await supabase.from('hashtags').select('id').eq('slug', activeTag).maybeSingle()
       if (hashtag) {

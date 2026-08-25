@@ -527,6 +527,7 @@ export type Database = {
           reason: string
           reported_id: string | null
           reporter_id: string | null
+          resolved: boolean
         }
         Insert: {
           connection_id?: string | null
@@ -536,6 +537,7 @@ export type Database = {
           reason: string
           reported_id?: string | null
           reporter_id?: string | null
+          resolved?: boolean
         }
         Update: {
           connection_id?: string | null
@@ -545,8 +547,31 @@ export type Database = {
           reason?: string
           reported_id?: string | null
           reporter_id?: string | null
+          resolved?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'reports_connection_id_fkey'
+            columns: ['connection_id']
+            isOneToOne: false
+            referencedRelation: 'connections'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_reported_id_fkey'
+            columns: ['reported_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_reporter_id_fkey'
+            columns: ['reporter_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
       }
     }
     Views: {
@@ -562,6 +587,7 @@ export type Database = {
         Returns: { allowed: boolean; remaining: number }[]
       }
       get_unread_count: { Args: { user_uuid: string }; Returns: number }
+      is_blocked_with: { Args: { p_other: string }; Returns: boolean }
       mark_connection_read: {
         Args: { p_connection_id: string }
         Returns: undefined

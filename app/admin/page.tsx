@@ -127,14 +127,22 @@ export default async function AdminPage() {
                           <p className="text-muted-foreground">{r.description}</p>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          {new Date(r.created_at).toLocaleDateString('es-ES', {
-                            day: 'numeric', month: 'short', year: 'numeric',
-                          })}
+                          {r.created_at
+                            ? new Date(r.created_at).toLocaleDateString('es-ES', {
+                                day: 'numeric', month: 'short', year: 'numeric',
+                              })
+                            : '—'}
                         </p>
                       </div>
                       <div className="flex shrink-0 flex-col gap-2">
                         <ResolveReportBtn reportId={r.id} />
-                        <DeleteUserBtn userId={r.reported_id} alias={(r.profiles as any)?.alias ?? 'este usuario'} />
+                        {/* reported_id se pone a NULL si la cuenta ya fue eliminada */}
+                        {r.reported_id && (
+                          <DeleteUserBtn
+                            userId={r.reported_id}
+                            alias={(r.profiles as any)?.alias ?? 'este usuario'}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>

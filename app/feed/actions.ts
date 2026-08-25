@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkRateLimit } from '@/app/safety/actions'
+import { checkRateLimit, getHiddenUserIds } from '@/app/safety/actions'
 
 function toSlug(text: string): string {
   return text
@@ -73,6 +73,10 @@ export async function fetchMorePosts(offset: number, tag: string | null = null) 
 
   const postsSelect = `id, content, created_at, author:author_id(alias), post_hashtags(hashtag:hashtag_id(id, slug, label)), post_reactions(profile_id)`
   let q = supabase.from('posts').select(postsSelect).order('created_at', { ascending: false }).range(offset, offset + 19)
+
+  // Mismo filtro de bloqueos que en la carga inicial del feed
+  const hiddenIds = await getHiddenUserIds()
+  if (hiddenIds.length > 0) q = q.not('author_id', 'in', `(${hiddenIds.join(',')})`)
 
   if (tag) {
     const { data: hashtag } = await supabase.from('hashtags').select('id').eq('slug', tag).maybeSingle()

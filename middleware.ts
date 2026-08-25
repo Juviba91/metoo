@@ -1,6 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Rutas que exigen sesión con el email ya confirmado. /feed estaba fuera, así
+// que se podía publicar en el feed con un correo sin verificar.
+const PROTECTED = ['/dashboard', '/onboarding', '/feed']
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -29,13 +33,13 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname
 
-  if (!user && (path.startsWith('/dashboard') || path.startsWith('/onboarding'))) {
+  if (!user && (PROTECTED.some((p) => path.startsWith(p)))) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     return NextResponse.redirect(url)
   }
 
-  if (user && !user.email_confirmed_at && (path.startsWith('/dashboard') || path.startsWith('/onboarding'))) {
+  if (user && !user.email_confirmed_at && (PROTECTED.some((p) => path.startsWith(p)))) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/verificar'
     return NextResponse.redirect(url)

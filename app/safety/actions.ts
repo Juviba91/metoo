@@ -132,8 +132,16 @@ export async function isUserBlocked(userId: string): Promise<boolean> {
 
 /** ¿Puedo interactuar con este usuario? Comprueba el bloqueo en ambos sentidos. */
 export async function canInteractWith(userId: string): Promise<boolean> {
-  const hidden = await getHiddenUserIds()
-  return !hidden.includes(userId)
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc('is_blocked_with', { p_other: userId })
+
+  if (error) {
+    // Ante la duda no se bloquea la interacción, pero queda registrado.
+    console.error('is_blocked_with failed:', error)
+    return true
+  }
+
+  return !data
 }
 
 export async function toggleEmailNotifications(
