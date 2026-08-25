@@ -5,7 +5,8 @@ import { DashboardMatches } from '@/components/dashboard-matches'
 import { MapPin, MessageCircle } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
-import { getBlockedUsers } from '@/app/safety/actions'
+import { getHiddenUserIds } from '@/app/safety/actions'
+import type { UserRole } from '@/types/database'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
@@ -29,26 +30,22 @@ export default async function DashboardPage() {
 
   const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
 
-  // Get blocked users to filter them out
-  const blockedIds = await getBlockedUsers()
+  // Bloqueos en ambos sentidos, para excluirlos en la propia query
+  const hiddenIds = await getHiddenUserIds()
 
-  // Also get users who have blocked the current user
-  const { data: blockedByData } = await supabase
-    .from('blocks')
-    .select('blocker_id')
-    .eq('blocked_id', user.id)
+  let matchesQuery = supabase
+    .from('profiles')
+    .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+    .eq('role', oppositeRole)
+    .eq('is_active', true)
+    .neq('id', user.id)
 
-  const blockedByIds = (blockedByData ?? []).map(b => b.blocker_id)
-  const allBlockedIds = new Set([...blockedIds, ...blockedByIds])
+  if (hiddenIds.length > 0) {
+    matchesQuery = matchesQuery.not('id', 'in', `(${hiddenIds.join(',')})`)
+  }
 
   const [{ data: matches }, { data: connections }, { data: unreadData }, { data: allHashtags }] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
-      .eq('role', oppositeRole)
-      .eq('is_active', true)
-      .neq('id', user.id)
-      .limit(50),
+    matchesQuery.limit(50),
 
     profile.role === 'seeker'
       ? supabase
@@ -67,9 +64,16 @@ export default async function DashboardPage() {
     supabase.from('hashtags').select('id, slug, label').order('label'),
   ])
 
+  // Las conversaciones con usuarios bloqueados también se ocultan
+  const hiddenSet = new Set(hiddenIds)
+  const visibleConnections = (connections ?? []).filter((c: any) => {
+    const otherId = profile.role === 'seeker' ? c.volunteer_id : c.seeker_id
+    return !otherId || !hiddenSet.has(otherId)
+  })
+
   // Map otherUserId -> connectionId for non-rejected connections
   const connectedTo = Object.fromEntries(
-    (connections ?? [])
+    visibleConnections
       .filter((c: any) => c.status !== 'rejected')
       .map((c: any) => {
         const otherId = profile.role === 'seeker' ? c.volunteer_id : c.seeker_id
@@ -80,7 +84,7 @@ export default async function DashboardPage() {
 
   const pendingCount =
     profile.role === 'volunteer'
-      ? (connections ?? []).filter((c: any) => c.status === 'pending').length
+      ? visibleConnections.filter((c: any) => c.status === 'pending').length
       : 0
   const chatUnread = (unreadData as number) ?? 0
 
@@ -106,7 +110,12 @@ export default async function DashboardPage() {
             <p className="text-sm text-amber-800 dark:text-amber-200">
               ✉️ Confirma tu correo para no perder el acceso a tu cuenta.
             </p>
-            <form action={resendConfirmation}>
+            <form
+              action={async () => {
+                'use server'
+                await resendConfirmation()
+              }}
+            >
               <Button type="submit" size="sm" variant="outline" className="shrink-0 text-xs">
                 Reenviar
               </Button>
@@ -185,14 +194,14 @@ export default async function DashboardPage() {
         </div>
 
         {/* Conversations */}
-        {connections && connections.length > 0 && (
+        {visibleConnections.length > 0 && (
           <div>
             <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
               <MessageCircle className="size-5" />
               Tus conversaciones
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
-              {(connections as any[]).map((conn) => {
+              {(visibleConnections as any[]).map((conn) => {
                 const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
                 const isPendingVolunteer = conn.status === 'pending' && profile.role === 'volunteer'
 
@@ -299,8 +308,8 @@ export default async function DashboardPage() {
 
         {/* Matches with search */}
         <DashboardMatches
-          matches={(matches ?? []).filter((m: any) => !allBlockedIds.has(m.id)) as any}
-          role={profile.role}
+          matches={(matches ?? []) as any}
+          role={profile.role as UserRole}
           connectedTo={connectedTo}
           allHashtags={(allHashtags ?? []) as any}
         />

@@ -3,55 +3,33 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-const RATE_LIMITS = {
-  connection_request: { max: 5, window: 3600 }, // 5 per hour
-  message: { max: 50, window: 3600 }, // 50 per hour
-  post_create: { max: 20, window: 3600 }, // 20 per hour
+const RATE_LIMITS: Record<string, number> = {
+  connection_request: 5, // por hora
+  message: 50,
+  post_create: 20,
 }
 
+/**
+ * Consume una unidad del rate limit del usuario para `action`.
+ * El contador vive en la RPC `check_rate_limit` (SECURITY DEFINER), que hace
+ * INSERT ... ON CONFLICT DO UPDATE en una sola sentencia: es atómico y no
+ * depende de que el usuario tenga permisos de escritura sobre rate_limits.
+ */
 export async function checkRateLimit(action: string): Promise<{ allowed: boolean; remaining: number }> {
+  const max = RATE_LIMITS[action]
+  if (max === undefined) return { allowed: true, remaining: -1 }
+
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { allowed: false, remaining: 0 }
+  const { data, error } = await supabase.rpc('check_rate_limit', { p_action: action, p_max: max })
 
-  const limit = RATE_LIMITS[action as keyof typeof RATE_LIMITS]
-  if (!limit) return { allowed: true, remaining: -1 }
-
-  const now = new Date()
-  const windowStart = new Date(now.getTime() - limit.window * 1000)
-
-  const { data: existing } = await supabase
-    .from('rate_limits')
-    .select('count')
-    .eq('user_id', user.id)
-    .eq('action', action)
-    .gte('window_start', windowStart.toISOString())
-    .lt('window_start', now.toISOString())
-    .single()
-
-  if (existing && existing.count >= limit.max) {
-    return { allowed: false, remaining: 0 }
+  if (error) {
+    // Si el contador falla no bloqueamos al usuario: se registra y se deja pasar.
+    console.error('check_rate_limit failed:', error)
+    return { allowed: true, remaining: -1 }
   }
 
-  const count = (existing?.count ?? 0) + 1
-  if (existing) {
-    await supabase
-      .from('rate_limits')
-      .update({ count })
-      .eq('user_id', user.id)
-      .eq('action', action)
-  } else {
-    await supabase
-      .from('rate_limits')
-      .insert({
-        user_id: user.id,
-        action,
-        count: 1,
-        window_start: windowStart.toISOString(),
-      })
-  }
-
-  return { allowed: true, remaining: Math.max(0, limit.max - count) }
+  const row = Array.isArray(data) ? data[0] : data
+  return { allowed: row?.allowed ?? true, remaining: row?.remaining ?? -1 }
 }
 
 export async function blockUser(blockedId: string): Promise<{ success?: boolean; error?: string }> {
@@ -67,10 +45,14 @@ export async function blockUser(blockedId: string): Promise<{ success?: boolean;
 
   if (error) {
     if (error.code === '23505') return { error: 'Este usuario ya está bloqueado' }
+    console.error('Error blocking user:', error)
     return { error: 'Error al bloquear usuario' }
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/chats')
+  revalidatePath(`/dashboard/perfil/${blockedId}`)
+  revalidatePath('/dashboard/perfil/blocked')
   return { success: true }
 }
 
@@ -85,25 +67,54 @@ export async function unblockUser(blockedId: string): Promise<{ success?: boolea
     .eq('blocker_id', user.id)
     .eq('blocked_id', blockedId)
 
-  if (error) return { error: 'Error al desbloquear usuario' }
+  if (error) {
+    console.error('Error unblocking user:', error)
+    return { error: 'Error al desbloquear usuario' }
+  }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/chats')
+  revalidatePath(`/dashboard/perfil/${blockedId}`)
+  revalidatePath('/dashboard/perfil/blocked')
   return { success: true }
 }
 
+/** Usuarios que YO he bloqueado (para la pantalla de gestión). */
 export async function getBlockedUsers(): Promise<string[]> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('blocks')
     .select('blocked_id')
     .eq('blocker_id', user.id)
 
-  return data?.map(b => b.blocked_id) ?? []
+  if (error) {
+    console.error('Error loading blocks:', error)
+    return []
+  }
+
+  return (data ?? []).map((b) => b.blocked_id as string)
 }
 
+/**
+ * Ids a ocultar en listados: los que yo bloqueé y los que me bloquearon.
+ * Va por RPC para no tener que exponer por RLS quién me ha bloqueado.
+ */
+export async function getHiddenUserIds(): Promise<string[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc('blocked_user_ids')
+
+  if (error) {
+    console.error('Error loading blocked ids:', error)
+    return []
+  }
+
+  return ((data ?? []) as { user_id: string }[]).map((r) => r.user_id)
+}
+
+/** ¿He bloqueado yo a este usuario? (estado del botón de bloqueo) */
 export async function isUserBlocked(userId: string): Promise<boolean> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -119,44 +130,15 @@ export async function isUserBlocked(userId: string): Promise<boolean> {
   return !!data
 }
 
-export async function queueEmail(
-  recipientEmail: string,
-  subject: string,
-  htmlBody: string,
-  fromEmail?: string,
-  userId?: string,
-): Promise<{ success?: boolean; error?: string }> {
-  const supabase = await createClient()
-
-  // Check if user has disabled email notifications
-  if (userId) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('email_notifications_enabled')
-      .eq('id', userId)
-      .single()
-
-    if (profile && !profile.email_notifications_enabled) {
-      return { success: true } // Silently skip if notifications disabled
-    }
-  }
-
-  const { error } = await supabase.from('email_queue').insert({
-    recipient_email: recipientEmail,
-    subject,
-    html_body: htmlBody,
-    from_email: fromEmail,
-  })
-
-  if (error) {
-    console.error('Error queueing email:', error)
-    return { error: 'Error al enviar email' }
-  }
-
-  return { success: true }
+/** ¿Puedo interactuar con este usuario? Comprueba el bloqueo en ambos sentidos. */
+export async function canInteractWith(userId: string): Promise<boolean> {
+  const hidden = await getHiddenUserIds()
+  return !hidden.includes(userId)
 }
 
-export async function toggleEmailNotifications(enabled: boolean): Promise<{ success?: boolean; error?: string }> {
+export async function toggleEmailNotifications(
+  enabled: boolean,
+): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
@@ -167,8 +149,10 @@ export async function toggleEmailNotifications(enabled: boolean): Promise<{ succ
     .eq('id', user.id)
 
   if (error) {
+    console.error('Error updating email preferences:', error)
     return { error: 'Error al actualizar preferencias' }
   }
 
+  revalidatePath('/dashboard/perfil')
   return { success: true }
 }

@@ -1,56 +1,55 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { blockUser, unblockUser } from '@/app/safety/actions'
 import { Button } from '@/components/ui/button'
-import { Shield } from 'lucide-react'
+import { Shield, ShieldOff } from 'lucide-react'
 
 export function BlockButton({
   userId,
   isBlocked,
-  onBlockChange,
 }: {
   userId: string
   isBlocked: boolean
-  onBlockChange?: (blocked: boolean) => void
 }) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
   const [loading, setLoading] = useState(false)
   const [blocked, setBlocked] = useState(isBlocked)
   const [error, setError] = useState<string | null>(null)
 
-  const handleToggle = async () => {
+  const busy = loading || pending
+
+  async function handleToggle() {
     setLoading(true)
     setError(null)
 
-    try {
-      const result = blocked
-        ? await unblockUser(userId)
-        : await blockUser(userId)
+    const result = blocked ? await unblockUser(userId) : await blockUser(userId)
 
-      if (result.error) {
-        setError(result.error)
-      } else {
-        setBlocked(!blocked)
-        onBlockChange?.(!blocked)
-      }
-    } catch (err) {
-      setError('Error al actualizar bloqueo')
-    } finally {
+    if (result.error) {
+      setError(result.error)
       setLoading(false)
+      return
     }
+
+    setBlocked(!blocked)
+    setLoading(false)
+    // Refresca los server components para que las listas reflejen el cambio
+    startTransition(() => router.refresh())
   }
 
   return (
     <div className="flex flex-col gap-2">
       <Button
         onClick={handleToggle}
-        disabled={loading}
-        variant={blocked ? 'default' : 'outline'}
+        disabled={busy}
+        variant="outline"
         size="sm"
-        className={blocked ? 'bg-destructive hover:bg-destructive/90' : ''}
+        className={blocked ? '' : 'text-destructive hover:text-destructive'}
       >
-        <Shield className="size-4 mr-2" />
-        {blocked ? 'Desbloqueado' : 'Bloquear usuario'}
+        {blocked ? <ShieldOff className="mr-2 size-4" /> : <Shield className="mr-2 size-4" />}
+        {busy ? 'Guardando...' : blocked ? 'Desbloquear' : 'Bloquear usuario'}
       </Button>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>

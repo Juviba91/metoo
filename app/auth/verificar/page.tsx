@@ -27,7 +27,12 @@ export default async function VerificarPage() {
         directamente a la app.
       </p>
 
-      <form action={resendConfirmation}>
+      <form
+        action={async () => {
+          'use server'
+          await resendConfirmation()
+        }}
+      >
         <Button type="submit" variant="outline">
           Reenviar correo de confirmación
         </Button>

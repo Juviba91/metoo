@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { deliverEmail } from '../_shared/email.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -24,11 +25,6 @@ Deno.serve(async (req: Request) => {
     return new Response('ok', { status: 200 })
   }
 
-  if (!RESEND_API_KEY) {
-    console.error('RESEND_API_KEY not set')
-    return new Response('Email not configured', { status: 200 })
-  }
-
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
   // Get seeker alias
@@ -50,11 +46,12 @@ Deno.serve(async (req: Request) => {
     return new Response('No volunteer email', { status: 200 })
   }
 
-  // Queue email for delivery with retry logic
-  const { error: queueError } = await supabase.from('email_queue').insert({
-    recipient_email: volunteer.email,
+  const result = await deliverEmail(supabase, RESEND_API_KEY, {
+    to: volunteer.email,
+    from: FROM_EMAIL,
+    recipientUserId: connection.volunteer_id,
     subject: `${seeker?.alias ?? 'Alguien'} quiere conectar contigo en metoo`,
-    html_body: `
+    html: `
       <p>Hola,</p>
       <p><strong>${seeker?.alias ?? 'Alguien'}</strong> ha pedido contactar contigo en metoo.</p>
       <p>Entra a la app para aceptar o rechazar la solicitud.</p>
@@ -65,11 +62,10 @@ Deno.serve(async (req: Request) => {
         Si no quieres recibir estos avisos, desactívalos en tu perfil.
       </p>
     `,
-    from_email: FROM_EMAIL,
   })
 
-  if (queueError) {
-    console.error('Error queuing email:', queueError)
+  if (result.status === 'queued') {
+    console.error('Connection email queued for retry:', result.error)
   }
 
   return new Response('ok', { status: 200 })

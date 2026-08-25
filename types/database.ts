@@ -1,330 +1,584 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+// Generado con `supabase gen types typescript` contra el proyecto real.
+// No editar a mano: regenerar tras cada migración.
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: '14.15'
+  }
   public: {
     Tables: {
-      profiles: {
+      blocks: {
         Row: {
-          id: string
-          alias: string
-          role: 'seeker' | 'volunteer'
-          city: string
-          country: string
-          bio: string | null
-          is_active: boolean
+          blocked_id: string
+          blocker_id: string
           created_at: string
-        }
-        Insert: {
           id: string
-          alias: string
-          role: 'seeker' | 'volunteer'
-          city: string
-          country?: string
-          bio?: string | null
-          is_active?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          alias?: string
-          role?: 'seeker' | 'volunteer'
-          city?: string
-          country?: string
-          bio?: string | null
-          is_active?: boolean
-          created_at?: string
-        }
-      }
-      hashtags: {
-        Row: {
-          id: string
-          slug: string
-          label: string
-          created_at: string
         }
         Insert: {
-          id?: string
-          slug: string
-          label: string
+          blocked_id: string
+          blocker_id: string
           created_at?: string
+          id?: string
         }
         Update: {
-          id?: string
-          slug?: string
-          label?: string
+          blocked_id?: string
+          blocker_id?: string
           created_at?: string
+          id?: string
         }
-      }
-      profile_hashtags: {
-        Row: {
-          profile_id: string
-          hashtag_id: string
-        }
-        Insert: {
-          profile_id: string
-          hashtag_id: string
-        }
-        Update: {
-          profile_id?: string
-          hashtag_id?: string
-        }
+        Relationships: []
       }
       categories: {
         Row: {
+          description: string | null
+          emoji: string
           id: string
-          slug: string
           name: string
-          emoji: string
+          parent_id: string | null
+          slug: string
+          sort_order: number
         }
         Insert: {
-          id?: string
-          slug: string
-          name: string
+          description?: string | null
           emoji: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          slug: string
+          sort_order?: number
         }
         Update: {
-          id?: string
-          slug?: string
-          name?: string
+          description?: string | null
           emoji?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          slug?: string
+          sort_order?: number
         }
-      }
-      profile_categories: {
-        Row: {
-          profile_id: string
-          category_id: string
-        }
-        Insert: {
-          profile_id: string
-          category_id: string
-        }
-        Update: {
-          profile_id?: string
-          category_id?: string
-        }
+        Relationships: []
       }
       connections: {
         Row: {
-          id: string
-          seeker_id: string
-          volunteer_id: string
-          status: 'pending' | 'accepted' | 'rejected'
+          category_id: string | null
           created_at: string
+          id: string
+          initial_message: string | null
+          seeker_id: string
           seeker_last_read_at: string | null
+          status: string
+          updated_at: string
+          volunteer_id: string
           volunteer_last_read_at: string | null
         }
         Insert: {
+          category_id?: string | null
+          created_at?: string
           id?: string
+          initial_message?: string | null
           seeker_id: string
+          seeker_last_read_at?: string | null
+          status?: string
+          updated_at?: string
           volunteer_id: string
-          status?: 'pending' | 'accepted' | 'rejected'
-          created_at?: string
-          seeker_last_read_at?: string | null
           volunteer_last_read_at?: string | null
         }
         Update: {
+          category_id?: string | null
+          created_at?: string
           id?: string
+          initial_message?: string | null
           seeker_id?: string
-          volunteer_id?: string
-          status?: 'pending' | 'accepted' | 'rejected'
-          created_at?: string
           seeker_last_read_at?: string | null
+          status?: string
+          updated_at?: string
+          volunteer_id?: string
           volunteer_last_read_at?: string | null
         }
-      }
-      messages: {
-        Row: {
-          id: string
-          connection_id: string
-          sender_id: string
-          content: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          connection_id: string
-          sender_id: string
-          content: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          connection_id?: string
-          sender_id?: string
-          content?: string
-          created_at?: string
-        }
-      }
-      feedback: {
-        Row: {
-          id: string
-          profile_id: string | null
-          content: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          profile_id?: string | null
-          content: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          profile_id?: string | null
-          content?: string
-          created_at?: string
-        }
-      }
-      hashtag_suggestions: {
-        Row: {
-          id: string
-          profile_id: string | null
-          suggestion: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          profile_id?: string | null
-          suggestion: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          profile_id?: string | null
-          suggestion?: string
-          created_at?: string
-        }
-      }
-      reports: {
-        Row: {
-          id: string
-          reporter_id: string | null
-          reported_id: string | null
-          connection_id: string | null
-          reason: string
-          description: string | null
-          resolved: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          reporter_id?: string | null
-          reported_id?: string | null
-          connection_id?: string | null
-          reason: string
-          description?: string | null
-          resolved?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          reporter_id?: string | null
-          reported_id?: string | null
-          connection_id?: string | null
-          reason?: string
-          description?: string | null
-          resolved?: boolean
-          created_at?: string
-        }
-      }
-      blocks: {
-        Row: {
-          id: string
-          blocker_id: string
-          blocked_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          blocker_id: string
-          blocked_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          blocker_id?: string
-          blocked_id?: string
-          created_at?: string
-        }
+        Relationships: [
+          {
+            foreignKeyName: 'connections_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'connections_seeker_id_fkey'
+            columns: ['seeker_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'connections_volunteer_id_fkey'
+            columns: ['volunteer_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
       }
       email_queue: {
         Row: {
-          id: string
-          recipient_email: string
-          subject: string
-          html_body: string
+          created_at: string
+          error_message: string | null
           from_email: string
-          retry_count: number
+          html_body: string
+          id: string
           max_retries: number
           next_retry_at: string
-          error_message: string | null
+          recipient_email: string
+          retry_count: number
           status: string
-          created_at: string
+          subject: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          recipient_email: string
-          subject: string
-          html_body: string
+          created_at?: string
+          error_message?: string | null
           from_email?: string
-          retry_count?: number
+          html_body: string
+          id?: string
           max_retries?: number
           next_retry_at?: string
-          error_message?: string | null
+          recipient_email: string
+          retry_count?: number
           status?: string
-          created_at?: string
+          subject: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          recipient_email?: string
-          subject?: string
-          html_body?: string
+          created_at?: string
+          error_message?: string | null
           from_email?: string
-          retry_count?: number
+          html_body?: string
+          id?: string
           max_retries?: number
           next_retry_at?: string
-          error_message?: string | null
+          recipient_email?: string
+          retry_count?: number
           status?: string
-          created_at?: string
+          subject?: string
           updated_at?: string
         }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          profile_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+        }
+        Relationships: []
+      }
+      hashtag_suggestions: {
+        Row: {
+          created_at: string | null
+          id: string
+          profile_id: string | null
+          suggestion: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          suggestion: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          suggestion?: string
+        }
+        Relationships: []
+      }
+      hashtags: {
+        Row: {
+          created_at: string | null
+          id: string
+          label: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          label: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          label?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      hospitals: {
+        Row: {
+          city: string
+          country: string
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          region: string | null
+        }
+        Insert: {
+          city: string
+          country?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          region?: string | null
+        }
+        Update: {
+          city?: string
+          country?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          region?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          connection_id: string
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          connection_id: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          connection_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      post_hashtags: {
+        Row: {
+          hashtag_id: string
+          post_id: string
+        }
+        Insert: {
+          hashtag_id: string
+          post_id: string
+        }
+        Update: {
+          hashtag_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'post_hashtags_hashtag_id_fkey'
+            columns: ['hashtag_id']
+            isOneToOne: false
+            referencedRelation: 'hashtags'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'post_hashtags_post_id_fkey'
+            columns: ['post_id']
+            isOneToOne: false
+            referencedRelation: 'posts'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      post_reactions: {
+        Row: {
+          post_id: string
+          profile_id: string
+        }
+        Insert: {
+          post_id: string
+          profile_id: string
+        }
+        Update: {
+          post_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'post_reactions_post_id_fkey'
+            columns: ['post_id']
+            isOneToOne: false
+            referencedRelation: 'posts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'post_reactions_profile_id_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'posts_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      profile_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          detail: string | null
+          id: string
+          profile_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          profile_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_categories_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'profile_categories_profile_id_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      profile_hashtags: {
+        Row: {
+          hashtag_id: string
+          profile_id: string
+        }
+        Insert: {
+          hashtag_id: string
+          profile_id: string
+        }
+        Update: {
+          hashtag_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_hashtags_hashtag_id_fkey'
+            columns: ['hashtag_id']
+            isOneToOne: false
+            referencedRelation: 'hashtags'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'profile_hashtags_profile_id_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          alias: string
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          country: string
+          created_at: string
+          display_name: string | null
+          email_notifications_enabled: boolean
+          hospital_id: string | null
+          id: string
+          is_active: boolean
+          region: string | null
+          role: string
+        }
+        Insert: {
+          alias: string
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string
+          created_at?: string
+          display_name?: string | null
+          email_notifications_enabled?: boolean
+          hospital_id?: string | null
+          id: string
+          is_active?: boolean
+          region?: string | null
+          role: string
+        }
+        Update: {
+          alias?: string
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string
+          created_at?: string
+          display_name?: string | null
+          email_notifications_enabled?: boolean
+          hospital_id?: string | null
+          id?: string
+          is_active?: boolean
+          region?: string | null
+          role?: string
+        }
+        Relationships: []
       }
       rate_limits: {
         Row: {
-          id: string
-          user_id: string
           action: string
           count: number
+          id: string
+          user_id: string
           window_start: string
         }
         Insert: {
-          id?: string
-          user_id: string
           action: string
           count?: number
+          id?: string
+          user_id: string
           window_start?: string
         }
         Update: {
-          id?: string
-          user_id?: string
           action?: string
           count?: number
+          id?: string
+          user_id?: string
           window_start?: string
         }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          connection_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          reason: string
+          reported_id: string | null
+          reporter_id: string | null
+        }
+        Insert: {
+          connection_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          reason: string
+          reported_id?: string | null
+          reporter_id?: string | null
+        }
+        Update: {
+          connection_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          reason?: string
+          reported_id?: string | null
+          reporter_id?: string | null
+        }
+        Relationships: []
       }
     }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
-      get_unread_count: {
-        Args: { user_uuid: string }
-        Returns: number
+      blocked_user_ids: {
+        Args: Record<string, never>
+        Returns: { user_id: string }[]
       }
+      check_rate_limit: {
+        Args: { p_action: string; p_max: number }
+        Returns: { allowed: boolean; remaining: number }[]
+      }
+      get_unread_count: { Args: { user_uuid: string }; Returns: number }
+      mark_connection_read: {
+        Args: { p_connection_id: string }
+        Returns: undefined
+      }
+      purge_old_rate_limits: { Args: Record<string, never>; Returns: number }
+      requeue_stuck_emails: { Args: Record<string, never>; Returns: number }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }
 
-// Convenience row types
+// Alias de conveniencia
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Hashtag = Database['public']['Tables']['hashtags']['Row']
 export type ProfileHashtag = Database['public']['Tables']['profile_hashtags']['Row']
@@ -337,6 +591,8 @@ export type Report = Database['public']['Tables']['reports']['Row']
 export type Block = Database['public']['Tables']['blocks']['Row']
 export type EmailQueue = Database['public']['Tables']['email_queue']['Row']
 export type RateLimit = Database['public']['Tables']['rate_limits']['Row']
+export type Post = Database['public']['Tables']['posts']['Row']
 
-export type ConnectionStatus = Connection['status']
-export type UserRole = Profile['role']
+// `status` y `role` son `text` en la BD; estos son los valores que usa la app.
+export type ConnectionStatus = 'pending' | 'accepted' | 'rejected'
+export type UserRole = 'seeker' | 'volunteer'

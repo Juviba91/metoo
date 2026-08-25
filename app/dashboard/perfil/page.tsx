@@ -8,6 +8,7 @@ import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackForm } from '@/components/feedback-form'
 import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
+import type { UserRole } from '@/types/database'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -69,7 +70,7 @@ export default async function PerfilPage() {
             hashtags: profileHashtags,
             isActive: profile.is_active ?? true,
           }}
-          role={profile.role}
+          role={profile.role as UserRole}
           suggestions={allHashtags ?? []}
         />
 
