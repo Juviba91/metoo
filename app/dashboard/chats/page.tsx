@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getHiddenUserIds } from '@/app/safety/actions'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
@@ -40,19 +41,27 @@ export default async function ChatsPage() {
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false })
 
-  const [{ data: connections }, { data: unreadData }] = await Promise.all([
+  const [{ data: allConnections }, { data: unreadData }, hiddenIds] = await Promise.all([
     connectionsQuery,
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
+    getHiddenUserIds(),
   ])
+
+  // Las conversaciones con usuarios bloqueados no se listan
+  const hiddenSet = new Set(hiddenIds)
+  const connections = (allConnections ?? []).filter((c: any) => {
+    const otherId = profile.role === 'seeker' ? c.volunteer_id : c.seeker_id
+    return !otherId || !hiddenSet.has(otherId)
+  })
 
   const pendingCount =
     profile.role === 'volunteer'
-      ? (connections ?? []).filter((c: any) => c.status === 'pending').length
+      ? connections.filter((c: any) => c.status === 'pending').length
       : 0
 
   // Fetch latest message per connection — one parallel query per connection guarantees correctness
-  const connectionIds = (connections ?? []).map((c: any) => c.id)
-  let lastMessages: Record<string, { content: string; sender_id: string }> = {}
+  const connectionIds = connections.map((c: any) => c.id)
+  const lastMessages: Record<string, { content: string; sender_id: string }> = {}
 
   if (connectionIds.length > 0) {
     const results = await Promise.all(
@@ -76,7 +85,7 @@ export default async function ChatsPage() {
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
-        {!connections || connections.length === 0 ? (
+        {connections.length === 0 ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
             <p className="mb-2 text-3xl">💬</p>
             <p>Todavía no tienes conversaciones.</p>

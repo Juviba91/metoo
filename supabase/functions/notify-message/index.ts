@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { deliverEmail, escapeHtml } from '../_shared/email.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -19,11 +20,6 @@ Deno.serve(async (req: Request) => {
     return new Response('Missing fields', { status: 400 })
   }
 
-  if (!RESEND_API_KEY) {
-    console.error('RESEND_API_KEY not set')
-    return new Response('Email not configured', { status: 200 })
-  }
-
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
   const { data: conn } = await supabase
@@ -36,6 +32,19 @@ Deno.serve(async (req: Request) => {
 
   const recipientId =
     conn.seeker_id === message.sender_id ? conn.volunteer_id : conn.seeker_id
+
+  // sendMessage ya impide escribir a un usuario bloqueado, pero el webhook se
+  // dispara ante cualquier INSERT: no se notifica si hay bloqueo.
+  const { data: block } = await supabase
+    .from('blocks')
+    .select('id')
+    .or(
+      `and(blocker_id.eq.${message.sender_id},blocked_id.eq.${recipientId}),` +
+        `and(blocker_id.eq.${recipientId},blocked_id.eq.${message.sender_id})`,
+    )
+    .maybeSingle()
+
+  if (block) return new Response('blocked', { status: 200 })
 
   const { data: sender, error: senderError } = await supabase
     .from('profiles')
@@ -56,15 +65,20 @@ Deno.serve(async (req: Request) => {
 
   const chatUrl = `${APP_URL}/dashboard/chat/${message.connection_id}`
   const senderAlias = sender.alias ?? 'Alguien'
-  const preview = message.content.substring(0, 200) + (message.content.length > 200 ? '…' : '')
+  const rawPreview =
+    message.content.substring(0, 200) + (message.content.length > 200 ? '…' : '')
+  // Contenido escrito por usuarios: se escapa antes de meterlo en el HTML
+  const preview = escapeHtml(rawPreview)
+  const safeAlias = escapeHtml(senderAlias)
 
-  // Queue email for delivery with retry logic
-  const { error: queueError } = await supabase.from('email_queue').insert({
-    recipient_email: recipientUser.email,
+  const result = await deliverEmail(supabase, RESEND_API_KEY, {
+    to: recipientUser.email,
+    from: FROM_EMAIL,
+    recipientUserId: recipientId,
     subject: `${senderAlias} te ha enviado un mensaje en metoo`,
-    html_body: `
+    html: `
       <p>Hola,</p>
-      <p><strong>${senderAlias}</strong> te ha enviado un mensaje en metoo:</p>
+      <p><strong>${safeAlias}</strong> te ha enviado un mensaje en metoo:</p>
       <blockquote style="border-left:3px solid #e5e7eb;padding-left:1rem;color:#6b7280;">
         ${preview}
       </blockquote>
@@ -75,11 +89,10 @@ Deno.serve(async (req: Request) => {
         Si no quieres recibir estos avisos, desactívalos en tu perfil.
       </p>
     `,
-    from_email: FROM_EMAIL,
   })
 
-  if (queueError) {
-    console.error('Error queuing email:', queueError)
+  if (result.status === 'queued') {
+    console.error('Message email queued for retry:', result.error)
   }
 
   return new Response('ok', { status: 200 })

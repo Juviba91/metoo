@@ -1,131 +1,237 @@
 # metoo
 
-metoo is an open-source support network app designed to help people feel less alone.
+**Alguien ya estuvo donde estás tú.**
 
-The goal is simple: create a safe, accessible and free space where people can share what they are going through, find support, and connect with others who may have experienced something similar.
+metoo conecta a personas que atraviesan un momento difícil con voluntarios que
+han vivido algo parecido. Cerca de ti. Sin juicios. Gratis, y para siempre.
 
-The app is public and free to use.
+🔗 **App:** https://support-network-app.vercel.app
+📬 **¿Dudas, ideas, ganas de ayudar?** Escribe a **juan@bay-apps.com** — se
+responde a todo el mundo.
 
-Live app: https://support-network-app.vercel.app/
-
----
-
-## Why metoo exists
-
-Many people go through difficult moments without knowing who to talk to.
-
-metoo is built around one idea:
-
-> You are not the only one.
-
-The project aims to make emotional support easier to access, while protecting user privacy and keeping the platform simple, human and useful.
+> *English speakers: this README is in Spanish because that's the language of
+> the app and its community, but contributions, issues and emails in English are
+> just as welcome. Write to juan@bay-apps.com and we'll figure it out.*
 
 ---
 
-## Open source
+## Por qué existe
 
-metoo is open source because transparency matters, especially in a project related to emotional support and personal experiences.
+Mucha gente pasa por lo más duro de su vida sin saber con quién hablar.
 
-By making the code public, anyone can:
+No por falta de cariño alrededor — sino porque quien no ha pasado por ello no
+sabe qué decir, y quien sí ha pasado por ello está a kilómetros y no sabe que
+existes.
 
-- Review how the app works.
-- Suggest improvements.
-- Report bugs.
-- Contribute new features.
-- Help make the platform safer, clearer and more useful.
+metoo se construye sobre una idea muy simple:
 
-Contributions are welcome.
+> **No eres el único.**
 
----
+Una madre con un bebé en la UCIN. Alguien que acaba de perder a su padre. Una
+persona que recibe un diagnóstico y no sabe ni por dónde empezar. En todos esos
+casos hay alguien que ya lo vivió y que estaría dispuesto a acompañar — solo
+falta que se encuentren.
 
-## What you can contribute
-
-You can help with:
-
-- Bug fixes.
-- UI and UX improvements.
-- Accessibility improvements.
-- Translations.
-- Moderation tools.
-- Privacy improvements.
-- Documentation.
-- New features aligned with the mission of the project.
-
-If you are not a developer, you can still help by opening issues with ideas, feedback or problems you find.
+Eso es todo lo que hace esta app.
 
 ---
 
-## What this project is not
+## Esto es un proyecto altruista
 
-metoo is not a medical, psychological or emergency service.
+Que quede claro desde el principio, porque importa:
 
-If someone is in immediate danger or needs urgent help, they should contact local emergency services or a qualified professional.
+- **No hay ánimo de lucro.** Ni ahora ni más adelante.
+- **Es gratis** para quien busca apoyo y para quien lo ofrece.
+- **No se vende ni se cede ningún dato.** Nunca.
+- **No hay publicidad.**
+- **El código es público** para que cualquiera pueda comprobar que todo lo
+  anterior es cierto.
 
-The app is intended as a support network, not as a replacement for professional care.
-
----
-
-## Privacy and data
-
-The code is public, but user data is not.
-
-Never upload:
-
-- Real user data.
-- API keys.
-- Supabase credentials.
-- Private environment variables.
-- Authentication secrets.
-- Any sensitive information.
-
-Use `.env.local.example` as a reference for the required environment variables.
+Nadie cobra por esto. Se mantiene porque creemos que hace falta.
 
 ---
 
-## Local development
+## Cómo puedes ayudar
 
-To run the project locally:
+Cualquier ayuda suma, y no hace falta saber programar.
+
+### Si no eres desarrollador
+
+Probablemente eres quien más puede aportar:
+
+- **Cuéntanos qué falla o qué confunde.** Si algo te ha costado entender, a otra
+  persona también le costará.
+- **Ideas de funcionalidades**: qué echas en falta, qué te habría ayudado a ti.
+- **Textos y tono.** Es una app sobre momentos duros; cada palabra cuenta. Si
+  algo suena frío, torpe o fuera de lugar, dilo.
+- **Difusión.** Que llegue a quien lo necesita es la mitad del trabajo.
+- **Ser voluntario.** Si has pasado por algo y quieres acompañar a alguien,
+  entra en la app. Ahí es donde de verdad pasa lo importante.
+
+Puedes abrir un [issue](https://github.com/juviba91/metoo/issues) o simplemente
+escribir a **juan@bay-apps.com**. No hace falta formalidad ninguna.
+
+### Si eres desarrollador
+
+- Corregir bugs
+- Mejoras de interfaz y de experiencia de uso
+- **Accesibilidad** (importante: mucha gente llega a esta app agotada, con el
+  móvil, de madrugada, en la sala de espera de un hospital)
+- Traducciones
+- Herramientas de moderación
+- Mejoras de privacidad y seguridad
+- Documentación
+
+No hay proceso rígido: abre un issue o un PR y lo hablamos. Si es tu primera
+contribución a open source y algo se te atasca, escribe y te echo una mano — de
+verdad, sin problema.
+
+---
+
+## Lo que metoo NO es
+
+metoo **no es un servicio médico, psicológico ni de emergencias**, y los
+voluntarios no son terapeutas: son personas que han pasado por algo parecido y
+que comparten su experiencia.
+
+Si alguien está en peligro inmediato o necesita ayuda urgente, debe contactar
+con los servicios de emergencia o con un profesional cualificado.
+
+En España, el **teléfono 024** de atención a la conducta suicida está disponible
+24 horas, es gratuito y confidencial.
+
+---
+
+## Privacidad
+
+El código es público. **Los datos de las personas no.**
+
+Si contribuyes, nunca subas al repositorio:
+
+- Datos reales de usuarios
+- Claves de API
+- Credenciales de Supabase
+- Variables de entorno privadas
+- Secretos de autenticación
+
+Usa `.env.local.example` como referencia de las variables necesarias.
+
+---
+
+## Desarrollo local
 
 ```bash
 git clone https://github.com/juviba91/metoo.git
 cd metoo
 npm install
 cp .env.local.example .env.local
-# Fill in your Supabase URL and anon key in .env.local
+# Rellena la URL de Supabase y la anon key en .env.local
 npm run dev
+```
+
+Antes de abrir un PR:
+
+```bash
+npx tsc --noEmit   # debe pasar sin errores
+npx next build     # debe compilar limpio
+```
+
+### Base de datos
+
+Las migraciones viven en `supabase/migrations/` y se aplican en orden
+cronológico. Si añades una, ten en cuenta que **el fichero es solo la mitad del
+trabajo**: hay que aplicarla al proyecto y comprobar que el esquema real quedó
+como esperabas. Una migración que falla a medias deja la app pidiendo tablas o
+columnas que no existen, y eso no siempre da un error visible: PostgREST
+devuelve el error dentro de la respuesta y el código puede seguir adelante como
+si no hubiera pasado nada.
+
+Tras cambiar el esquema, regenera los tipos:
+
+```bash
+supabase gen types typescript --project-id <project-ref> > types/database.ts
 ```
 
 ---
 
-## Email notifications (production setup)
+## Notificaciones por email (producción)
 
-metoo sends email notifications when a new message or connection request arrives. This requires:
+metoo avisa por correo cuando llega un mensaje nuevo o una solicitud de
+conexión. El envío es **directo**, y la cola `email_queue` se usa solo para
+reintentar los que fallan.
 
-1. A [Resend](https://resend.com) account with a verified sending domain.
-2. Two Supabase Edge Functions deployed: `notify-message` and `notify-connection`.
-3. Two Supabase database webhooks pointing to each function.
+Hace falta:
 
-### Deploy Edge Functions
+1. Una cuenta de [Resend](https://resend.com) con dominio verificado.
+2. Tres Edge Functions desplegadas.
+3. Dos webhooks de base de datos.
+
+### Desplegar las funciones
 
 ```bash
 supabase functions deploy notify-message
 supabase functions deploy notify-connection
+supabase functions deploy process-email-queue
 ```
 
-### Set secrets
+### Secretos
 
 ```bash
-supabase secrets set RESEND_API_KEY=re_your_key_here
-supabase secrets set APP_URL=https://your-domain.com
+supabase secrets set RESEND_API_KEY=re_tu_clave
+supabase secrets set APP_URL=https://tu-dominio.com
+supabase secrets set CRON_SECRET=una_cadena_larga_y_aleatoria
 ```
 
-### Create database webhooks
+`CRON_SECRET` protege `process-email-queue`, que provoca envío de correo y no
+puede quedar abierta a internet. Se envía en la cabecera `x-cron-secret`.
 
-In the Supabase dashboard → Database → Webhooks, create:
+### Webhooks
 
-| Name | Table | Events | URL |
+En el panel de Supabase → Database → Webhooks:
+
+| Nombre | Tabla | Evento | URL |
 |---|---|---|---|
-| notify-message | messages | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-message` |
-| notify-connection | connections | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-connection` |
+| notify-message | `messages` | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-message` |
+| notify-connection | `connections` | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-connection` |
 
-Both webhooks should include the `Authorization: Bearer <anon-key>` header.
+Ambos con la cabecera `Authorization: Bearer <anon-key>`.
+
+### Reintentos
+
+Ya están programados con `pg_cron` (ver
+`supabase/migrations/20260825_schedule_email_retries.sql`):
+
+| Job | Cada | Qué hace |
+|---|---|---|
+| `drain-email-queue` | 5 min | Invoca `process-email-queue` si hay algo pendiente |
+| `purge-rate-limits` | Diario | Borra contadores de rate limit caducados |
+
+El secreto se genera dentro de la base de datos y vive cifrado en Vault, así que
+no aparece en el repositorio. Para leerlo y configurarlo en las Edge Functions:
+
+```sql
+-- En el SQL Editor de Supabase
+select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret';
+```
+
+```bash
+supabase secrets set CRON_SECRET=<el valor anterior>
+```
+
+Para comprobar que la cadena funciona:
+
+```sql
+select status_code, content from net._http_response order by created desc limit 1;
+```
+
+`200` es correcto. `500 Not configured` significa que falta `CRON_SECRET` en los
+secretos de las Edge Functions. `401` significa que no coincide con el de Vault.
+
+---
+
+## Gracias
+
+Si has llegado hasta aquí, gracias por el rato. Y si te animas a echar una mano,
+en lo que sea, escribe sin miedo:
+
+**juan@bay-apps.com**

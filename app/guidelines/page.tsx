@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import type { UserRole } from '@/types/database'
 import { GuidelinesContent } from './guidelines-content'
 
 export const metadata = { title: 'Normas de la comunidad — metoo' }
@@ -14,7 +15,8 @@ export default async function GuidelinesPage() {
       .select('role')
       .eq('id', user.id)
       .single()
-    defaultRole = profile?.role ?? null
+    // `role` es text en BD, acotado por el CHECK profiles_role_check
+    defaultRole = (profile?.role as UserRole | undefined) ?? null
   }
 
   return <GuidelinesContent defaultRole={defaultRole} />

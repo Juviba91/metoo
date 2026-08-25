@@ -16,6 +16,12 @@ export default async function AdminPage() {
 
   const admin = createAdminClient()
 
+  // react-hooks/purity está pensada para componentes de cliente: aquí estamos
+  // en un Server Component asíncrono que se ejecuta una vez por petición, así
+  // que leer el reloj es correcto.
+  // eslint-disable-next-line react-hooks/purity
+  const lastHour = new Date(Date.now() - 3600_000).toISOString()
+
   const [
     { data: profiles },
     { data: authResult },
@@ -43,7 +49,7 @@ export default async function AdminPage() {
     admin.from('blocks').select('id', { count: 'exact', head: true }),
     admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
     admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    admin.from('rate_limits').select('id', { count: 'exact', head: true }).gte('window_start', new Date(Date.now() - 3600000).toISOString()),
+    admin.from('rate_limits').select('id', { count: 'exact', head: true }).gte('window_start', lastHour),
   ])
 
   const emailMap = Object.fromEntries(
@@ -78,20 +84,25 @@ export default async function AdminPage() {
       <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-          {[
-            { label: 'Usuarios', value: totalUsers },
-            { label: 'Voluntarios', value: volunteers },
-            { label: 'Buscadores', value: seekers },
-            { label: 'Conexiones', value: connectionCount ?? 0 },
-            { label: 'Mensajes', value: messageCount ?? 0 },
-            { label: 'Bloqueos', value: blockCount ?? 0 },
-            { label: 'Emails fallidos', value: failedEmailCount ?? 0, highlight: failedEmailCount ? 'text-destructive' : '' },
-            { label: 'Emails pendientes', value: pendingEmailCount ?? 0 },
-            { label: 'Rate limits (1h)', value: rateLimitCount ?? 0 },
-          ].map((s) => (
-            <div key={s.label} className={`rounded-xl border border-border p-4 text-center ${s.highlight ? s.highlight : ''}`}>
-              <p className={`text-2xl font-bold ${s.highlight}`}>{s.value}</p>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {([
+            { label: 'Usuarios', value: totalUsers, alert: false },
+            { label: 'Voluntarios', value: volunteers, alert: false },
+            { label: 'Buscadores', value: seekers, alert: false },
+            { label: 'Conexiones', value: connectionCount ?? 0, alert: false },
+            { label: 'Mensajes', value: messageCount ?? 0, alert: false },
+            { label: 'Bloqueos', value: blockCount ?? 0, alert: false },
+            { label: 'Emails fallidos', value: failedEmailCount ?? 0, alert: (failedEmailCount ?? 0) > 0 },
+            { label: 'Emails en cola', value: pendingEmailCount ?? 0, alert: (pendingEmailCount ?? 0) > 20 },
+            { label: 'Rate limits (1h)', value: rateLimitCount ?? 0, alert: false },
+          ] as const).map((s) => (
+            <div
+              key={s.label}
+              className={`rounded-xl border p-4 text-center ${
+                s.alert ? 'border-destructive/40 bg-destructive/5' : 'border-border'
+              }`}
+            >
+              <p className={`text-2xl font-bold ${s.alert ? 'text-destructive' : ''}`}>{s.value}</p>
               <p className="text-xs text-muted-foreground">{s.label}</p>
             </div>
           ))}
@@ -122,14 +133,22 @@ export default async function AdminPage() {
                           <p className="text-muted-foreground">{r.description}</p>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          {new Date(r.created_at).toLocaleDateString('es-ES', {
-                            day: 'numeric', month: 'short', year: 'numeric',
-                          })}
+                          {r.created_at
+                            ? new Date(r.created_at).toLocaleDateString('es-ES', {
+                                day: 'numeric', month: 'short', year: 'numeric',
+                              })
+                            : '—'}
                         </p>
                       </div>
                       <div className="flex shrink-0 flex-col gap-2">
                         <ResolveReportBtn reportId={r.id} />
-                        <DeleteUserBtn userId={r.reported_id} alias={(r.profiles as any)?.alias ?? 'este usuario'} />
+                        {/* reported_id se pone a NULL si la cuenta ya fue eliminada */}
+                        {r.reported_id && (
+                          <DeleteUserBtn
+                            userId={r.reported_id}
+                            alias={(r.profiles as any)?.alias ?? 'este usuario'}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>

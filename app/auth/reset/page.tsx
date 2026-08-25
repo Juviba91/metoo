@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -44,9 +45,9 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <a href="/" className="mb-10 block text-center text-2xl font-bold tracking-tight">
+        <Link href="/" className="mb-10 block text-center text-2xl font-bold tracking-tight">
           metoo.
-        </a>
+        </Link>
         <h1 className="mb-2 text-center text-xl font-semibold">Nueva contraseña</h1>
         <p className="mb-8 text-center text-sm text-muted-foreground">
           Elige una contraseña segura para tu cuenta

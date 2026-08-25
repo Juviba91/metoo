@@ -65,16 +65,7 @@ export default async function BlockedUsersPage() {
                     </p>
                   )}
                 </div>
-                <BlockButton
-                  userId={profile.id}
-                  isBlocked={true}
-                  onBlockChange={(blocked) => {
-                    if (!blocked) {
-                      // Refresh the page to remove from list
-                      window.location.reload()
-                    }
-                  }}
-                />
+                <BlockButton userId={profile.id} isBlocked={true} />
               </div>
             ))}
           </div>

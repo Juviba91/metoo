@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { canInteractWith } from '@/app/safety/actions'
 import { ChatView } from './chat-view'
 
 export default async function ChatPage({
@@ -34,6 +35,10 @@ export default async function ChatPage({
     ? (connection.volunteer as any)?.alias
     : (connection.seeker as any)?.alias
   const reportedId = isSeeker ? connection.volunteer_id : connection.seeker_id
+
+  // Si hay bloqueo en cualquiera de los dos sentidos, la conversación no es
+  // accesible ni siquiera entrando por URL directa
+  if (!(await canInteractWith(reportedId))) notFound()
 
   const { data: messages } = await supabase
     .from('messages')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { MapPin, Search, Users } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
 import Link from 'next/link'
@@ -31,7 +31,14 @@ export function DashboardMatches({
   const [activeHashtag, setActiveHashtag] = useState<string | null>(null)
   const [visibleCount, setVisibleCount] = useState(12)
 
-  useEffect(() => { setVisibleCount(12) }, [query, activeHashtag])
+  // Al cambiar los filtros se vuelve a la primera página. Se ajusta durante el
+  // render en vez de con un efecto: hacerlo en useEffect encadena un render
+  // extra con la lista larga ya pintada.
+  const [prevFilters, setPrevFilters] = useState({ query, activeHashtag })
+  if (prevFilters.query !== query || prevFilters.activeHashtag !== activeHashtag) {
+    setPrevFilters({ query, activeHashtag })
+    setVisibleCount(12)
+  }
 
   // Count matches per hashtag
   const matchCountBySlug = matches.reduce<Record<string, number>>((acc, m) => {
