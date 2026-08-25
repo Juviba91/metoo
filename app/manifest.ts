@@ -10,9 +10,10 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: '#ffffff',
     theme_color: '#0a0a0a',
     orientation: 'portrait',
+    // Se apunta a /logo.png (en public/) en vez de a las rutas generadas por
+    // app/icon.png, cuya URL lleva un hash que cambia en cada build.
     icons: [
-      { src: '/icon', sizes: '512x512', type: 'image/png', purpose: 'any' },
-      { src: '/apple-icon', sizes: '180x180', type: 'image/png' },
+      { src: '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
     ],
   }
 }

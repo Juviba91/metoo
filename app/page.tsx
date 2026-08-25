@@ -3,6 +3,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Heart, MapPin, Shield, Users } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
+import { Logo } from '@/components/logo'
 
 const categories = [
   { emoji: '🏥', label: 'UCIN y prematuridad', sub: 'Bebés en cuidados intensivos neonatales' },
@@ -55,7 +56,7 @@ export default function Page() {
       {/* Navbar */}
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-xl font-bold tracking-tight">metoo.</span>
+          <Logo size={32} />
           <div className="flex gap-2">
             <Link href="/auth/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
               Entrar
@@ -69,6 +70,8 @@ export default function Page() {
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-24">
+        <Logo size={80} showWordmark={false} className="mb-8 drop-shadow-sm" />
+
         <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground sm:mb-8">
           <Heart className="size-3.5" />
           <span>Apoyo real entre personas que lo han vivido</span>
