@@ -5,14 +5,12 @@ import { MapPin, Search, Users } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
 import Link from 'next/link'
 
-type Category = { slug: string; name: string; emoji: string }
 type Hashtag = { id: string; slug: string; label: string }
 type Match = {
   id: string
   alias: string
   city: string | null
   bio: string | null
-  profile_categories: { categories: Category }[]
   profile_hashtags: { hashtags: Hashtag }[]
 }
 
@@ -128,7 +126,6 @@ export function DashboardMatches({
         <>
           <div className="grid gap-4 sm:grid-cols-2">
             {visible.map((match) => {
-              const cat = match.profile_categories?.[0]?.categories
               const tags = (match.profile_hashtags ?? [])
                 .map((ph) => ph.hashtags)
                 .filter(Boolean)
@@ -158,10 +155,9 @@ export function DashboardMatches({
                         </p>
                       )}
                     </div>
-                    {cat && tags.length === 0 && <span className="text-xl">{cat.emoji}</span>}
                   </div>
 
-                  {tags.length > 0 ? (
+                  {tags.length > 0 && (
                     <div className="mb-3 flex flex-wrap gap-1.5">
                       {tags.map((tag) => (
                         <button
@@ -177,8 +173,6 @@ export function DashboardMatches({
                         </button>
                       ))}
                     </div>
-                  ) : (
-                    cat && <p className="mb-2 text-xs font-medium text-muted-foreground">{cat.name}</p>
                   )}
 
                   {match.bio && (

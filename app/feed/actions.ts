@@ -3,15 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, getHiddenUserIds } from '@/app/safety/actions'
-
-function toSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
+import { toSlug } from '@/lib/slug'
 
 export async function createPost(content: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()

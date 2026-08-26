@@ -9,10 +9,13 @@ import { cn } from '@/lib/utils'
  */
 export function Logo({
   className,
+  wordmarkClassName,
   size = 32,
   showWordmark = true,
 }: {
   className?: string
+  /** Para ocultar el wordmark por breakpoint sin perder el texto accesible. */
+  wordmarkClassName?: string
   size?: number
   showWordmark?: boolean
 }) {
@@ -27,10 +30,16 @@ export function Logo({
         className="rounded-[22%]"
         style={{ width: size, height: size }}
       />
-      {showWordmark && (
-        <span className="text-xl font-bold tracking-tight">metoo.</span>
+      {showWordmark ? (
+        // Para ocultarlo por breakpoint, pasar `sr-only sm:not-sr-only`: sigue
+        // siendo accesible aunque no se vea. `hidden` lo sacaría del árbol de
+        // accesibilidad y el enlace se quedaría sin nombre.
+        <span className={cn('text-xl font-bold tracking-tight', wordmarkClassName)}>
+          metoo.
+        </span>
+      ) : (
+        <span className="sr-only">metoo</span>
       )}
-      <span className="sr-only">metoo</span>
     </span>
   )
 }

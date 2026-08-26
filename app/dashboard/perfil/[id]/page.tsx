@@ -29,7 +29,7 @@ export default async function PublicProfilePage({
     supabase
       .from('profiles')
       .select(
-        'id, alias, city, bio, role, is_active, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))',
+        'id, alias, city, bio, role, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))',
       )
       .eq('id', id)
       .single(),
@@ -67,7 +67,6 @@ export default async function PublicProfilePage({
   const existingConn = connectionResult.data
   const alreadySent = !!existingConn && existingConn.status !== 'rejected'
 
-  const category = (profile.profile_categories as any[])?.[0]?.categories
   const hashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
@@ -94,11 +93,6 @@ export default async function PublicProfilePage({
               {profile.city && (
                 <span className="flex items-center gap-1">
                   <MapPin className="size-3.5" /> {profile.city}
-                </span>
-              )}
-              {category && (
-                <span>
-                  {category.emoji} {category.name}
                 </span>
               )}
             </div>

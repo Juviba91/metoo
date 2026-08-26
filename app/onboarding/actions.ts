@@ -4,15 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 
 export type HashtagInput = { id: string; slug: string; label: string }
 
-const CATEGORY_SLUGS = [
-  'ucin',
-  'prematuro-extremo',
-  'prematuro-tardio',
-  'secuelas',
-  'perdida-neonatal',
-  'gemelos-prematuros',
-]
-
 export async function completeOnboarding({
   role,
   hashtags,
@@ -61,26 +52,6 @@ export async function completeOnboarding({
     if (hashtagError) {
       console.error('Error saving hashtags:', hashtagError)
       return { error: 'Error al guardar hashtags. Por favor intenta de nuevo.' }
-    }
-  }
-
-  // Derive a category for the matching system from the selected hashtags
-  const matchingTag = hashtags.find((h) => CATEGORY_SLUGS.includes(h.slug))
-  if (matchingTag) {
-    const { data: cat, error: catError } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('slug', matchingTag.slug)
-      .single()
-
-    if (!catError && cat) {
-      const { error: catLinkError } = await supabase
-        .from('profile_categories')
-        .insert({ profile_id: user.id, category_id: cat.id })
-
-      if (catLinkError) {
-        console.error('Error linking category:', catLinkError)
-      }
     }
   }
 
