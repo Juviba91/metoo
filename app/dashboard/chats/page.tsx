@@ -1,7 +1,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getHiddenUserIds } from '@/app/safety/actions'
-import { MapPin } from 'lucide-react'
+import { MapPin, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
@@ -85,7 +85,12 @@ export default async function ChatsPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <MessageCircle className="size-5" />
+          Tus conversaciones
+        </h2>
+
         {connections.length === 0 ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
             <p className="mb-2 text-3xl">💬</p>

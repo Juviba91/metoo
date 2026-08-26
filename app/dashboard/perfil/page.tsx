@@ -40,20 +40,6 @@ export default async function PerfilPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      {/* Cabecera móvil: sin flecha de volver, esta pantalla ya tiene su
-          propia pestaña "Perfil" en la barra inferior */}
-      <div className="flex items-center gap-3 border-b border-border/40 px-6 py-3 sm:hidden">
-        <div className="flex flex-1 items-center gap-2">
-          <h1 className="font-semibold">Perfil</h1>
-          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            profile.role === 'volunteer'
-              ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-              : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
-          }`}>
-            {profile.role === 'volunteer' ? '💛 Voluntario' : '🤝 Busca apoyo'}
-          </span>
-        </div>
-      </div>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-6 py-8 pb-28 sm:pb-8">
         <EditForm
