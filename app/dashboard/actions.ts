@@ -1,14 +1,12 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, canInteractWith } from '@/app/safety/actions'
 
 export async function acceptConnection(connectionId: string): Promise<void> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return
 
   const { error } = await supabase
@@ -28,9 +26,7 @@ export async function acceptConnection(connectionId: string): Promise<void> {
 
 export async function rejectConnection(connectionId: string): Promise<void> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return
 
   const { error } = await supabase
@@ -50,9 +46,7 @@ export async function rejectConnection(connectionId: string): Promise<void> {
 
 export async function requestConnection(volunteerId: string) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) return { error: 'No autenticado' }
   if (user.id === volunteerId) return { error: 'No puedes contactarte a ti mismo' }
@@ -120,9 +114,7 @@ export async function updateProfile({
   isActive?: boolean
 }) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const { error } = await supabase
@@ -169,9 +161,7 @@ export async function reportUser(
   description?: string,
 ): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const { data: conn } = await supabase
@@ -215,9 +205,7 @@ export async function markConnectionRead(connectionId: string): Promise<void> {
 
 export async function toggleAvailability(isActive: boolean): Promise<void> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return
 
   const { error } = await supabase.from('profiles').update({ is_active: isActive }).eq('id', user.id)
@@ -232,9 +220,7 @@ export async function toggleAvailability(isActive: boolean): Promise<void> {
 
 export async function sendMessage(connectionId: string, content: string) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) return { error: 'No autenticado' }
 

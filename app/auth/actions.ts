@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function signOut() {
@@ -11,9 +11,7 @@ export async function signOut() {
 
 export async function resendConfirmation(): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user?.email) return { error: 'No autenticado' }
   const { error } = await supabase.auth.resend({ type: 'signup', email: user.email })
   if (error) {
@@ -25,9 +23,7 @@ export async function resendConfirmation(): Promise<{ success?: boolean; error?:
 
 export async function sendPasswordReset(): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user?.email) return { error: 'No autenticado' }
 
   const { error } = await supabase.auth.resetPasswordForEmail(user.email)

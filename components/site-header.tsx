@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button'
 import { signOut } from '@/app/auth/actions'
 import { NavLinks } from './nav-links'
 import { Logo } from '@/components/logo'
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/server'
 
 const ADMIN_EMAIL = 'baygual91@gmail.com'
 
 export async function SiteHeader() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // getUser() está memoizada por petición: si la página que envuelve a este
+  // header ya la llamó, aquí no se repite la validación contra Supabase Auth.
+  const user = await getUser()
   const isAdmin = user?.email === ADMIN_EMAIL
 
   return (

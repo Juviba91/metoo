@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 const RATE_LIMITS: Record<string, number> = {
@@ -34,7 +34,7 @@ export async function checkRateLimit(action: string): Promise<{ allowed: boolean
 
 export async function blockUser(blockedId: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
   if (user.id === blockedId) return { error: 'No puedes bloquearte a ti mismo' }
 
@@ -58,7 +58,7 @@ export async function blockUser(blockedId: string): Promise<{ success?: boolean;
 
 export async function unblockUser(blockedId: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const { error } = await supabase
@@ -82,7 +82,7 @@ export async function unblockUser(blockedId: string): Promise<{ success?: boolea
 /** Usuarios que YO he bloqueado (para la pantalla de gestión). */
 export async function getBlockedUsers(): Promise<string[]> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return []
 
   const { data, error } = await supabase
@@ -117,7 +117,7 @@ export async function getHiddenUserIds(): Promise<string[]> {
 /** ¿He bloqueado yo a este usuario? (estado del botón de bloqueo) */
 export async function isUserBlocked(userId: string): Promise<boolean> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return false
 
   const { data } = await supabase
@@ -148,7 +148,7 @@ export async function toggleEmailNotifications(
   enabled: boolean,
 ): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const { error } = await supabase

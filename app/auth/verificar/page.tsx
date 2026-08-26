@@ -1,20 +1,23 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { resendConfirmation } from '@/app/auth/actions'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/logo'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Verifica tu correo' }
 
 export default async function VerificarPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) redirect('/auth/login')
   if (user.email_confirmed_at) redirect('/dashboard')
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
-      <Link href="/" className="mb-10 text-2xl font-bold tracking-tight">
-        metoo.
+      <Link href="/" className="mb-10">
+        <Logo showWordmark={false} size={56} />
       </Link>
 
       <div className="mb-6 text-5xl">✉️</div>
@@ -39,12 +42,12 @@ export default async function VerificarPage() {
         </Button>
       </form>
 
-      <a
+      <Link
         href="/auth/login"
         className="mt-6 text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
       >
         Usar otro correo
-      </a>
+      </Link>
     </div>
   )
 }

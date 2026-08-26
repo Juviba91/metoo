@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import { Mail, Heart } from 'lucide-react'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Contacto' }
 
 export default function ContactoPage() {
   return (

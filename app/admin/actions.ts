@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -8,10 +8,7 @@ import { redirect } from 'next/navigation'
 const ADMIN_EMAIL = 'baygual91@gmail.com'
 
 async function requireAdmin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user || user.email !== ADMIN_EMAIL) redirect('/')
   return user
 }

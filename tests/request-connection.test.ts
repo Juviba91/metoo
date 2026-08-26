@@ -8,6 +8,7 @@ const state: { mock: ReturnType<typeof createSupabaseMock> } = {
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: async () => state.mock.client,
+  getUser: async () => state.mock.user,
 }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 

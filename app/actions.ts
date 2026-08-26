@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 
 export async function submitFeedback(content: string) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const { error } = await supabase.from('feedback').insert({
@@ -18,7 +18,7 @@ export async function submitFeedback(content: string) {
 
 export async function submitSuggestion(suggestion: string) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const { error } = await supabase.from('hashtag_suggestions').insert({
@@ -34,9 +34,7 @@ export async function createHashtag(
   label: string,
 ): Promise<{ hashtag?: { id: string; slug: string; label: string }; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const trimmed = label.trim().slice(0, 50)

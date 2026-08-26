@@ -1,20 +1,19 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { EditForm } from './edit-form'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackForm } from '@/components/feedback-form'
 import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
 import type { UserRole } from '@/types/database'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Perfil' }
 
 export default async function PerfilPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) redirect('/auth/login')
 
@@ -41,16 +40,11 @@ export default async function PerfilPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      {/* Mobile sub-header with back button */}
+      {/* Cabecera móvil: sin flecha de volver, esta pantalla ya tiene su
+          propia pestaña "Perfil" en la barra inferior */}
       <div className="flex items-center gap-3 border-b border-border/40 px-6 py-3 sm:hidden">
-        <Link
-          href="/dashboard"
-          className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-        </Link>
         <div className="flex flex-1 items-center gap-2">
-          <h1 className="font-semibold">Editar perfil</h1>
+          <h1 className="font-semibold">Perfil</h1>
           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
             profile.role === 'volunteer'
               ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
