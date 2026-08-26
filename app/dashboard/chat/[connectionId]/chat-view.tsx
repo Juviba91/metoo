@@ -197,9 +197,11 @@ export function ChatView({
     <div className="flex h-dvh flex-col bg-background">
       {/* Header */}
       <header className="flex items-center gap-3 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-sm">
+        {/* El chat vive dentro de la sección Chats (así lo marca BottomNav),
+            así que salir devuelve a la lista de conversaciones. */}
         <Link
-          href="/dashboard"
-          aria-label="Volver"
+          href="/dashboard/chats"
+          aria-label="Volver a mis chats"
           className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
