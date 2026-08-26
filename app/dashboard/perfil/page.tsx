@@ -41,7 +41,9 @@ export default async function PerfilPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-8 pb-28 sm:pb-8">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-6 py-8 pb-28 sm:pb-8">
+        <h1 className="text-2xl font-bold">👤 Mi perfil</h1>
+
         <EditForm
           initial={{
             alias: profile.alias,
