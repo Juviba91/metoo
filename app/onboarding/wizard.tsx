@@ -8,6 +8,7 @@ import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
 import { completeOnboarding } from './actions'
 import Link from 'next/link'
 import { track } from '@vercel/analytics/react'
+import { Logo } from '@/components/logo'
 
 export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[] }) {
   const router = useRouter()
@@ -46,8 +47,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
 
   return (
     <div className="w-full max-w-lg">
-      <Link href="/" className="mb-8 block text-center text-2xl font-bold tracking-tight">
-        metoo.
+      <Link href="/" className="mb-8 flex justify-center">
+        <Logo showWordmark={false} size={56} />
       </Link>
 
       {step <= totalSteps && (

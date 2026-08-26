@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { MapPin, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -8,6 +8,9 @@ import { isUserBlocked } from '@/app/safety/actions'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteFooter } from '@/components/site-footer'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Perfil' }
 
 export default async function PublicProfilePage({
   params,
@@ -17,9 +20,7 @@ export default async function PublicProfilePage({
   const { id } = await params
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) redirect('/auth/login')
 
   if (id === user.id) redirect('/dashboard/perfil')

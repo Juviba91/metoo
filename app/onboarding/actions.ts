@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 
 export type HashtagInput = { id: string; slug: string; label: string }
 
@@ -18,9 +18,7 @@ export async function completeOnboarding({
   bio: string
 }): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) return { error: 'No autenticado' }
 

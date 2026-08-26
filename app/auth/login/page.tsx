@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
+import { Logo } from '@/components/logo'
 
 type Mode = 'login' | 'register' | 'forgot'
 
@@ -80,8 +81,8 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-sm">
-      <Link href="/" className="mb-10 block text-center text-2xl font-bold tracking-tight">
-        metoo.
+      <Link href="/" className="mb-10 flex justify-center">
+        <Logo showWordmark={false} size={56} />
       </Link>
 
       {mode !== 'forgot' ? (

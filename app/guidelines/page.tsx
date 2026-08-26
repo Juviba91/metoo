@@ -1,12 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import type { UserRole } from '@/types/database'
 import { GuidelinesContent } from './guidelines-content'
 
-export const metadata = { title: 'Normas de la comunidad — metoo' }
+export const metadata = { title: 'Normas de la comunidad' }
 
 export default async function GuidelinesPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
 
   let defaultRole: 'volunteer' | 'seeker' | null = null
   if (user) {

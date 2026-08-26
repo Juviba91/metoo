@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config'
-import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
   test: {
@@ -7,6 +7,6 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
   },
   resolve: {
-    alias: { '@': resolve(__dirname, '.') },
+    alias: { '@': fileURLToPath(new URL('.', import.meta.url)) },
   },
 })

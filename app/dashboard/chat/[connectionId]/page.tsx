@@ -1,7 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { canInteractWith } from '@/app/safety/actions'
 import { ChatView } from './chat-view'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Chat' }
 
 export default async function ChatPage({
   params,
@@ -11,9 +14,7 @@ export default async function ChatPage({
   const { connectionId } = await params
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) redirect('/auth/login')
 
   const { data: connection } = await supabase

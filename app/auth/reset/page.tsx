@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
+import { Logo } from '@/components/logo'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -45,8 +46,8 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <Link href="/" className="mb-10 block text-center text-2xl font-bold tracking-tight">
-          metoo.
+        <Link href="/" className="mb-10 flex justify-center">
+          <Logo showWordmark={false} size={56} />
         </Link>
         <h1 className="mb-2 text-center text-xl font-semibold">Nueva contraseña</h1>
         <p className="mb-8 text-center text-sm text-muted-foreground">

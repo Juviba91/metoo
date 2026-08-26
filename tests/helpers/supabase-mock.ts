@@ -60,10 +60,12 @@ export function createSupabaseMock(spec: MockSpec = {}) {
     return builder
   }
 
+  const resolvedUser = spec.user === undefined ? { id: 'user-1' } : spec.user
+
   const client = {
     auth: {
       getUser: vi.fn(async () => ({
-        data: { user: spec.user === undefined ? { id: 'user-1' } : spec.user },
+        data: { user: resolvedUser },
         error: null,
       })),
     },
@@ -85,6 +87,9 @@ export function createSupabaseMock(spec: MockSpec = {}) {
     client,
     calls,
     rpcCalls,
+    /** El mismo usuario que devuelve `client.auth.getUser()`, para simular
+     *  también la versión memoizada `getUser()` de lib/supabase/server. */
+    user: resolvedUser,
     /** ¿Se ejecutó esta operación sobre esta tabla? */
     didCall: (table: string, op: string) => calls.some((c) => c.table === table && c.op === op),
     payloadOf: (table: string, op: string) =>

@@ -1,13 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { OnboardingWizard } from './wizard'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Completa tu perfil' }
 
 export default async function OnboardingPage() {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) redirect('/auth/login')
 
   const { data: existingProfile } = await supabase

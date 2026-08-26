@@ -1,16 +1,16 @@
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { ToggleActiveBtn, DeleteUserBtn, ResolveReportBtn } from './admin-buttons'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Admin' }
 
 const ADMIN_EMAIL = 'baygual91@gmail.com'
 
 export default async function AdminPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user || user.email !== ADMIN_EMAIL) redirect('/')
 

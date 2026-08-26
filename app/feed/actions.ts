@@ -1,15 +1,13 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, getHiddenUserIds } from '@/app/safety/actions'
 import { toSlug } from '@/lib/slug'
 
 export async function createPost(content: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const trimmed = content.trim()
@@ -58,9 +56,7 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
 
 export async function fetchMorePosts(offset: number, tag: string | null = null) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { posts: [] as any[] }
 
   const postsSelect = `id, content, created_at, author:author_id(alias), post_hashtags(hashtag:hashtag_id(id, slug, label)), post_reactions(profile_id)`
@@ -87,9 +83,7 @@ export async function fetchMorePosts(offset: number, tag: string | null = null) 
 
 export async function toggleReaction(postId: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
   const { data: existing } = await supabase

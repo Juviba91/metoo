@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, Shield } from 'lucide-react'
@@ -6,12 +6,13 @@ import { getBlockedUsers } from '@/app/safety/actions'
 import { BlockButton } from '@/components/block-button'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Usuarios bloqueados' }
 
 export default async function BlockedUsersPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) redirect('/auth/login')
 
