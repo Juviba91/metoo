@@ -1,11 +1,19 @@
 import { ImageResponse } from 'next/og'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 
-export const runtime = 'edge'
 export const alt = 'metoo — Apoyo entre personas que lo han vivido'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+/** Color del punto del logo, para mantener la marca en la tarjeta. */
+const ACCENT = '#d9a679'
+
 export default async function Image() {
+  // El logo se incrusta como data URI: satori no resuelve rutas relativas.
+  const logo = await readFile(join(process.cwd(), 'public', 'logo.png'))
+  const logoSrc = `data:image/png;base64,${logo.toString('base64')}`
+
   return new ImageResponse(
     (
       <div
@@ -40,18 +48,27 @@ export default async function Image() {
           <span>Apoyo real entre personas que lo han vivido</span>
         </div>
 
-        {/* Logo */}
+        {/* Marca: isotipo + wordmark */}
         <div
           style={{
-            color: '#ffffff',
-            fontSize: '96px',
-            fontWeight: '700',
-            letterSpacing: '-3px',
-            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '24px',
             marginBottom: '32px',
           }}
         >
-          metoo.
+          <img src={logoSrc} width={104} height={104} alt="" style={{ borderRadius: '24px' }} />
+          <div
+            style={{
+              color: '#ffffff',
+              fontSize: '96px',
+              fontWeight: '700',
+              letterSpacing: '-3px',
+              lineHeight: 1,
+            }}
+          >
+            metoo.
+          </div>
         </div>
 
         {/* Tagline */}
@@ -91,7 +108,7 @@ export default async function Image() {
             gap: '8px',
           }}
         >
-          {['#333', '#444', '#555', '#444', '#333'].map((c, i) => (
+          {['#333', '#444', ACCENT, '#444', '#333'].map((c, i) => (
             <div
               key={i}
               style={{

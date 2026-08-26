@@ -9,6 +9,7 @@ const config = [
       'next-env.d.ts',
       // Deno, no Node: tiene su propio runtime y sus propios imports
       'supabase/functions/**',
+      'tests/**',
     ],
   },
   ...coreWebVitals,

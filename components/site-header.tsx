@@ -3,6 +3,7 @@ import { ArrowUpRight, LogOut, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { signOut } from '@/app/auth/actions'
 import { NavLinks } from './nav-links'
+import { Logo } from '@/components/logo'
 import { createClient } from '@/lib/supabase/server'
 
 const ADMIN_EMAIL = 'baygual91@gmail.com'
@@ -15,8 +16,9 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-        <Link href="/dashboard" className="text-xl font-bold tracking-tight">
-          metoo.
+        {/* En móvil solo el isotipo: la barra va justa de espacio */}
+        <Link href="/dashboard" className="shrink-0">
+          <Logo size={28} wordmarkClassName="sr-only sm:not-sr-only" />
         </Link>
 
         <NavLinks />

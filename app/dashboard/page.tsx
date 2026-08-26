@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+    .select('*, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
     .eq('id', user.id)
     .single()
 
@@ -35,7 +35,7 @@ export default async function DashboardPage() {
 
   let matchesQuery = supabase
     .from('profiles')
-    .select('id, alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+    .select('id, alias, city, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
     .eq('role', oppositeRole)
     .eq('is_active', true)
     .neq('id', user.id)
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
           .order('created_at', { ascending: false })
       : supabase
           .from('connections')
-          .select('id, status, seeker_id, seeker:seeker_id(alias, city, bio, profile_categories(category_id, categories(slug, name, emoji)), profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
+          .select('id, status, seeker_id, seeker:seeker_id(alias, city, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false }),
 
@@ -88,7 +88,6 @@ export default async function DashboardPage() {
       : 0
   const chatUnread = (unreadData as number) ?? 0
 
-  const category = (profile.profile_categories as any[])?.[0]?.categories
   const ownHashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
@@ -136,11 +135,6 @@ export default async function DashboardPage() {
                 {profile.city && (
                   <span className="flex items-center gap-1">
                     <MapPin className="size-3.5" /> {profile.city}
-                  </span>
-                )}
-                {category && (
-                  <span>
-                    {category.emoji} {category.name}
                   </span>
                 )}
               </div>
@@ -206,7 +200,6 @@ export default async function DashboardPage() {
                 const isPendingVolunteer = conn.status === 'pending' && profile.role === 'volunteer'
 
                 if (isPendingVolunteer) {
-                  const seekerCategory = (other as any)?.profile_categories?.[0]?.categories
                   const seekerTags = ((other as any)?.profile_hashtags ?? [])
                     .map((ph: any) => ph.hashtags)
                     .filter(Boolean)
@@ -222,9 +215,6 @@ export default async function DashboardPage() {
                                 <span className="flex items-center gap-1">
                                   <MapPin className="size-3" /> {other.city}
                                 </span>
-                              )}
-                              {seekerCategory && (
-                                <span>{seekerCategory.emoji} {seekerCategory.name}</span>
                               )}
                             </div>
                           </div>

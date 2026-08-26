@@ -1,6 +1,14 @@
-import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2'
-
 const RESEND_ENDPOINT = 'https://api.resend.com/emails'
+
+/**
+ * El cliente llega ya construido desde cada función. Se tipa de forma laxa a
+ * propósito: importar el tipo desde `jsr:` haría que este fichero no compilase
+ * con el TypeScript del proyecto Next, que no resuelve ese especificador.
+ */
+type SupabaseLike = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  from: (table: string) => any
+}
 
 /** Escapa texto de usuario antes de interpolarlo en el HTML del email. */
 export function escapeHtml(value: string): string {
@@ -35,7 +43,7 @@ export interface DeliverResult {
  * tarde no sirve de nada.
  */
 export async function deliverEmail(
-  supabase: SupabaseClient,
+  supabase: SupabaseLike,
   apiKey: string | undefined,
   { to, subject, html, from, recipientUserId }: DeliverEmailArgs,
 ): Promise<DeliverResult> {
@@ -79,7 +87,7 @@ export async function deliverEmail(
 }
 
 async function queue(
-  supabase: SupabaseClient,
+  supabase: SupabaseLike,
   { to, subject, html, from }: Omit<DeliverEmailArgs, 'recipientUserId'>,
   errorMessage: string,
 ) {
