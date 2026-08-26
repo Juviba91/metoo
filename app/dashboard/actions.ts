@@ -61,6 +61,24 @@ export async function requestConnection(volunteerId: string) {
     return { error: 'No puedes contactar con este usuario' }
   }
 
+  // Solo puede haber una conexión por par (lo garantiza connections_unique_pair).
+  const { data: existing } = await supabase
+    .from('connections')
+    .select('id, status')
+    .eq('seeker_id', user.id)
+    .eq('volunteer_id', volunteerId)
+    .maybeSingle()
+
+  if (existing) {
+    // Un rechazo se respeta: no se vuelve a solicitar ni se avisa de nuevo al
+    // voluntario. El mensaje es neutro a propósito, para no señalar a nadie.
+    if (existing.status === 'rejected') {
+      return { error: 'Esta persona no está disponible ahora mismo.' }
+    }
+    // Ya había una solicitud en curso: se devuelve, sin duplicar ni renotificar
+    return { success: true, connectionId: existing.id as string }
+  }
+
   const { allowed } = await checkRateLimit('connection_request')
   if (!allowed) return { error: 'Has alcanzado el límite de solicitudes. Intenta más tarde.' }
 
@@ -69,6 +87,18 @@ export async function requestConnection(volunteerId: string) {
     volunteer_id: volunteerId,
     status: 'pending',
   }).select('id').single()
+
+  // 23505: otra petición simultánea ganó la carrera y ya creó la conexión
+  if (error?.code === '23505') {
+    const { data: raced } = await supabase
+      .from('connections')
+      .select('id')
+      .eq('seeker_id', user.id)
+      .eq('volunteer_id', volunteerId)
+      .maybeSingle()
+
+    if (raced) return { success: true, connectionId: raced.id as string }
+  }
 
   if (error || !data) return { error: error?.message || 'Error al enviar solicitud' }
 
