@@ -30,13 +30,26 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
     const slug = toSlug(label)
     if (!slug) continue
 
-    const { data: hashtag, error: hashtagError } = await supabase
+    // `ignoreDuplicates` se traduce a ON CONFLICT DO NOTHING, y esa forma no
+    // devuelve la fila en conflicto: para un hashtag que YA existe (los de la
+    // lista curada, o cualquiera ya usado antes) el upsert no devuelve nada.
+    // Sin el fallback el post quedaba sin enlazar y no aparecía al filtrar.
+    let { data: hashtag } = await supabase
       .from('hashtags')
       .upsert({ slug, label }, { onConflict: 'slug', ignoreDuplicates: true })
       .select('id')
-      .single()
+      .maybeSingle()
 
-    if (hashtagError || !hashtag) continue
+    if (!hashtag) {
+      const { data: existing } = await supabase
+        .from('hashtags')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle()
+      hashtag = existing
+    }
+
+    if (!hashtag) continue
 
     const { error: phError } = await supabase
       .from('post_hashtags')

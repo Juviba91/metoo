@@ -119,7 +119,11 @@ export default async function PublicProfilePage({
           <div className="space-y-3">
             {viewer.role === 'seeker' ? (
               profile.is_active ? (
-                <ContactButton volunteerId={id} alreadySent={alreadySent} />
+                <ContactButton
+                  volunteerId={id}
+                  alreadySent={alreadySent}
+                  connectionId={alreadySent ? existingConn?.id : undefined}
+                />
               ) : (
                 <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
                   No disponible en este momento
