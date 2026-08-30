@@ -4,7 +4,7 @@ import { MapPin, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { BlockButton } from '@/components/block-button'
-import { isUserBlocked } from '@/app/safety/actions'
+import { isUserBlocked, canInteractWith } from '@/app/safety/actions'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteFooter } from '@/components/site-footer'
@@ -40,7 +40,7 @@ export default async function PublicProfilePage({
   if (!profile) notFound()
   if (profile.role === viewer.role) notFound()
 
-  const [connectionResult, { data: unreadData }, pendingResult, isBlocked] = await Promise.all([
+  const [connectionResult, { data: unreadData }, pendingResult, isBlocked, canInteract] = await Promise.all([
     viewer.role === 'seeker'
       ? supabase
           .from('connections')
@@ -63,7 +63,14 @@ export default async function PublicProfilePage({
           .eq('status', 'pending')
       : Promise.resolve({ count: 0 }),
     isUserBlocked(id),
+    canInteractWith(id),
   ])
+
+  // Los listados ya ocultan a quien te ha bloqueado, pero la URL directa
+  // seguía sirviendo el perfil entero. Se responde como si no existiera, para
+  // no revelar que hay un bloqueo. Si el bloqueo es MÍO el perfil sigue
+  // accesible: es desde aquí desde donde se desbloquea.
+  if (!canInteract && !isBlocked) notFound()
 
   const existingConn = connectionResult.data
   const alreadySent = !!existingConn && existingConn.status !== 'rejected'
@@ -119,7 +126,11 @@ export default async function PublicProfilePage({
           <div className="space-y-3">
             {viewer.role === 'seeker' ? (
               profile.is_active ? (
-                <ContactButton volunteerId={id} alreadySent={alreadySent} />
+                <ContactButton
+                  volunteerId={id}
+                  alreadySent={alreadySent}
+                  connectionId={alreadySent ? existingConn?.id : undefined}
+                />
               ) : (
                 <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
                   No disponible en este momento

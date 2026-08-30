@@ -24,7 +24,10 @@ export function BottomNav({ pendingCount = 0, chatUnread = 0 }: { pendingCount?:
             (href === '/dashboard/chats' &&
               (pathname.startsWith('/dashboard/chats') || pathname.startsWith('/dashboard/chat/'))) ||
             (href === '/feed' && pathname.startsWith('/feed')) ||
-            (href === '/dashboard/perfil' && pathname.startsWith('/dashboard/perfil'))
+            // /dashboard/perfil/[id] es el perfil de OTRA persona: marcar ahí
+            // "Perfil" hacía creer que estabas viendo el tuyo.
+            (href === '/dashboard/perfil' &&
+              (pathname === '/dashboard/perfil' || pathname === '/dashboard/perfil/blocked'))
           const showBadge = href === '/dashboard/chats' && totalChats > 0
           return (
             <Link

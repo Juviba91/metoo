@@ -45,7 +45,10 @@ export function ContactButton({
     setError(null)
     const result = await requestConnection(volunteerId)
     if (result.error) {
-      setError('No se pudo enviar. Inténtalo de nuevo.')
+      // El servidor redacta mensajes concretos a propósito (rechazo previo,
+      // límite de solicitudes). Sustituirlos por uno genérico invitaba a
+      // reintentar algo que nunca va a funcionar.
+      setError(result.error)
       setLoading(false)
       return
     }

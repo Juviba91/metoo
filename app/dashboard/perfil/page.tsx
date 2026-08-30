@@ -17,7 +17,7 @@ export default async function PerfilPage() {
 
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, { data: allHashtags }, { count: pendingCount }] = await Promise.all([
+  const [{ data: profile }, { data: allHashtags }, { count: pendingCount }, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
       .select('alias, city, bio, role, is_active, email_notifications_enabled, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
@@ -29,6 +29,7 @@ export default async function PerfilPage() {
       .select('id', { count: 'exact', head: true })
       .eq('volunteer_id', user.id)
       .eq('status', 'pending'),
+    supabase.rpc('get_unread_count', { user_uuid: user.id }),
   ])
 
   if (!profile) redirect('/onboarding')
@@ -41,7 +42,9 @@ export default async function PerfilPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-8 pb-28 sm:pb-8">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-6 py-8 pb-28 sm:pb-8">
+        <h1 className="text-2xl font-bold">👤 Mi perfil</h1>
+
         <EditForm
           initial={{
             alias: profile.alias,
@@ -81,7 +84,10 @@ export default async function PerfilPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
-      <BottomNav pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0} />
+      <BottomNav
+        pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0}
+        chatUnread={(unreadData as number) ?? 0}
+      />
     </div>
   )
 }

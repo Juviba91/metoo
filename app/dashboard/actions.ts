@@ -126,27 +126,37 @@ export async function updateProfile({
     return { error: error.code === '23505' ? 'Ese alias ya está en uso.' : error.message }
   }
 
-  // Sync hashtags: replace all existing with the new selection
-  const { error: deleteError } = await supabase.from('profile_hashtags').delete().eq('profile_id', user.id)
-
-  if (deleteError) {
-    console.error('Error deleting hashtags:', deleteError)
-    return { error: 'Error al actualizar hashtags' }
-  }
-
-  const resolvedIds: string[] = hashtags
-    .filter((tag) => !tag.id.startsWith('new:'))
-    .map((tag) => tag.id)
+  // Sync de hashtags. Antes se borraban todos y luego se insertaban los
+  // nuevos: si el insert fallaba, el usuario se quedaba sin ninguno. Ahora se
+  // añaden primero y se borra solo lo que sobra, así el peor caso es no
+  // guardar el cambio en vez de perder lo que ya había.
+  const resolvedIds: string[] = [
+    ...new Set(hashtags.filter((tag) => !tag.id.startsWith('new:')).map((tag) => tag.id)),
+  ]
 
   if (resolvedIds.length > 0) {
     const { error: insertError } = await supabase
       .from('profile_hashtags')
-      .insert(resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })))
+      .upsert(
+        resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })),
+        { onConflict: 'profile_id,hashtag_id', ignoreDuplicates: true },
+      )
 
     if (insertError) {
       console.error('Error inserting hashtags:', insertError)
       return { error: 'Error al guardar hashtags' }
     }
+  }
+
+  let deleteQuery = supabase.from('profile_hashtags').delete().eq('profile_id', user.id)
+  if (resolvedIds.length > 0) {
+    deleteQuery = deleteQuery.not('hashtag_id', 'in', `(${resolvedIds.join(',')})`)
+  }
+  const { error: deleteError } = await deleteQuery
+
+  if (deleteError) {
+    console.error('Error deleting hashtags:', deleteError)
+    return { error: 'Error al actualizar hashtags' }
   }
 
   revalidatePath('/dashboard')
@@ -236,6 +246,13 @@ export async function sendMessage(connectionId: string, content: string) {
 
   if (!conn || (conn.seeker_id !== user.id && conn.volunteer_id !== user.id)) {
     return { error: 'No autorizado' }
+  }
+
+  // La UI oculta el campo de texto cuando la conversación está cerrada, pero
+  // la RLS de `messages` solo comprueba pertenencia: sin esto, un rechazo se
+  // podía saltar llamando a la server action directamente.
+  if (conn.status === 'rejected') {
+    return { error: 'Esta conversación ha terminado.' }
   }
 
   // Bloqueo en cualquiera de los dos sentidos
