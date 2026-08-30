@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, Search, Users } from 'lucide-react'
+import { MapPin, Search } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
 import Link from 'next/link'
 

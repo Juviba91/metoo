@@ -25,14 +25,16 @@ const { sendMessage } = await import('@/app/dashboard/actions')
 const CONN = { status: 'accepted', seeker_id: 'seeker-1', volunteer_id: 'vol-1' }
 
 function setup(spec: MockSpec = {}) {
+  // `...spec` va ANTES de `responses`: al revés, spec.responses machacaba el
+  // objeto ya combinado y se perdían las respuestas por defecto.
   state.mock = createSupabaseMock({
     user: { id: 'seeker-1' },
+    ...spec,
     responses: {
       'connections.select': { data: CONN },
       'messages.insert': { data: { id: 'msg-1', sender_id: 'seeker-1', content: 'hola', created_at: 'now' } },
       ...spec.responses,
     },
-    ...spec,
   })
   return state.mock
 }
@@ -83,6 +85,17 @@ describe('sendMessage', () => {
   it('no permite escribir a un usuario bloqueado', async () => {
     safety.canInteractWith.mockResolvedValue(false)
     const mock = setup()
+
+    const res = await sendMessage('conn-1', 'hola')
+
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('messages', 'insert')).toBe(false)
+  })
+
+  it('no permite escribir en una conexión rechazada', async () => {
+    const mock = setup({
+      responses: { 'connections.select': { data: { ...CONN, status: 'rejected' } } },
+    })
 
     const res = await sendMessage('conn-1', 'hola')
 

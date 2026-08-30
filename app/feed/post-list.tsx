@@ -63,37 +63,48 @@ export function PostList({
   activeTag: string | null
   initialLimit?: number
 }) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(initialPosts.length >= initialLimit)
-
-  const [reactions, setReactions] = useState<Record<string, { count: number; mine: boolean }>>(() => {
-    const state: Record<string, { count: number; mine: boolean }> = {}
-    for (const post of initialPosts) {
+  function reactionsOf(list: Post[], base: Record<string, { count: number; mine: boolean }> = {}) {
+    const state = { ...base }
+    for (const post of list) {
       state[post.id] = {
         count: post.post_reactions.length,
         mine: post.post_reactions.some((r) => r.profile_id === currentUserId),
       }
     }
     return state
-  })
+  }
+
+  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(initialPosts.length >= initialLimit)
+  const [reactions, setReactions] = useState(() => reactionsOf(initialPosts))
+
+  // Al publicar, `createPost` hace revalidatePath('/feed') y el servidor manda
+  // la lista ya actualizada. Pero `posts` es estado: el valor inicial de
+  // useState se ignora en los re-renders, así que el post recién creado no
+  // aparecía hasta recargar la página entera. Se resincroniza durante el
+  // render (mismo patrón que dashboard-matches) en vez de con un efecto.
+  const [prevInitial, setPrevInitial] = useState(initialPosts)
+  if (prevInitial !== initialPosts) {
+    setPrevInitial(initialPosts)
+    setPosts(initialPosts)
+    setReactions(reactionsOf(initialPosts))
+    setHasMore(initialPosts.length >= initialLimit)
+  }
 
   async function handleLoadMore() {
     if (loadingMore) return
     setLoadingMore(true)
     const { posts: more } = await fetchMorePosts(posts.length, activeTag)
     if (more.length < 20) setHasMore(false)
-    setPosts((prev) => [...prev, ...more])
-    setReactions((prev) => {
-      const next = { ...prev }
-      for (const post of more as Post[]) {
-        next[post.id] = {
-          count: post.post_reactions.length,
-          mine: post.post_reactions.some((r) => r.profile_id === currentUserId),
-        }
-      }
-      return next
+    // La paginación va por offset: si alguien publica entre la carga inicial y
+    // este "Ver más", todo se desplaza y un post puede repetirse (y con él su
+    // key de React). Se descartan los que ya estén en la lista.
+    setPosts((prev) => {
+      const seen = new Set(prev.map((p) => p.id))
+      return [...prev, ...(more as Post[]).filter((p) => !seen.has(p.id))]
     })
+    setReactions((prev) => reactionsOf(more as Post[], prev))
     setLoadingMore(false)
   }
 
