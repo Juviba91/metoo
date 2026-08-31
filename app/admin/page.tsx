@@ -82,7 +82,7 @@ export default async function AdminPage() {
       </header>
 
       <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
-        <h1 className="text-3xl font-bold">⚙️ Admin</h1>
+        <h1 className="text-3xl font-bold">Admin</h1>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">

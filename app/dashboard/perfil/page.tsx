@@ -44,7 +44,7 @@ export default async function PerfilPage() {
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-6 py-8 pb-28 sm:pb-8">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="hidden text-2xl font-bold sm:block">👤 Mi perfil</h1>
+          <h1 className="hidden text-2xl font-bold sm:block">Mi perfil</h1>
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
               profile.role === 'volunteer'
