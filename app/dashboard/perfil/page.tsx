@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { EditForm } from './edit-form'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
+import { FeedbackBubble } from '@/components/feedback-bubble'
 import { FeedbackForm } from '@/components/feedback-form'
 import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
@@ -84,6 +85,7 @@ export default async function PerfilPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <FeedbackBubble />
       <BottomNav
         pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0}
         chatUnread={(unreadData as number) ?? 0}

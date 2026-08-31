@@ -7,6 +7,7 @@ import { BlockButton } from '@/components/block-button'
 import { isUserBlocked, canInteractWith } from '@/app/safety/actions'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
+import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import type { Metadata } from 'next'
 
@@ -155,6 +156,7 @@ export default async function PublicProfilePage({
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <FeedbackBubble />
       <BottomNav
         pendingCount={(pendingResult as any).count ?? 0}
         chatUnread={(unreadData as number) ?? 0}

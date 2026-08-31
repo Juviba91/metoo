@@ -4,6 +4,7 @@ import { getHiddenUserIds } from '@/app/safety/actions'
 import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import { BottomNav } from '@/components/bottom-nav'
+import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import Link from 'next/link'
@@ -97,6 +98,7 @@ export default async function FeedPage({
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <FeedbackBubble />
       <BottomNav pendingCount={pendingCount ?? 0} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )

@@ -4,6 +4,7 @@ import { getHiddenUserIds } from '@/app/safety/actions'
 import { MapPin, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
+import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import type { Metadata } from 'next'
@@ -60,24 +61,26 @@ export default async function ChatsPage() {
       ? connections.filter((c: any) => c.status === 'pending').length
       : 0
 
-  // Fetch latest message per connection — one parallel query per connection guarantees correctness
+  // Último mensaje de cada conversación. Antes se lanzaba una consulta por
+  // conversación (N+1): con la lista abierta eso son N idas y vueltas, y esta
+  // pantalla es una de las cuatro pestañas. Ahora va en una sola: se piden los
+  // mensajes de todas las conexiones ordenados por fecha y se queda el primero
+  // de cada una, que por el orden es el más reciente.
   const connectionIds = connections.map((c: any) => c.id)
   const lastMessages: Record<string, { content: string; sender_id: string }> = {}
 
   if (connectionIds.length > 0) {
-    const results = await Promise.all(
-      connectionIds.map((id: string) =>
-        supabase
-          .from('messages')
-          .select('connection_id, content, sender_id')
-          .eq('connection_id', id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-      ),
-    )
-    for (const { data } of results) {
-      if (data) lastMessages[data.connection_id] = { content: data.content, sender_id: data.sender_id }
+    const { data: recent } = await supabase
+      .from('messages')
+      .select('connection_id, content, sender_id')
+      .in('connection_id', connectionIds)
+      .order('created_at', { ascending: false })
+      .limit(500)
+
+    for (const m of recent ?? []) {
+      if (!lastMessages[m.connection_id]) {
+        lastMessages[m.connection_id] = { content: m.content, sender_id: m.sender_id }
+      }
     }
   }
 
@@ -147,6 +150,7 @@ export default async function ChatsPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <FeedbackBubble />
       <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )
