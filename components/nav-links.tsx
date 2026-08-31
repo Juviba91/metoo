@@ -24,6 +24,8 @@ export function NavLinks() {
         <Link
           key={href}
           href={href}
+          // Mismo motivo que en la barra inferior: cuatro prefetch por carga.
+          prefetch={false}
           className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
             isActive(href, pathname)
               ? 'bg-muted font-medium text-foreground'
