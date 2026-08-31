@@ -4,7 +4,6 @@ import { EditForm } from './edit-form'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
-import { FeedbackForm } from '@/components/feedback-form'
 import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
 import type { UserRole } from '@/types/database'
@@ -45,7 +44,7 @@ export default async function PerfilPage() {
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-6 py-8 pb-28 sm:pb-8">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold">👤 Mi perfil</h1>
+          <h1 className="hidden text-2xl font-bold sm:block">👤 Mi perfil</h1>
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
               profile.role === 'volunteer'
@@ -74,11 +73,6 @@ export default async function PerfilPage() {
         <div className="mt-12 border-t border-border/60 pt-8">
           <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>
           <AccountSection email={user.email} emailConfirmed={!!user.email_confirmed_at} emailNotificationsEnabled={profile.email_notifications_enabled} />
-        </div>
-
-        <div className="mt-12 border-t border-border/60 pt-8">
-          <h2 className="mb-3 text-sm font-semibold">Feedback</h2>
-          <FeedbackForm />
         </div>
 
         <div className="mt-8 border-t border-border/60 pt-8">
