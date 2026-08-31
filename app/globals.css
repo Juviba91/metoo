@@ -159,3 +159,41 @@ textarea,
 select {
   font-size: 1rem;
 }
+
+/* Pantalla de apertura (components/app-splash.tsx).
+   Se va sola con una animación: no depende de JavaScript, así que si la
+   hidratación falla la app nunca se queda tapada. `forwards` mantiene el
+   estado final, y `visibility` la saca del árbol para que no intercepte
+   pulsaciones. */
+#app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  animation: metoo-splash-out 900ms ease-out forwards;
+}
+
+#app-splash img {
+  border-radius: 22%;
+  animation: metoo-splash-logo 900ms ease-out forwards;
+}
+
+@keyframes metoo-splash-out {
+  0%, 55% { opacity: 1; visibility: visible; }
+  100%    { opacity: 0; visibility: hidden; }
+}
+
+@keyframes metoo-splash-logo {
+  0%   { opacity: 0; transform: scale(0.92); }
+  40%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Quien haya pedido menos animación ve el logo sin movimiento y se va antes. */
+@media (prefers-reduced-motion: reduce) {
+  #app-splash { animation-duration: 400ms; }
+  #app-splash img { animation: none; }
+}
