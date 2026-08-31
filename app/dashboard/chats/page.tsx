@@ -89,7 +89,7 @@ export default async function ChatsPage() {
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
+        <h2 className="hidden items-center gap-2 text-lg font-semibold sm:flex">
           <MessageCircle className="size-5" />
           Tus conversaciones
         </h2>

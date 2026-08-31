@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { signOut } from '@/app/auth/actions'
 import { NavLinks } from './nav-links'
 import { Logo } from '@/components/logo'
+import { HeaderTitle } from '@/components/header-title'
 import { getUser } from '@/lib/supabase/server'
 
 const ADMIN_EMAIL = 'baygual91@gmail.com'
@@ -18,9 +19,12 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
         {/* En móvil solo el isotipo: la barra va justa de espacio */}
-        <Link href="/dashboard" className="shrink-0">
-          <Logo size={28} wordmarkClassName="sr-only sm:not-sr-only" />
-        </Link>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Link href="/dashboard" className="shrink-0">
+            <Logo size={28} wordmarkClassName="sr-only sm:not-sr-only" />
+          </Link>
+          <HeaderTitle />
+        </div>
 
         <NavLinks />
 

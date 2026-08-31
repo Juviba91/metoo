@@ -41,7 +41,7 @@ export default async function BlockedUsersPage() {
             <ChevronLeft className="size-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold">🚫 Usuarios bloqueados</h1>
+            <h1 className="hidden text-2xl font-bold sm:block">🚫 Usuarios bloqueados</h1>
             <p className="text-sm text-muted-foreground">
               Gestiona los usuarios que has bloqueado
             </p>
