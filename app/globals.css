@@ -124,11 +124,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* `overflow-x: hidden` convierte al elemento en contenedor de scroll, y eso
+     rompe `position: sticky` en todo lo que cuelga de él: la cabecera se iba
+     con el scroll en vez de quedarse arriba. `clip` recorta igual el
+     desbordamiento horizontal pero NO crea contenedor de scroll, así que
+     sticky vuelve a funcionar. */
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground;
+    overflow-x: clip;
   }
   html {
-    @apply font-sans overflow-x-hidden;
+    @apply font-sans;
+    overflow-x: clip;
   }
 }
 

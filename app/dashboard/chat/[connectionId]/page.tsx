@@ -2,6 +2,7 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { canInteractWith } from '@/app/safety/actions'
 import { ChatView } from './chat-view'
+import { SiteHeader } from '@/components/site-header'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Chat' }
@@ -53,14 +54,17 @@ export default async function ChatPage({
   if (!canInteract) notFound()
 
   return (
-    <ChatView
-      connectionId={connectionId}
-      initialMessages={messages ?? []}
-      currentUserId={user.id}
-      otherAlias={otherAlias ?? 'Usuario'}
-      reportedId={reportedId}
-      initialStatus={connection.status as 'pending' | 'accepted' | 'rejected'}
-      volunteerId={connection.volunteer_id}
-    />
+    <div className="flex h-dvh flex-col bg-background">
+      <SiteHeader />
+      <ChatView
+        connectionId={connectionId}
+        initialMessages={messages ?? []}
+        currentUserId={user.id}
+        otherAlias={otherAlias ?? 'Usuario'}
+        reportedId={reportedId}
+        initialStatus={connection.status as 'pending' | 'accepted' | 'rejected'}
+        volunteerId={connection.volunteer_id}
+      />
+    </div>
   )
 }

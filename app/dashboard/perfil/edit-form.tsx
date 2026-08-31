@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 import { updateProfile } from '@/app/dashboard/actions'
 import { HashtagPicker, HashtagOption } from '@/components/hashtag-picker'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
@@ -24,6 +25,7 @@ export function EditForm({
   role: 'seeker' | 'volunteer'
   suggestions: HashtagOption[]
 }) {
+  const router = useRouter()
   const [alias, setAlias] = useState(initial.alias)
   const [city, setCity] = useState(initial.city ?? '')
   const [bio, setBio] = useState(initial.bio ?? '')
@@ -34,6 +36,31 @@ export function EditForm({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+
+  // Nada de esto se guarda hasta pulsar "Guardar cambios", pero el selector de
+  // hashtags pinta la etiqueta al instante (y "crear" da de alta el hashtag en
+  // la base al momento), así que parecía guardado: al salir de la pantalla se
+  // perdía y daba la sensación de que los hashtags se borraban solos.
+  const dirty =
+    alias !== initial.alias ||
+    city !== (initial.city ?? '') ||
+    bio !== (initial.bio ?? '') ||
+    isActive !== initial.isActive ||
+    stage !== initial.stage ||
+    supportModes.length !== initial.supportModes.length ||
+    supportModes.some((m) => !initial.supportModes.includes(m)) ||
+    hashtags.length !== initial.hashtags.length ||
+    hashtags.some((h) => !initial.hashtags.some((i) => i.id === h.id))
+
+  // Aviso del navegador si se cierra o recarga con cambios pendientes
+  useEffect(() => {
+    if (!dirty) return
+    function warn(e: BeforeUnloadEvent) {
+      e.preventDefault()
+    }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -48,6 +75,9 @@ export function EditForm({
       setError(result.error)
     } else {
       setSaved(true)
+      // Recarga los datos del servidor para que `initial` refleje lo guardado
+      // y el aviso de cambios pendientes desaparezca.
+      router.refresh()
       setTimeout(() => setSaved(false), 3000)
     }
     setLoading(false)
@@ -152,7 +182,13 @@ export function EditForm({
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <Button type="submit" disabled={loading || !alias.trim() || !city.trim()} className="w-full gap-2">
+      {dirty && !saved && (
+        <p className="text-center text-xs text-amber-600 dark:text-amber-400">
+          Tienes cambios sin guardar
+        </p>
+      )}
+
+      <Button type="submit" disabled={loading || !dirty || !alias.trim() || !city.trim()} className="w-full gap-2">
         {saved ? (
           <>
             <Check className="size-4" /> Guardado
