@@ -1,15 +1,13 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist } from 'next/font/google'
 import { ScrollReset } from '@/components/scroll-reset'
 import { AppSplash } from '@/components/app-splash'
 import './globals.css'
 
+// Geist Mono se descargaba en cada carga (29 KB) y no se usaba en ninguna
+// pantalla: la variable --font-mono solo aparecía en su propia definición.
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
 
 export const metadata: Metadata = {
   // Sin esto, Next resuelve las imágenes de OG/Twitter contra localhost:3000
@@ -61,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="es" className={geistSans.variable}>
       <body className="font-sans antialiased">
         <AppSplash />
         <ScrollReset />
