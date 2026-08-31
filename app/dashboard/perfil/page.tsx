@@ -44,7 +44,18 @@ export default async function PerfilPage() {
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-6 py-8 pb-28 sm:pb-8">
-        <h1 className="text-2xl font-bold">👤 Mi perfil</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold">👤 Mi perfil</h1>
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+              profile.role === 'volunteer'
+                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+            }`}
+          >
+            {profile.role === 'volunteer' ? '💛 Voluntario' : '🤝 Busco apoyo'}
+          </span>
+        </div>
 
         <EditForm
           initial={{
