@@ -5,11 +5,13 @@ import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { BlockButton } from '@/components/block-button'
 import { isUserBlocked, canInteractWith } from '@/app/safety/actions'
+import { modeLabels, stageLabel } from '@/lib/profile-fields'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import type { Metadata } from 'next'
+import type { Role } from '@/lib/profile-fields'
 
 export const metadata: Metadata = { title: 'Perfil' }
 
@@ -31,7 +33,7 @@ export default async function PublicProfilePage({
     supabase
       .from('profiles')
       .select(
-        'id, alias, city, bio, role, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))',
+        'id, alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))',
       )
       .eq('id', id)
       .single(),
@@ -76,6 +78,8 @@ export default async function PublicProfilePage({
   const existingConn = connectionResult.data
   const alreadySent = !!existingConn && existingConn.status !== 'rejected'
 
+  const supportModes = modeLabels(profile.role as Role, profile.support_modes)
+
   const hashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
@@ -104,6 +108,9 @@ export default async function PublicProfilePage({
                   <MapPin className="size-3.5" /> {profile.city}
                 </span>
               )}
+              {stageLabel(profile.role as Role, profile.stage) && (
+                <span>🕰️ {stageLabel(profile.role as Role, profile.stage)}</span>
+              )}
             </div>
           </div>
 
@@ -117,6 +124,21 @@ export default async function PublicProfilePage({
                   #{tag.label}
                 </span>
               ))}
+            </div>
+          )}
+
+          {supportModes.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+                {profile.role === 'volunteer' ? 'Puede acompañar con' : 'Le vendría bien'}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {supportModes.map((label) => (
+                  <span key={label} className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                    {label}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 

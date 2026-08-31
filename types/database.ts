@@ -461,6 +461,8 @@ export type Database = {
           is_active: boolean
           region: string | null
           role: string
+          stage: string | null
+          support_modes: string[]
         }
         Insert: {
           alias: string
@@ -476,6 +478,8 @@ export type Database = {
           is_active?: boolean
           region?: string | null
           role: string
+          stage?: string | null
+          support_modes?: string[]
         }
         Update: {
           alias?: string
@@ -491,6 +495,8 @@ export type Database = {
           is_active?: boolean
           region?: string | null
           role?: string
+          stage?: string | null
+          support_modes?: string[]
         }
         Relationships: []
       }

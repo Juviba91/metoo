@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient, getUser } from '@/lib/supabase/server'
+import { sanitizeModes, sanitizeStage } from '@/lib/profile-fields'
 
 export type HashtagInput = { id: string; slug: string; label: string }
 
@@ -10,12 +11,16 @@ export async function completeOnboarding({
   alias,
   city,
   bio,
+  stage,
+  supportModes,
 }: {
   role: 'seeker' | 'volunteer'
   hashtags: HashtagInput[]
   alias: string
   city: string
   bio: string
+  stage?: string | null
+  supportModes?: string[]
 }): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const user = await getUser()
@@ -29,6 +34,8 @@ export async function completeOnboarding({
     city: city.trim(),
     country: 'ES',
     bio: bio.trim() || null,
+    stage: sanitizeStage(stage),
+    support_modes: sanitizeModes(supportModes),
   })
 
   if (profileError) {

@@ -21,7 +21,7 @@ export default async function PerfilPage() {
   const [{ data: profile }, { data: allHashtags }, { count: pendingCount }, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, email_notifications_enabled, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, email_notifications_enabled, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
@@ -53,6 +53,8 @@ export default async function PerfilPage() {
             bio: profile.bio,
             hashtags: profileHashtags,
             isActive: profile.is_active ?? true,
+            stage: profile.stage ?? null,
+            supportModes: profile.support_modes ?? [],
           }}
           role={profile.role as UserRole}
           suggestions={allHashtags ?? []}

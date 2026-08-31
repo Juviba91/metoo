@@ -3,6 +3,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, canInteractWith } from '@/app/safety/actions'
+import { sanitizeModes, sanitizeStage } from '@/lib/profile-fields'
 
 export async function acceptConnection(connectionId: string): Promise<void> {
   const supabase = await createClient()
@@ -106,12 +107,16 @@ export async function updateProfile({
   bio,
   hashtags,
   isActive,
+  stage,
+  supportModes,
 }: {
   alias: string
   city: string
   bio: string
   hashtags: { id: string; slug: string; label: string }[]
   isActive?: boolean
+  stage?: string | null
+  supportModes?: string[]
 }) {
   const supabase = await createClient()
   const user = await getUser()
@@ -119,7 +124,17 @@ export async function updateProfile({
 
   const { error } = await supabase
     .from('profiles')
-    .update({ alias: alias.trim(), city: city.trim(), bio: bio.trim() || null, ...(isActive !== undefined && { is_active: isActive }) })
+    .update({
+      alias: alias.trim(),
+      city: city.trim(),
+      bio: bio.trim() || null,
+      // Se validan contra el vocabulario en vez de confiar en el cliente: la
+      // restricción CHECK de la tabla rechazaría lo inventado, pero con un
+      // error de base de datos en vez de un guardado limpio.
+      stage: sanitizeStage(stage),
+      support_modes: sanitizeModes(supportModes),
+      ...(isActive !== undefined && { is_active: isActive }),
+    })
     .eq('id', user.id)
 
   if (error) {

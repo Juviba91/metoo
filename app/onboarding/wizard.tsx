@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart } from 'lucide-react'
 import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
 import { completeOnboarding } from './actions'
+import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
 import Link from 'next/link'
 import { track } from '@vercel/analytics/react'
 import { Logo } from '@/components/logo'
@@ -20,6 +21,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
   const [alias, setAlias] = useState('')
   const [city, setCity] = useState('')
   const [bio, setBio] = useState('')
+  const [stage, setStage] = useState<string | null>(null)
+  const [supportModes, setSupportModes] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,7 +31,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
     setLoading(true)
     setError(null)
 
-    const result = await completeOnboarding({ role, hashtags, alias, city, bio })
+    const result = await completeOnboarding({ role, hashtags, alias, city, bio, stage, supportModes })
 
     if (result.error) {
       setError(result.error)
@@ -37,13 +40,13 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
     }
 
     track('onboarding_completed', { role: role! })
-    setStep(5)
+    setStep(6)
     setLoading(false)
     setTimeout(() => router.push('/dashboard'), 3000)
   }
 
-  const totalSteps = 4
-  const stepLabels = ['Normas', 'Tu rol', 'Hashtags', 'Perfil']
+  const totalSteps = 5
+  const stepLabels = ['Normas', 'Tu rol', 'Hashtags', 'Tu momento', 'Perfil']
 
   return (
     <div className="w-full max-w-lg">
@@ -251,8 +254,40 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
         </div>
       )}
 
-      {/* Paso 5 — Bienvenida */}
-      {step === 5 && (
+      {/* Paso 4 — Momento y forma de acompañar */}
+      {step === 4 && role && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">Tu momento</h1>
+          <p className="mb-8 text-center text-muted-foreground">
+            Dos preguntas rápidas. Puedes cambiarlas cuando quieras.
+          </p>
+          <ProfileFieldsPicker
+            role={role}
+            stage={stage}
+            modes={supportModes}
+            onStageChange={setStage}
+            onModesChange={setSupportModes}
+          />
+          <div className="mt-8 flex gap-3">
+            <Button variant="outline" onClick={() => setStep(3)} className="flex-1">
+              Atrás
+            </Button>
+            <Button onClick={() => setStep(5)} className="flex-1 gap-2">
+              Continuar <ArrowRight className="size-4" />
+            </Button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStep(5)}
+            className="mt-3 w-full text-center text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            Prefiero saltarlo por ahora
+          </button>
+        </div>
+      )}
+
+      {/* Paso 6 — Bienvenida */}
+      {step === 6 && (
         <div className="py-8 text-center">
           <div className="mb-6 text-5xl">💛</div>
           <h1 className="mb-3 text-2xl font-bold">
@@ -267,8 +302,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
         </div>
       )}
 
-      {/* Paso 4 — Perfil */}
-      {step === 4 && (
+      {/* Paso 5 — Perfil */}
+      {step === 5 && (
         <div>
           <h1 className="mb-2 text-center text-2xl font-bold">Tu perfil</h1>
           <p className="mb-8 text-center text-muted-foreground">
@@ -322,7 +357,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" onClick={() => setStep(3)} className="flex-1">
+            <Button variant="outline" onClick={() => setStep(4)} className="flex-1">
               Atrás
             </Button>
             <Button

@@ -39,7 +39,7 @@ export default async function DashboardPage() {
 
   let matchesQuery = supabase
     .from('profiles')
-    .select('id, alias, city, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+    .select('id, alias, city, bio, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
     .eq('role', oppositeRole)
     .eq('is_active', true)
     .neq('id', user.id)
