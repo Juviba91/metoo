@@ -9,6 +9,7 @@ import { getHiddenUserIds } from '@/app/safety/actions'
 import type { UserRole } from '@/types/database'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
+import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import type { Metadata } from 'next'
@@ -21,22 +22,24 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
-    .eq('id', user.id)
-    .single()
+  // El perfil y los bloqueos no dependen entre sí: encadenarlos añadía una
+  // ida y vuelta a Supabase antes de poder empezar siquiera las demás.
+  const [{ data: profile }, hiddenIds] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .eq('id', user.id)
+      .single(),
+    getHiddenUserIds(),
+  ])
 
   if (!profile) redirect('/onboarding')
 
   const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
 
-  // Bloqueos en ambos sentidos, para excluirlos en la propia query
-  const hiddenIds = await getHiddenUserIds()
-
   let matchesQuery = supabase
     .from('profiles')
-    .select('id, alias, city, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+    .select('id, alias, city, bio, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
     .eq('role', oppositeRole)
     .eq('is_active', true)
     .neq('id', user.id)
@@ -308,6 +311,7 @@ export default async function DashboardPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <FeedbackBubble />
       <BottomNav pendingCount={pendingCount} chatUnread={chatUnread} />
     </div>
   )

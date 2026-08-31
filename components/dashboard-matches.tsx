@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MapPin, Search } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
+import { modeLabels, stageLabel } from '@/lib/profile-fields'
 import Link from 'next/link'
 
 type Hashtag = { id: string; slug: string; label: string }
@@ -11,6 +12,8 @@ type Match = {
   alias: string
   city: string | null
   bio: string | null
+  stage: string | null
+  support_modes: string[] | null
   profile_hashtags: { hashtags: Hashtag }[]
 }
 
@@ -25,6 +28,10 @@ export function DashboardMatches({
   connectedTo: Record<string, string>
   allHashtags?: Hashtag[]
 }) {
+  // Las tarjetas muestran a gente del rol contrario al mío, y las etiquetas
+  // de estos campos cambian según el rol de quien las escribió.
+  const otherRole = role === 'seeker' ? 'volunteer' : 'seeker'
+
   const [query, setQuery] = useState('')
   const [activeHashtag, setActiveHashtag] = useState<string | null>(null)
   const [visibleCount, setVisibleCount] = useState(12)
@@ -129,6 +136,7 @@ export function DashboardMatches({
                 .map((ph) => ph.hashtags)
                 .filter(Boolean)
                 .slice(0, 4)
+              const modes = modeLabels(otherRole, match.support_modes)
               return (
                 <div key={match.id} className="flex flex-col rounded-xl border border-border p-5">
                   <div className="mb-2 flex items-start justify-between">
@@ -153,6 +161,11 @@ export function DashboardMatches({
                           <MapPin className="size-3" /> {match.city}
                         </p>
                       )}
+                      {stageLabel(otherRole, match.stage) && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          🕰️ {stageLabel(otherRole, match.stage)}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -170,6 +183,19 @@ export function DashboardMatches({
                         >
                           #{tag.label}
                         </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {modes.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-1.5">
+                      {modes.map((label) => (
+                        <span
+                          key={label}
+                          className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                        >
+                          {label}
+                        </span>
                       ))}
                     </div>
                   )}

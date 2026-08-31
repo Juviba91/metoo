@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { EditForm } from './edit-form'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
+import { FeedbackBubble } from '@/components/feedback-bubble'
 import { FeedbackForm } from '@/components/feedback-form'
 import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
@@ -20,7 +21,7 @@ export default async function PerfilPage() {
   const [{ data: profile }, { data: allHashtags }, { count: pendingCount }, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, email_notifications_enabled, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, email_notifications_enabled, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
@@ -52,6 +53,8 @@ export default async function PerfilPage() {
             bio: profile.bio,
             hashtags: profileHashtags,
             isActive: profile.is_active ?? true,
+            stage: profile.stage ?? null,
+            supportModes: profile.support_modes ?? [],
           }}
           role={profile.role as UserRole}
           suggestions={allHashtags ?? []}
@@ -84,6 +87,7 @@ export default async function PerfilPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <FeedbackBubble />
       <BottomNav
         pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0}
         chatUnread={(unreadData as number) ?? 0}

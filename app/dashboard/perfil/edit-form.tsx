@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { updateProfile } from '@/app/dashboard/actions'
 import { HashtagPicker, HashtagOption } from '@/components/hashtag-picker'
+import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
 import { Check } from 'lucide-react'
 
 export function EditForm({
@@ -11,7 +12,15 @@ export function EditForm({
   role,
   suggestions,
 }: {
-  initial: { alias: string; city: string | null; bio: string | null; hashtags: HashtagOption[]; isActive: boolean }
+  initial: {
+    alias: string
+    city: string | null
+    bio: string | null
+    hashtags: HashtagOption[]
+    isActive: boolean
+    stage: string | null
+    supportModes: string[]
+  }
   role: 'seeker' | 'volunteer'
   suggestions: HashtagOption[]
 }) {
@@ -20,6 +29,8 @@ export function EditForm({
   const [bio, setBio] = useState(initial.bio ?? '')
   const [hashtags, setHashtags] = useState<HashtagOption[]>(initial.hashtags)
   const [isActive, setIsActive] = useState(initial.isActive)
+  const [stage, setStage] = useState<string | null>(initial.stage)
+  const [supportModes, setSupportModes] = useState<string[]>(initial.supportModes)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
@@ -31,7 +42,7 @@ export function EditForm({
     setError(null)
     setSaved(false)
 
-    const result = await updateProfile({ alias, city, bio, hashtags, isActive })
+    const result = await updateProfile({ alias, city, bio, hashtags, isActive, stage, supportModes })
 
     if (result.error) {
       setError(result.error)
@@ -99,6 +110,17 @@ export function EditForm({
           suggestions={suggestions}
           selected={hashtags}
           onChange={setHashtags}
+        />
+      </div>
+
+      <div className="border-t border-border/60 pt-5">
+        <ProfileFieldsPicker
+          role={role}
+          stage={stage}
+          modes={supportModes}
+          onStageChange={setStage}
+          onModesChange={setSupportModes}
+          compact
         />
       </div>
 

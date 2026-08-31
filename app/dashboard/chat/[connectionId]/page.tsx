@@ -37,15 +37,20 @@ export default async function ChatPage({
     : (connection.seeker as any)?.alias
   const reportedId = isSeeker ? connection.volunteer_id : connection.seeker_id
 
+  // La comprobación de bloqueo y los mensajes no dependen entre sí: se piden a
+  // la vez para no encadenar dos idas y vueltas antes de poder pintar el chat.
+  const [canInteract, { data: messages }] = await Promise.all([
+    canInteractWith(reportedId),
+    supabase
+      .from('messages')
+      .select('id, sender_id, content, created_at')
+      .eq('connection_id', connectionId)
+      .order('created_at', { ascending: true }),
+  ])
+
   // Si hay bloqueo en cualquiera de los dos sentidos, la conversación no es
   // accesible ni siquiera entrando por URL directa
-  if (!(await canInteractWith(reportedId))) notFound()
-
-  const { data: messages } = await supabase
-    .from('messages')
-    .select('id, sender_id, content, created_at')
-    .eq('connection_id', connectionId)
-    .order('created_at', { ascending: true })
+  if (!canInteract) notFound()
 
   return (
     <ChatView

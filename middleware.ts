@@ -54,6 +54,14 @@ export async function middleware(request: NextRequest) {
   return supabaseResponse
 }
 
+// `auth.getUser()` valida el token contra el servidor de Supabase Auth en cada
+// llamada, así que el middleware costaba una ida y vuelta de red en CADA
+// petición: también en la portada, los textos legales, el manifest, los iconos
+// y —lo que más se nota— en los prefetch que Next lanza al ver un enlace.
+// Aquí solo se listan las rutas que de verdad dependen de la sesión: las
+// protegidas y el login (que redirige si ya has entrado). El resto se sirve sin
+// tocar la red. La sesión se sigue refrescando en las pantallas de la app, que
+// es donde importa.
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/dashboard/:path*', '/onboarding/:path*', '/feed/:path*', '/auth/login'],
 }

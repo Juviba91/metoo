@@ -206,10 +206,13 @@ export function ChatView({
         >
           <ArrowLeft className="size-4" />
         </Link>
-        <div className="flex-1">
-          <p className="font-semibold">{otherAlias}</p>
-          <p className="text-xs text-muted-foreground">Conversación privada</p>
-        </div>
+        <Link
+          href={`/dashboard/perfil/${reportedId}`}
+          className="group min-w-0 flex-1 rounded-lg px-1 py-0.5 transition-colors hover:bg-muted"
+        >
+          <p className="truncate font-semibold group-hover:underline">{otherAlias}</p>
+          <p className="text-xs text-muted-foreground">Ver perfil</p>
+        </Link>
         <ReportButton reportedId={reportedId} connectionId={connectionId} />
       </header>
 
