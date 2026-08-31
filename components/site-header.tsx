@@ -17,14 +17,14 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
+      {/* `relative` para que el título se centre respecto a la barra entera */}
+      <div className="relative mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
         {/* En móvil solo el isotipo: la barra va justa de espacio */}
-        <div className="flex min-w-0 items-center gap-2.5">
-          <Link href="/dashboard" className="shrink-0">
-            <Logo size={28} wordmarkClassName="sr-only sm:not-sr-only" />
-          </Link>
-          <HeaderTitle />
-        </div>
+        <Link href="/dashboard" className="shrink-0">
+          <Logo size={28} wordmarkClassName="sr-only sm:not-sr-only" />
+        </Link>
+
+        <HeaderTitle />
 
         <NavLinks />
 

@@ -78,7 +78,7 @@ export function DashboardMatches({
     <div>
       <div className="mb-4 flex items-center gap-2">
         <h2 className="text-lg font-semibold">
-          {role === 'seeker' ? '💛 Voluntarios disponibles' : '🤝 Personas que buscan apoyo'}
+          {role === 'seeker' ? 'Voluntarios disponibles' : 'Personas que buscan apoyo'}
         </h2>
         <span className="text-sm text-muted-foreground">({filtered.length})</span>
       </div>
