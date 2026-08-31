@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { signIn, signUp, requestPasswordReset } from '@/app/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
@@ -28,14 +28,10 @@ function LoginForm() {
     setError(null)
     setInfo(null)
 
-    const supabase = createClient()
-
     if (mode === 'forgot') {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset`,
-      })
-      if (error) {
-        setError('No se pudo enviar el enlace. Comprueba el email.')
+      const result = await requestPasswordReset(email)
+      if (result.error) {
+        setError(result.error)
       } else {
         setInfo('Te hemos enviado un enlace a tu correo. Revisa también el buzón de spam.')
       }
@@ -43,30 +39,17 @@ function LoginForm() {
       return
     }
 
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) {
-        setError('Email o contraseña incorrectos.')
-        setLoading(false)
-        return
-      }
-    } else {
-      const { data, error } = await supabase.auth.signUp({ email, password })
-      if (error) {
-        if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
-          setError('Ya existe una cuenta con ese email. Prueba a iniciar sesión.')
-        } else if (error.message.toLowerCase().includes('password')) {
-          setError('La contraseña debe tener al menos 6 caracteres.')
-        } else {
-          setError('Error al crear la cuenta. Inténtalo de nuevo.')
-        }
-        setLoading(false)
-        return
-      }
-      if (!data.session) {
-        router.push('/auth/verificar')
-        return
-      }
+    const result = mode === 'login' ? await signIn(email, password) : await signUp(email, password)
+
+    if (result.error) {
+      setError(result.error)
+      setLoading(false)
+      return
+    }
+
+    if ('needsVerification' in result && result.needsVerification) {
+      router.push('/auth/verificar')
+      return
     }
 
     router.push('/dashboard')

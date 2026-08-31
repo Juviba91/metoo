@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { updatePassword } from '@/app/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
 import { Logo } from '@/components/logo'
@@ -20,10 +20,9 @@ export default function ResetPasswordPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const supabase = createClient()
-    const { error } = await supabase.auth.updateUser({ password })
-    if (error) {
-      setError('No se pudo actualizar la contraseña. El enlace puede haber caducado.')
+    const result = await updatePassword(password)
+    if (result.error) {
+      setError(result.error)
       setLoading(false)
       return
     }
