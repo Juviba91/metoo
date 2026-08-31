@@ -351,7 +351,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
                 className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                {bio.length}/300 — solo la ven las personas con las que conectes
+                {bio.length}/300 — se ve en tu perfil, al buscar personas como tú
               </p>
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
