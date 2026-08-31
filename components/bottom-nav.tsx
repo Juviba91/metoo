@@ -33,6 +33,13 @@ export function BottomNav({ pendingCount = 0, chatUnread = 0 }: { pendingCount?:
             <Link
               key={href}
               href={href}
+              // Sin esto, Next precarga las CUATRO pestañas nada más pintar la
+              // barra: cada prefetch pasa por el middleware (validación de
+              // sesión por red) y renderiza la página entera en el servidor.
+              // Abrir la app costaba 5 renders en vez de 1. Con
+              // staleTimes.dynamic=30 la pestaña ya queda cacheada tras la
+              // primera visita, y mientras carga se ve su loading.tsx.
+              prefetch={false}
               className={`relative flex flex-1 flex-col items-center gap-0.5 py-3 text-xs transition-colors ${
                 active ? 'text-foreground' : 'text-muted-foreground'
               }`}

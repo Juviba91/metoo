@@ -6,6 +6,7 @@ import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
+import { AppAbout } from '@/components/app-about'
 import type { UserRole } from '@/types/database'
 import type { Metadata } from 'next'
 
@@ -87,6 +88,10 @@ export default async function PerfilPage() {
             </a>
             . Procesamos la solicitud en un máximo de 30 días.
           </p>
+        </div>
+
+        <div className="mt-12">
+          <AppAbout />
         </div>
 
       </main>
