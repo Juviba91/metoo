@@ -7,6 +7,7 @@ import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
 import { AppAbout } from '@/components/app-about'
+import { HowItWorks } from '@/components/how-it-works'
 import type { UserRole } from '@/types/database'
 import type { Metadata } from 'next'
 
@@ -70,6 +71,10 @@ export default async function PerfilPage() {
           role={profile.role as UserRole}
           suggestions={allHashtags ?? []}
         />
+
+        <div className="mt-12 border-t border-border/60 pt-8">
+          <HowItWorks />
+        </div>
 
         <div className="mt-12 border-t border-border/60 pt-8">
           <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>
