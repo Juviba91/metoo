@@ -1,7 +1,10 @@
+import { SiteHeaderShell } from '@/components/site-header'
+import { BottomNav } from '@/components/bottom-nav'
+
 export default function ChatsLoading() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="h-14 border-b border-border/60 bg-background" />
+      <SiteHeaderShell />
       <main className="mx-auto max-w-4xl px-4 py-6 pb-24 sm:px-6 sm:py-8">
         <div className="grid gap-3 sm:grid-cols-2">
           {[...Array(4)].map((_, i) => (
@@ -15,6 +18,10 @@ export default function ChatsLoading() {
           ))}
         </div>
       </main>
+
+      {/* Navegación real: durante la carga se puede cambiar de pestaña.
+          Los contadores llegan a 0 y se rellenan cuando la página resuelve. */}
+      <BottomNav />
     </div>
   )
 }
