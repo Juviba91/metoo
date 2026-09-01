@@ -1,6 +1,20 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * Node.js en vez del edge, a propósito.
+ *
+ * En el edge esto se ejecuta en el nodo más cercano al usuario. El 78 % de
+ * quienes usan metoo están en España, y Supabase vive en us-east-1: cada
+ * navegación pagaba un viaje transatlántico solo para validar la sesión, y
+ * encima antes de que la página empezara a renderizarse (Madrid → Virginia →
+ * Madrid → Virginia otra vez para la función).
+ *
+ * En Node.js corre en la región de las funciones, la misma que la base de
+ * datos, así que esa comprobación pasa a ser un salto local.
+ */
+export const runtime = 'nodejs'
+
 // Rutas que exigen sesión con el email ya confirmado. /feed estaba fuera, así
 // que se podía publicar en el feed con un correo sin verificar.
 const PROTECTED = ['/dashboard', '/onboarding', '/feed']
