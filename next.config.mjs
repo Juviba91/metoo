@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    unoptimized: true,
-  },
+  // `unoptimized: true` venía del andamiaje inicial y hacía que el navegador
+  // se descargara logo.png entero (512x512, 12 KB) para pintarlo a 28 px en la
+  // cabecera. Con la optimización activada, Next lo sirve ya redimensionado y
+  // en WebP/AVIF al tamaño real de cada uso.
   experimental: {
     // Las cuatro pestañas son rutas dinámicas, y `staleTimes.dynamic` vale 0
     // por defecto: el router descarta el resultado en cuanto navegas, así que
