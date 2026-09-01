@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 /**
  * Pantalla de apertura con el logo.
  *
@@ -13,8 +15,10 @@ export function AppSplash() {
   return (
     <>
       <div id="app-splash" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="" width={72} height={72} />
+        {/* next/image para que llegue ya redimensionado a 72 px y en WebP, en
+            vez del original de 512 px. `priority` lo precarga: es lo único que
+            se ve mientras arranca la app. */}
+        <Image src="/logo.png" alt="" width={72} height={72} priority />
       </div>
       <script
         dangerouslySetInnerHTML={{
