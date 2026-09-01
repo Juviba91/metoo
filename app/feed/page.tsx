@@ -23,19 +23,18 @@ export default async function FeedPage({
   const user = await getUser()
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, alias, role')
-    .eq('id', user.id)
-    .single()
+  // El perfil y los bloqueos no dependen entre sí: encadenarlos añadía una
+  // ida y vuelta antes de poder empezar a pedir los posts.
+  const [{ data: profile }, hiddenIds] = await Promise.all([
+    supabase.from('profiles').select('id, alias, role').eq('id', user.id).single(),
+    // Los posts de usuarios bloqueados (en cualquier sentido) no se muestran
+    getHiddenUserIds(),
+  ])
   if (!profile) redirect('/onboarding')
 
   const { tag: activeTag } = await searchParams
 
   const postsSelect = `id, content, created_at, author:author_id(alias), post_hashtags(hashtag:hashtag_id(id, slug, label)), post_reactions(profile_id)`
-
-  // Los posts de usuarios bloqueados (en cualquier sentido) no se muestran
-  const hiddenIds = await getHiddenUserIds()
 
   // When filtering by tag, resolve at DB level so results aren't limited to the top 50
   const buildPostsQuery = async () => {
