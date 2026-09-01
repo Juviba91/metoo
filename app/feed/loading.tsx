@@ -1,7 +1,10 @@
+import { SiteHeaderShell } from '@/components/site-header'
+import { BottomNav } from '@/components/bottom-nav'
+
 export default function FeedLoading() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="h-14 border-b border-border/60 bg-background" />
+      <SiteHeaderShell />
       <main className="mx-auto max-w-2xl space-y-4 px-4 py-4 pb-24 sm:px-6 sm:py-6">
         <div className="h-6 w-48 rounded bg-muted animate-pulse" />
         {/* Composer skeleton */}
@@ -23,6 +26,10 @@ export default function FeedLoading() {
           </div>
         ))}
       </main>
+
+      {/* Navegación real: durante la carga se puede cambiar de pestaña.
+          Los contadores llegan a 0 y se rellenan cuando la página resuelve. */}
+      <BottomNav />
     </div>
   )
 }

@@ -1,7 +1,10 @@
+import { SiteHeaderShell } from '@/components/site-header'
+import { BottomNav } from '@/components/bottom-nav'
+
 export default function PublicProfileLoading() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="h-14 border-b border-border/60 bg-background" />
+      <SiteHeaderShell />
       <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         <div className="mb-6 h-5 w-20 animate-pulse rounded bg-muted" />
 
@@ -29,6 +32,10 @@ export default function PublicProfileLoading() {
           </div>
         </div>
       </main>
+
+      {/* Navegación real: durante la carga se puede cambiar de pestaña.
+          Los contadores llegan a 0 y se rellenan cuando la página resuelve. */}
+      <BottomNav />
     </div>
   )
 }
