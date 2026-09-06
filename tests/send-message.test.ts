@@ -141,6 +141,39 @@ describe('sendMessage', () => {
     expect(mock.payloadOf('connections', 'update')).toEqual({ status: 'accepted' })
   })
 
+  it('inserta el mensaje antes de aceptar, para que el webhook no duplique el aviso', async () => {
+    const mock = setup({
+      user: { id: 'vol-1' },
+      responses: {
+        'connections.select': { data: { ...CONN, status: 'pending' } },
+        'connections.update': { data: null },
+      },
+    })
+
+    await sendMessage('conn-1', 'hola')
+
+    const orden = mock.calls
+      .map((c) => `${c.table}.${c.op}`)
+      .filter((k) => k === 'messages.insert' || k === 'connections.update')
+
+    expect(orden).toEqual(['messages.insert', 'connections.update'])
+  })
+
+  it('no acepta la conexión si el mensaje no se pudo guardar', async () => {
+    const mock = setup({
+      user: { id: 'vol-1' },
+      responses: {
+        'connections.select': { data: { ...CONN, status: 'pending' } },
+        'messages.insert': { data: null, error: { message: 'boom' } },
+      },
+    })
+
+    const res = await sendMessage('conn-1', 'hola')
+
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('connections', 'update')).toBe(false)
+  })
+
   it('no auto-acepta si quien escribe es el seeker', async () => {
     const mock = setup({
       responses: { 'connections.select': { data: { ...CONN, status: 'pending' } } },
