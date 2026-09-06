@@ -280,7 +280,23 @@ export async function sendMessage(connectionId: string, content: string) {
   const { allowed } = await checkRateLimit('message')
   if (!allowed) return { error: 'Has alcanzado el límite de mensajes. Intenta más tarde.' }
 
-  if (conn?.status === 'pending' && conn.volunteer_id === user.id) {
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      connection_id: connectionId,
+      sender_id: user.id,
+      content: trimmed,
+    })
+    .select('id, sender_id, content, created_at')
+    .single()
+
+  if (error || !data) return { error: error?.message || 'Error al enviar el mensaje' }
+
+  // Se acepta DESPUÉS de insertar el mensaje, no antes. El webhook de
+  // `connections` avisa por correo de que han aceptado, y comprueba si el
+  // voluntario ya ha escrito para no mandar dos correos por lo mismo: si el
+  // UPDATE fuese primero, ese mensaje aún no existiría y el aviso se duplicaría.
+  if (conn.status === 'pending' && conn.volunteer_id === user.id) {
     const { error: updateError } = await supabase
       .from('connections')
       .update({ status: 'accepted' })
@@ -294,16 +310,5 @@ export async function sendMessage(connectionId: string, content: string) {
     }
   }
 
-  const { data, error } = await supabase
-    .from('messages')
-    .insert({
-      connection_id: connectionId,
-      sender_id: user.id,
-      content: trimmed,
-    })
-    .select('id, sender_id, content, created_at')
-    .single()
-
-  if (error || !data) return { error: error?.message || 'Error al enviar el mensaje' }
   return { success: true, message: data }
 }

@@ -1,6 +1,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import { deliverEmail, escapeHtml } from '../_shared/email.ts'
+import { hayBloqueo } from '../_shared/blocks.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -33,18 +34,9 @@ Deno.serve(async (req: Request) => {
   const recipientId =
     conn.seeker_id === message.sender_id ? conn.volunteer_id : conn.seeker_id
 
-  // sendMessage ya impide escribir a un usuario bloqueado, pero el webhook se
-  // dispara ante cualquier INSERT: no se notifica si hay bloqueo.
-  const { data: block } = await supabase
-    .from('blocks')
-    .select('id')
-    .or(
-      `and(blocker_id.eq.${message.sender_id},blocked_id.eq.${recipientId}),` +
-        `and(blocker_id.eq.${recipientId},blocked_id.eq.${message.sender_id})`,
-    )
-    .maybeSingle()
-
-  if (block) return new Response('blocked', { status: 200 })
+  if (await hayBloqueo(supabase, message.sender_id, recipientId)) {
+    return new Response('blocked', { status: 200 })
+  }
 
   const { data: sender, error: senderError } = await supabase
     .from('profiles')

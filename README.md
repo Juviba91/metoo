@@ -192,9 +192,14 @@ En el panel de Supabase → Database → Webhooks:
 | Nombre | Tabla | Evento | URL |
 |---|---|---|---|
 | notify-message | `messages` | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-message` |
-| notify-connection | `connections` | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-connection` |
+| notify-connection | `connections` | INSERT **y** UPDATE | `https://<project-ref>.supabase.co/functions/v1/notify-connection` |
 
 Ambos con la cabecera `Authorization: Bearer <anon-key>`.
+
+`notify-connection` cubre las dos mitades con un solo webhook: el INSERT avisa
+al voluntario de que le han escrito, y el UPDATE (de `pending` a `accepted`)
+avisa a quien pidió apoyo de que le han aceptado. Si el voluntario acepta
+respondiendo, el segundo aviso se omite: el correo del mensaje ya lo cuenta.
 
 ### Reintentos
 
