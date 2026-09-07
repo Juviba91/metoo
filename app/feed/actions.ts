@@ -5,6 +5,11 @@ import { revalidatePath } from 'next/cache'
 import { checkRateLimit, getHiddenUserIds } from '@/app/safety/actions'
 import { toSlug } from '@/lib/slug'
 
+/** Cuántas etiquetas distintas se dan de alta como mucho por publicación. */
+const MAX_HASHTAGS_POR_POST = 5
+/** Longitud máxima de una etiqueta, en caracteres. */
+const MAX_LONGITUD_HASHTAG = 40
+
 export async function createPost(content: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const user = await getUser()
@@ -24,11 +29,22 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
 
   if (error || !post) return { error: 'Error al publicar' }
 
+  // El catálogo de `hashtags` es común: lo que se cree aquí se le ofrece como
+  // sugerencia a todo el mundo al editar su perfil. Sin tope, un solo post de
+  // 500 caracteres podía dar de alta más de cien etiquetas, y el límite de 20
+  // posts por hora deja margen de sobra para ensuciárselo a los demás.
   const matches = trimmed.match(/#([a-záéíóúüñA-ZÁÉÍÓÚÜÑ0-9_-]+)/g) ?? []
+  const slugsVistos = new Set<string>()
+
   for (const match of matches) {
     const label = match.slice(1)
+    // Una etiqueta larguísima no la busca nadie y afea las sugerencias.
+    if (label.length > MAX_LONGITUD_HASHTAG) continue
+
     const slug = toSlug(label)
-    if (!slug) continue
+    if (!slug || slugsVistos.has(slug)) continue
+    if (slugsVistos.size >= MAX_HASHTAGS_POR_POST) break
+    slugsVistos.add(slug)
 
     // `ignoreDuplicates` se traduce a ON CONFLICT DO NOTHING, y esa forma no
     // devuelve la fila en conflicto: para un hashtag que YA existe (los de la

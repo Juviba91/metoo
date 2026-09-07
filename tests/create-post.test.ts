@@ -82,3 +82,32 @@ describe('createPost: enlazado de hashtags', () => {
     expect(mock.didCall('post_hashtags', 'upsert')).toBe(true)
   })
 })
+
+describe('createPost: límites del catálogo de hashtags', () => {
+  const enlaces = (mock: ReturnType<typeof createSupabaseMock>) =>
+    mock.calls.filter((c) => c.table === 'post_hashtags' && c.op === 'upsert').length
+
+  it('no da de alta más de cinco etiquetas por publicación', async () => {
+    const mock = setup({ responses: { 'hashtags.upsert': { data: { id: 'ht-1' } } } })
+
+    await createPost('#uno #dos #tres #cuatro #cinco #seis #siete #ocho #nueve #diez')
+
+    expect(enlaces(mock)).toBe(5)
+  })
+
+  it('no cuenta dos veces la misma etiqueta repetida', async () => {
+    const mock = setup({ responses: { 'hashtags.upsert': { data: { id: 'ht-1' } } } })
+
+    await createPost('#duelo hoy ha sido duro #duelo y mañana también #Duelo')
+
+    expect(enlaces(mock)).toBe(1)
+  })
+
+  it('descarta etiquetas absurdamente largas', async () => {
+    const mock = setup({ responses: { 'hashtags.upsert': { data: { id: 'ht-1' } } } })
+
+    await createPost(`#${'a'.repeat(60)} #cancer`)
+
+    expect(enlaces(mock)).toBe(1)
+  })
+})
