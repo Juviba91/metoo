@@ -117,6 +117,12 @@ SELECT p.alias, u.email, u.last_sign_in_at
   (patrón en `components/dashboard-matches.tsx` y `app/feed/post-list.tsx`).
 - Los helpers de test comparten `spec` con spread: `...spec` va **antes** de
   `responses`, o machaca las respuestas por defecto y deja el test vacío.
+- **`supabase/functions/_shared/email.ts` lo importan los tests de Node**
+  (`tests/pure.test.ts` usa `escapeHtml`). `tsconfig` excluye
+  `supabase/functions`, pero eso no vale para un fichero que alguien importa:
+  se comprueba igual. Nada de `Deno.env.get` en el nivel superior de ese
+  fichero — revienta `tsc` y la suite entera al importar. Se lee al usarlo, a
+  través de `globalThis`.
 
 ---
 

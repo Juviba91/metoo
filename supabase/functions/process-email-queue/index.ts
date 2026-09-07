@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { remiteDeRespuesta } from '../_shared/email.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -92,6 +93,9 @@ Deno.serve(async (req: Request) => {
           to: email.recipient_email,
           subject: email.subject,
           html: email.html_body,
+          // No se guarda en `email_queue`: sale de la misma variable de entorno
+          // que en el envío directo, así un reintento no pierde el remite.
+          reply_to: remiteDeRespuesta(),
         }),
       })
 
