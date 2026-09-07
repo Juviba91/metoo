@@ -193,19 +193,23 @@ puede quedar abierta a internet. Se envía en la cabecera `x-cron-secret`.
 
 ### Webhooks
 
-En el panel de Supabase → Database → Webhooks:
+**No se crean desde el panel.** Van en
+`supabase/migrations/20260907_webhooks_aviso_email.sql`, como tres triggers que
+llaman a las funciones con `net.http_post`. Aplica esa migración y ya está.
 
-| Nombre | Tabla | Evento | URL |
+Se hace así porque el webhook del panel dispara en *cada* UPDATE de la tabla, y
+`connections` se actualiza cada vez que alguien abre un chat (marcas de
+lectura): serían cientos de invocaciones inútiles al día. Los triggers filtran
+con `WHEN` y solo salen cuando hay algo que contar:
+
+| Trigger | Tabla | Cuándo | Avisa a |
 |---|---|---|---|
-| notify-message | `messages` | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-message` |
-| notify-connection | `connections` | INSERT **y** UPDATE | `https://<project-ref>.supabase.co/functions/v1/notify-connection` |
+| `avisar_mensaje_nuevo` | `messages` | INSERT | la otra parte |
+| `avisar_solicitud` | `connections` | INSERT con `status = 'pending'` | el voluntario |
+| `avisar_aceptacion` | `connections` | UPDATE a `status = 'accepted'` | quien pidió apoyo |
 
-Ambos con la cabecera `Authorization: Bearer <anon-key>`.
-
-`notify-connection` cubre las dos mitades con un solo webhook: el INSERT avisa
-al voluntario de que le han escrito, y el UPDATE (de `pending` a `accepted`)
-avisa a quien pidió apoyo de que le han aceptado. Si el voluntario acepta
-respondiendo, el segundo aviso se omite: el correo del mensaje ya lo cuenta.
+Si el voluntario acepta respondiendo, el tercero se calla solo: el correo del
+mensaje ya cuenta lo mismo y además trae el texto.
 
 ### Reintentos
 
