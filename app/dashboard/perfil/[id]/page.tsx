@@ -4,7 +4,7 @@ import { MapPin, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { BlockButton } from '@/components/block-button'
-import { isUserBlocked, canInteractWith } from '@/app/safety/actions'
+import { isUserBlocked, canInteractWith, contarSolicitudesPendientes } from '@/app/safety/actions'
 import { modeLabels, stageLabel } from '@/lib/profile-fields'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
@@ -43,7 +43,7 @@ export default async function PublicProfilePage({
   if (!profile) notFound()
   if (profile.role === viewer.role) notFound()
 
-  const [connectionResult, { data: unreadData }, pendingResult, isBlocked, canInteract] = await Promise.all([
+  const [connectionResult, { data: unreadData }, pendingCount, isBlocked, canInteract] = await Promise.all([
     viewer.role === 'seeker'
       ? supabase
           .from('connections')
@@ -58,13 +58,7 @@ export default async function PublicProfilePage({
           .eq('seeker_id', id)
           .maybeSingle(),
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
-    viewer.role === 'volunteer'
-      ? supabase
-          .from('connections')
-          .select('id', { count: 'exact', head: true })
-          .eq('volunteer_id', user.id)
-          .eq('status', 'pending')
-      : Promise.resolve({ count: 0 }),
+    viewer.role === 'volunteer' ? contarSolicitudesPendientes() : Promise.resolve(0),
     isUserBlocked(id),
     canInteractWith(id),
   ])
@@ -180,7 +174,7 @@ export default async function PublicProfilePage({
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />
       <BottomNav
-        pendingCount={(pendingResult as any).count ?? 0}
+        pendingCount={pendingCount}
         chatUnread={(unreadData as number) ?? 0}
       />
     </div>

@@ -114,6 +114,37 @@ export async function getHiddenUserIds(): Promise<string[]> {
   return ((data ?? []) as { user_id: string }[]).map((r) => r.user_id)
 }
 
+/**
+ * Solicitudes pendientes que le salen al voluntario en la barra inferior.
+ *
+ * Vive aquí en vez de repetida en cada página porque descontar a los
+ * bloqueados es parte de la cuenta, y no lo era en todas: el dashboard lo hacía
+ * y el feed y el perfil no. Bloqueando a alguien con una solicitud abierta, la
+ * barra decía «1» en una pestaña y «0» en otra, y al tocarla no había nada.
+ *
+ * Quien ya tenga los ids ocultos a mano puede pasarlos y ahorrarse la consulta.
+ */
+export async function contarSolicitudesPendientes(hiddenIds?: string[]): Promise<number> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return 0
+
+  const ocultos = hiddenIds ?? (await getHiddenUserIds())
+
+  let query = supabase
+    .from('connections')
+    .select('id', { count: 'exact', head: true })
+    .eq('volunteer_id', user.id)
+    .eq('status', 'pending')
+
+  if (ocultos.length > 0) {
+    query = query.not('seeker_id', 'in', `(${ocultos.join(',')})`)
+  }
+
+  const { count } = await query
+  return count ?? 0
+}
+
 /** ¿He bloqueado yo a este usuario? (estado del botón de bloqueo) */
 export async function isUserBlocked(userId: string): Promise<boolean> {
   const supabase = await createClient()

@@ -8,6 +8,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
 import { DeleteAccount } from './delete-account'
 import { AppAbout } from '@/components/app-about'
+import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { HowItWorks } from '@/components/how-it-works'
 import type { UserRole } from '@/types/database'
 import type { Metadata } from 'next'
@@ -20,18 +21,14 @@ export default async function PerfilPage() {
 
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, { data: allHashtags }, { count: pendingCount }, { data: unreadData }] = await Promise.all([
+  const [{ data: profile }, { data: allHashtags }, pendingCount, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
       .select('alias, city, bio, role, is_active, email_notifications_enabled, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
-    supabase
-      .from('connections')
-      .select('id', { count: 'exact', head: true })
-      .eq('volunteer_id', user.id)
-      .eq('status', 'pending'),
+    contarSolicitudesPendientes(),
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
   ])
 
@@ -96,7 +93,7 @@ export default async function PerfilPage() {
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />
       <BottomNav
-        pendingCount={profile.role === 'volunteer' ? (pendingCount ?? 0) : 0}
+        pendingCount={profile.role === 'volunteer' ? pendingCount : 0}
         chatUnread={(unreadData as number) ?? 0}
       />
     </div>

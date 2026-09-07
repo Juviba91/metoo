@@ -1,6 +1,6 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getHiddenUserIds } from '@/app/safety/actions'
+import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
 import { PostComposer } from './post-composer'
 import { PostList } from './post-list'
 import { BottomNav } from '@/components/bottom-nav'
@@ -53,15 +53,11 @@ export default async function FeedPage({
     return q
   }
 
-  const [postsResult, { count: pendingCount }, { data: unreadData }] = await Promise.all([
+  const [postsResult, pendingCount, { data: unreadData }] = await Promise.all([
     buildPostsQuery(),
     profile.role === 'volunteer'
-      ? supabase
-          .from('connections')
-          .select('id', { count: 'exact', head: true })
-          .eq('volunteer_id', user.id)
-          .eq('status', 'pending')
-      : Promise.resolve({ count: 0 }),
+      ? contarSolicitudesPendientes(hiddenIds)
+      : Promise.resolve(0),
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
   ])
 
@@ -98,7 +94,7 @@ export default async function FeedPage({
 
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />
-      <BottomNav pendingCount={pendingCount ?? 0} chatUnread={(unreadData as number) ?? 0} />
+      <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )
 }
