@@ -24,6 +24,7 @@ export type MockSpec = {
 export function createSupabaseMock(spec: MockSpec = {}) {
   const calls: { table: string; op: string; payload?: unknown }[] = []
   const rpcCalls: { name: string; args?: unknown }[] = []
+  const filtros: { table: string; metodo: string; args: unknown[] }[] = []
   const pending = new Map<string, QueryResult[]>()
 
   for (const [key, value] of Object.entries(spec.responses ?? {})) {
@@ -47,9 +48,15 @@ export function createSupabaseMock(spec: MockSpec = {}) {
     }
 
     const builder: Record<string, unknown> = {}
-    // Métodos que devuelven el propio builder para seguir encadenando
+    // Métodos que devuelven el propio builder para seguir encadenando. Se
+    // apuntan con sus argumentos: hay filtros (el `.not(...)` que descuenta a
+    // los bloqueados) que son justo lo que hay que comprobar, y antes se
+    // perdían.
     for (const m of ['select', 'eq', 'neq', 'gte', 'lte', 'lt', 'gt', 'in', 'not', 'or', 'order', 'limit', 'range']) {
-      builder[m] = vi.fn(() => builder)
+      builder[m] = vi.fn((...args: unknown[]) => {
+        filtros.push({ table, metodo: m, args })
+        return builder
+      })
     }
     // Métodos terminales
     builder.single = vi.fn(async () => resolve())
@@ -88,6 +95,7 @@ export function createSupabaseMock(spec: MockSpec = {}) {
     client,
     calls,
     rpcCalls,
+    filtros,
     /** El mismo usuario que devuelve `client.auth.getUser()`, para simular
      *  también la versión memoizada `getUser()` de lib/supabase/server. */
     user: resolvedUser,

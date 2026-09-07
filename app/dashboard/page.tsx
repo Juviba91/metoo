@@ -5,7 +5,7 @@ import { DashboardMatches } from '@/components/dashboard-matches'
 import { MapPin, MessageCircle } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
-import { getHiddenUserIds } from '@/app/safety/actions'
+import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
 import type { UserRole } from '@/types/database'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
@@ -86,10 +86,11 @@ export default async function DashboardPage() {
       .filter(([otherId]) => Boolean(otherId)),
   ) as Record<string, string>
 
+  // Se cuenta con el mismo helper que el resto de pantallas aunque aquí los
+  // datos ya estén cargados: la regla de qué cuenta como pendiente vivía en dos
+  // sitios y se habían separado.
   const pendingCount =
-    profile.role === 'volunteer'
-      ? visibleConnections.filter((c: any) => c.status === 'pending').length
-      : 0
+    profile.role === 'volunteer' ? await contarSolicitudesPendientes(hiddenIds) : 0
   const chatUnread = (unreadData as number) ?? 0
 
   const ownHashtags = (profile.profile_hashtags as any[])
