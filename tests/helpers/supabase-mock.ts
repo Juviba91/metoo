@@ -68,6 +68,7 @@ export function createSupabaseMock(spec: MockSpec = {}) {
         data: { user: resolvedUser },
         error: null,
       })),
+      signOut: vi.fn(async () => ({ error: null })),
     },
     from: vi.fn((table: string) => ({
       select: (...args: unknown[]) => makeBuilder(table, 'select', args),

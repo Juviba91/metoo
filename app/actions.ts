@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient, getUser } from '@/lib/supabase/server'
+import { toSlug, toLabel } from '@/lib/slug'
 
 export async function submitFeedback(content: string) {
   const supabase = await createClient()
@@ -37,16 +38,13 @@ export async function createHashtag(
   const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
-  const trimmed = label.trim().slice(0, 50)
+  // Misma normalización que en el feed: la etiqueta acaba en la misma tabla y
+  // en la misma pantalla, venga de un post o del editor de perfil. El slug se
+  // calcula con `toSlug`, que hasta ahora estaba copiado aquí a mano.
+  const trimmed = toLabel(label).slice(0, 50)
   if (!trimmed) return { error: 'Hashtag vacío' }
 
-  const slug = trimmed
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-
+  const slug = toSlug(trimmed)
   if (!slug) return { error: 'Hashtag no válido' }
 
   // Upsert: if slug exists return it, otherwise insert

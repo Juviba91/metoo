@@ -74,15 +74,24 @@ export default function PrivacidadPage() {
             <h2 className="mb-3 text-lg font-semibold text-foreground">4. Cookies y sesión</h2>
             <p>
               Usamos cookies de sesión estrictamente necesarias para mantenerte conectado. No usamos
-              cookies de rastreo ni analítica de terceros.
+              cookies de rastreo ni publicidad.
+            </p>
+            <p className="mt-3">
+              Sí usamos Vercel Analytics para saber cuántas visitas recibe cada página. No usa
+              cookies, no crea un identificador que te siga entre visitas y no recoge nada de lo que
+              escribes: solo cuenta páginas vistas de forma agregada.
             </p>
           </section>
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">5. Tus derechos</h2>
             <p>
-              Puedes solicitar en cualquier momento la eliminación de tu cuenta y todos tus datos
-              escribiendo a{' '}
+              Puedes eliminar tu cuenta y todos tus datos tú mismo, en cualquier momento, desde
+              <strong className="text-foreground"> Mi perfil → Eliminar cuenta</strong>. El borrado
+              es inmediato y no hace falta pedir permiso a nadie.
+            </p>
+            <p className="mt-3">
+              Para cualquier otro derecho —acceso, rectificación, oposición o portabilidad— escribe a{' '}
               <a href="mailto:juan@bay-apps.com" className="text-foreground underline underline-offset-2">
                 juan@bay-apps.com
               </a>
