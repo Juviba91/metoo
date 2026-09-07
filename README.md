@@ -5,7 +5,7 @@
 metoo conecta a personas que atraviesan un momento difícil con voluntarios que
 han vivido algo parecido. Cerca de ti. Sin juicios. Gratis, y para siempre.
 
-🔗 **App:** https://support-network-app.vercel.app
+🔗 **App:** https://metoonetwork.xyz
 📬 **¿Dudas, ideas, ganas de ayudar?** Escribe a **juan@bay-apps.com** — se
 responde a todo el mundo.
 
@@ -178,23 +178,38 @@ supabase functions deploy process-email-queue
 
 ```bash
 supabase secrets set RESEND_API_KEY=re_tu_clave
-supabase secrets set APP_URL=https://tu-dominio.com
+supabase secrets set APP_URL=https://metoonetwork.xyz
+supabase secrets set FROM_EMAIL='metoo <avisos@metoonetwork.xyz>'
+supabase secrets set REPLY_TO_EMAIL=juan@bay-apps.com
 supabase secrets set CRON_SECRET=una_cadena_larga_y_aleatoria
 ```
+
+`metoonetwork.xyz` envía pero no recibe correo: no tiene MX. Por eso todos los
+avisos llevan `Reply-To` a una dirección que sí existe — quien conteste al aviso
+(y contesta mucha gente) no debe encontrarse un rebote.
 
 `CRON_SECRET` protege `process-email-queue`, que provoca envío de correo y no
 puede quedar abierta a internet. Se envía en la cabecera `x-cron-secret`.
 
 ### Webhooks
 
-En el panel de Supabase → Database → Webhooks:
+**No se crean desde el panel.** Van en
+`supabase/migrations/20260907_webhooks_aviso_email.sql`, como tres triggers que
+llaman a las funciones con `net.http_post`. Aplica esa migración y ya está.
 
-| Nombre | Tabla | Evento | URL |
+Se hace así porque el webhook del panel dispara en *cada* UPDATE de la tabla, y
+`connections` se actualiza cada vez que alguien abre un chat (marcas de
+lectura): serían cientos de invocaciones inútiles al día. Los triggers filtran
+con `WHEN` y solo salen cuando hay algo que contar:
+
+| Trigger | Tabla | Cuándo | Avisa a |
 |---|---|---|---|
-| notify-message | `messages` | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-message` |
-| notify-connection | `connections` | INSERT | `https://<project-ref>.supabase.co/functions/v1/notify-connection` |
+| `avisar_mensaje_nuevo` | `messages` | INSERT | la otra parte |
+| `avisar_solicitud` | `connections` | INSERT con `status = 'pending'` | el voluntario |
+| `avisar_aceptacion` | `connections` | UPDATE a `status = 'accepted'` | quien pidió apoyo |
 
-Ambos con la cabecera `Authorization: Bearer <anon-key>`.
+Si el voluntario acepta respondiendo, el tercero se calla solo: el correo del
+mensaje ya cuenta lo mismo y además trae el texto.
 
 ### Reintentos
 

@@ -1,6 +1,27 @@
 const RESEND_ENDPOINT = 'https://api.resend.com/emails'
 
 /**
+ * Los tests de Node importan este fichero (`escapeHtml`), y ahí `Deno` no
+ * existe: leerlo en el nivel superior rompe la suite entera al importar. Se
+ * consulta al usarlo y a través de `globalThis`.
+ */
+function variableDeEntorno(nombre: string): string | undefined {
+  const runtime = globalThis as {
+    Deno?: { env: { get(nombre: string): string | undefined } }
+  }
+  return runtime.Deno?.env.get(nombre)
+}
+
+/**
+ * Los avisos salen desde el dominio de la app, que no recibe correo. Sin esto,
+ * a quien conteste al aviso le rebota el mensaje — y en una app de apoyo,
+ * contestar al correo es lo primero que hace mucha gente.
+ */
+export function remiteDeRespuesta(): string {
+  return variableDeEntorno('REPLY_TO_EMAIL') ?? 'juan@bay-apps.com'
+}
+
+/**
  * El cliente llega ya construido desde cada función. Se tipa de forma laxa a
  * propósito: importar el tipo desde `jsr:` haría que este fichero no compilase
  * con el TypeScript del proyecto Next, que no resuelve ese especificador.
@@ -71,7 +92,7 @@ export async function deliverEmail(
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from, to, subject, html }),
+      body: JSON.stringify({ from, to, subject, html, reply_to: remiteDeRespuesta() }),
     })
 
     if (res.ok) return { status: 'sent' }
