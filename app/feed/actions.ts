@@ -3,7 +3,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, getHiddenUserIds } from '@/app/safety/actions'
-import { toSlug } from '@/lib/slug'
+import { toSlug, toLabel } from '@/lib/slug'
 
 /** Cuántas etiquetas distintas se dan de alta como mucho por publicación. */
 const MAX_HASHTAGS_POR_POST = 5
@@ -37,7 +37,10 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
   const slugsVistos = new Set<string>()
 
   for (const match of matches) {
-    const label = match.slice(1)
+    // `#Gemelos_prematuros` se guarda como "Gemelos prematuros": en un post el
+    // guion bajo es la única forma de unir dos palabras, pero eso es cómo se
+    // escribe, no cómo se lee.
+    const label = toLabel(match.slice(1))
     // Una etiqueta larguísima no la busca nadie y afea las sugerencias.
     if (label.length > MAX_LONGITUD_HASHTAG) continue
 

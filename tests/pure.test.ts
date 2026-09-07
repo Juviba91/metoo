@@ -7,7 +7,7 @@ vi.mock('@/app/safety/actions', () => ({
   getHiddenUserIds: vi.fn(),
 }))
 
-const { toSlug } = await import('@/lib/slug')
+const { toSlug, toLabel } = await import('@/lib/slug')
 const { escapeHtml } = await import('@/supabase/functions/_shared/email')
 
 describe('toSlug', () => {
@@ -31,6 +31,34 @@ describe('toSlug', () => {
     // createPost se apoya en esto para descartar hashtags inservibles
     expect(toSlug('!!!')).toBe('')
     expect(toSlug('')).toBe('')
+  })
+})
+
+describe('toLabel', () => {
+  it('convierte en espacio el guion bajo de los posts', () => {
+    // En un post el espacio corta el hashtag, asi que quien quiere dos
+    // palabras escribe `#Gemelos_prematuros`. Eso es como se teclea, no como
+    // se lee.
+    expect(toLabel('Gemelos_prematuros')).toBe('Gemelos prematuros')
+    expect(toLabel('siete_mesinos')).toBe('siete mesinos')
+  })
+
+  it('respeta el guion normal, que en castellano sí existe', () => {
+    expect(toLabel('post-parto')).toBe('post-parto')
+  })
+
+  it('no toca las etiquetas que ya vienen bien del perfil', () => {
+    expect(toLabel('UCI Neonatal')).toBe('UCI Neonatal')
+    expect(toLabel('Duelo por un hijo')).toBe('Duelo por un hijo')
+  })
+
+  it('deja un solo espacio y sin sobras en los extremos', () => {
+    expect(toLabel('  dos__palabras  ')).toBe('dos palabras')
+  })
+
+  it('las dos formas de escribirlo acaban siendo la misma etiqueta', () => {
+    // Lo importante: el slug ya coincidía, así que no se parte en dos
+    expect(toSlug(toLabel('Gemelos_prematuros'))).toBe(toSlug(toLabel('Gemelos prematuros')))
   })
 })
 
