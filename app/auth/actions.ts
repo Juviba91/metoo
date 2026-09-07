@@ -96,6 +96,33 @@ export async function updatePassword(
   return { success: true }
 }
 
+/**
+ * Borra la cuenta de quien llama, y con ella todo lo suyo.
+ *
+ * El borrado lo hace `eliminar_mi_cuenta()` en la base de datos, que solo sabe
+ * borrar la fila de `auth.uid()`. Aquí no hay ninguna clave capaz de borrar la
+ * cuenta de otra persona, ni hace falta comprobar identidad: la comprobación la
+ * hace Postgres con la sesión.
+ */
+export async function deleteAccount(): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase.rpc('eliminar_mi_cuenta')
+
+  if (error) {
+    console.error('Error al eliminar la cuenta:', error)
+    return { error: 'No se pudo eliminar la cuenta. Inténtalo de nuevo o escríbenos.' }
+  }
+
+  // Borrar el usuario invalida sus tokens, pero el navegador sigue guardando la
+  // cookie: sin esto la siguiente página se renderiza con una sesión que ya no
+  // corresponde a nadie.
+  await supabase.auth.signOut()
+  redirect('/?cuenta=eliminada')
+}
+
 export async function sendPasswordReset(): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const user = await getUser()
