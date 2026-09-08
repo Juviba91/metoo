@@ -1,7 +1,9 @@
 import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
-import { ToggleActiveBtn, DeleteUserBtn, ResolveReportBtn, BorrarComentarioBtn } from './admin-buttons'
+import { DeleteUserBtn, ResolveReportBtn, BorrarComentarioBtn } from './admin-buttons'
+import { StatsGrid } from './stats-grid'
+import { UsersSection } from './users-section'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
@@ -74,7 +76,6 @@ export default async function AdminPage() {
   const totalUsers = profiles?.length ?? 0
   const volunteers = profiles?.filter((p) => p.role === 'volunteer').length ?? 0
   const seekers = profiles?.filter((p) => p.role === 'seeker').length ?? 0
-  const active = profiles?.filter((p) => p.is_active).length ?? 0
   const pendingReports = reports?.filter((r) => !r.resolved).length ?? 0
 
   return (
@@ -95,32 +96,6 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
         <h1 className="text-3xl font-bold">Admin</h1>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {([
-            { label: 'Usuarios', value: totalUsers, alert: false },
-            { label: 'Voluntarios', value: volunteers, alert: false },
-            { label: 'Buscadores', value: seekers, alert: false },
-            { label: 'Conexiones', value: connectionCount ?? 0, alert: false },
-            { label: 'Mensajes', value: messageCount ?? 0, alert: false },
-            { label: 'Bloqueos', value: blockCount ?? 0, alert: false },
-            { label: 'Emails fallidos', value: failedEmailCount ?? 0, alert: (failedEmailCount ?? 0) > 0 },
-            { label: 'Emails en cola', value: pendingEmailCount ?? 0, alert: (pendingEmailCount ?? 0) > 20 },
-            { label: 'Rate limits (1h)', value: rateLimitCount ?? 0, alert: false },
-            { label: 'Feedback', value: feedback?.length ?? 0, alert: false },
-          ] as const).map((s) => (
-            <div
-              key={s.label}
-              className={`rounded-xl border p-4 text-center ${
-                s.alert ? 'border-destructive/40 bg-destructive/5' : 'border-border'
-              }`}
-            >
-              <p className={`text-2xl font-bold ${s.alert ? 'text-destructive' : ''}`}>{s.value}</p>
-              <p className="text-xs text-muted-foreground">{s.label}</p>
-            </div>
-          ))}
-        </div>
 
         {/* Reports */}
         {pendingReports > 0 && (
@@ -219,66 +194,35 @@ export default async function AdminPage() {
           </section>
         )}
 
-        {/* Users table */}
-        <section>
-          <h2 className="mb-4 text-lg font-semibold">
-            Usuarios ({totalUsers}) — {active} activos
-          </h2>
-          <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/40">
-                <tr>
-                  {['Alias', 'Email', 'Rol', 'Ciudad', '✓', 'Estado', 'Alta', 'Acciones'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(profiles ?? []).map((p) => (
-                  <tr key={p.id} className="border-b border-border/50 last:border-0 hover:bg-muted/20">
-                    <td className="px-4 py-3 font-medium">{p.alias}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">{emailMap[p.id] ?? '—'}</td>
-                    <td className="px-4 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        p.role === 'volunteer'
-                          ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-                          : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
-                      }`}>
-                        {p.role === 'volunteer' ? '💛 Vol.' : '🤝 Bus.'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{p.city}</td>
-                    <td className="px-4 py-3 text-center text-xs">
-                      {confirmedMap[p.id] ? '✓' : <span className="text-muted-foreground">—</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs ${
-                        p.is_active
-                          ? 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300'
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {p.is_active ? 'Activo' : 'Pausado'}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-                      {new Date(p.created_at).toLocaleDateString('es-ES', {
-                        day: 'numeric', month: 'short',
-                      })}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <ToggleActiveBtn profileId={p.id} isActive={p.is_active ?? true} />
-                        <DeleteUserBtn userId={p.id} alias={p.alias} />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+        {/* Primero lo que hay que leer; los números, después: en el móvil había
+            que bajar media pantalla de tarjetas antes de llegar a nada. */}
+        <StatsGrid
+          metricas={[
+            { label: 'Usuarios', value: totalUsers },
+            { label: 'Voluntarios', value: volunteers },
+            { label: 'Buscadores', value: seekers },
+            { label: 'Conexiones', value: connectionCount ?? 0 },
+            { label: 'Mensajes', value: messageCount ?? 0 },
+            { label: 'Bloqueos', value: blockCount ?? 0 },
+            { label: 'Emails fallidos', value: failedEmailCount ?? 0, alert: (failedEmailCount ?? 0) > 0 },
+            { label: 'Emails en cola', value: pendingEmailCount ?? 0, alert: (pendingEmailCount ?? 0) > 20 },
+            { label: 'Rate limits (1h)', value: rateLimitCount ?? 0 },
+            { label: 'Feedback', value: feedback?.length ?? 0 },
+          ]}
+        />
+
+        <UsersSection
+          usuarios={(profiles ?? []).map((u: any) => ({
+            id: u.id,
+            alias: u.alias,
+            role: u.role,
+            city: u.city,
+            is_active: u.is_active,
+            created_at: u.created_at,
+            email: emailMap[u.id] ?? '—',
+            confirmado: !!confirmedMap[u.id],
+          }))}
+        />
 
       </main>
     </div>
