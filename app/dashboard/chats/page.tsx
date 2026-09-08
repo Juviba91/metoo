@@ -1,6 +1,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getHiddenUserIds } from '@/app/safety/actions'
+import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
+import { conversacionesVisibles, type Rol } from '@/lib/connections'
 import { MapPin, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
@@ -49,17 +50,13 @@ export default async function ChatsPage() {
     getHiddenUserIds(),
   ])
 
-  // Las conversaciones con usuarios bloqueados no se listan
-  const hiddenSet = new Set(hiddenIds)
-  const connections = (allConnections ?? []).filter((c: any) => {
-    const otherId = profile.role === 'seeker' ? c.volunteer_id : c.seeker_id
-    return !otherId || !hiddenSet.has(otherId)
-  })
+  // Mismo criterio que en Inicio: fuera las de gente bloqueada, y a quien
+  // busca apoyo no se le enseñan las rechazadas. Estaba solo en Inicio, así que
+  // la tarjeta roja de "Cerrada" seguía apareciendo aquí.
+  const rol = profile.role as Rol
+  const connections = conversacionesVisibles((allConnections ?? []) as any[], rol, hiddenIds)
 
-  const pendingCount =
-    profile.role === 'volunteer'
-      ? connections.filter((c: any) => c.status === 'pending').length
-      : 0
+  const pendingCount = rol === 'volunteer' ? await contarSolicitudesPendientes(hiddenIds) : 0
 
   // Último mensaje de cada conversación. Antes se lanzaba una consulta por
   // conversación (N+1): con la lista abierta eso son N idas y vueltas, y esta

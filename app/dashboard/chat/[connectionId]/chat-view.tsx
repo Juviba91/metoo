@@ -41,10 +41,25 @@ export function ChatView({
   const inputRef = useRef<HTMLInputElement>(null)
   const isVolunteer = currentUserId === volunteerId
 
-  // Mark as read on open
+  /**
+   * Marcar como leído al abrir, y también cuando llega algo nuevo del otro
+   * lado estando dentro.
+   *
+   * Antes solo se hacía al abrir. Si la otra persona escribía mientras tenías
+   * el chat delante, lo leías en pantalla pero la conversación seguía contando
+   * como no leída: salías y te encontrabas el globo de un mensaje que acababas
+   * de leer.
+   *
+   * Se dispara con el id del último mensaje ajeno, no con el número de
+   * mensajes: así los que mandas tú no provocan una llamada de más.
+   */
+  const ultimoMensajeAjeno = [...messages]
+    .reverse()
+    .find((m) => m.sender_id !== currentUserId)?.id
+
   useEffect(() => {
     markConnectionRead(connectionId)
-  }, [connectionId])
+  }, [connectionId, ultimoMensajeAjeno])
 
   // Scroll to bottom on mount and on new messages
   useEffect(() => {
