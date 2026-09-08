@@ -34,6 +34,13 @@ export function SiteHeaderShell({ adminLink }: { adminLink?: React.ReactNode }) 
 
         <NavLinks />
 
+        {/*
+          Todo lo de la derecha va en un solo grupo. Antes el bloque de
+          admin/Normas y el botón de salir eran hermanos sueltos del
+          `justify-between`, y en móvil —donde el menú y «Normas» están
+          ocultos— eso dejaba el enlace de admin en el centro exacto de la
+          barra, pisando el título de la pantalla.
+        */}
         <div className="flex items-center gap-2">
           {adminLink}
 
@@ -44,14 +51,14 @@ export function SiteHeaderShell({ adminLink }: { adminLink?: React.ReactNode }) 
           >
             Normas <ArrowUpRight className="size-3" />
           </Link>
-        </div>
 
-        <form action={signOut}>
-          <Button variant="ghost" size="sm" type="submit" className="gap-2">
-            <LogOut className="size-4" />
-            <span className="hidden sm:inline">Salir</span>
-          </Button>
-        </form>
+          <form action={signOut}>
+            <Button variant="ghost" size="sm" type="submit" className="gap-2">
+              <LogOut className="size-4" />
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </form>
+        </div>
       </div>
     </header>
   )
@@ -67,10 +74,15 @@ export async function SiteHeader() {
     <SiteHeaderShell
       adminLink={
         isAdmin ? (
+          // Visible también en móvil: iba con `hidden sm:flex` y desde el
+          // teléfono no había forma de llegar al panel salvo escribiendo la
+          // URL. Cabe de sobra, porque el menú y «Normas» ya están ocultos a
+          // este ancho, y además esto solo lo ve una persona.
           <Link
             href="/admin"
-            className="hidden items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-amber-600 transition-colors hover:bg-amber-50 hover:text-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30 dark:hover:text-amber-300 sm:flex"
-            title="Admin Panel"
+            className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-amber-600 transition-colors hover:bg-amber-50 hover:text-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30 dark:hover:text-amber-300 sm:px-2.5"
+            title="Admin"
+            aria-label="Panel de administración"
           >
             <Settings className="size-4" />
             <span className="hidden md:inline">Admin</span>
