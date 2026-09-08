@@ -16,7 +16,9 @@ export default function TerminosPage() {
 
       <main className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="mb-2 text-3xl font-bold">Términos de uso</h1>
-        <p className="mb-10 text-sm text-muted-foreground">Última actualización: junio 2025</p>
+        <p className="mb-10 text-sm text-muted-foreground">
+          Última actualización: septiembre de 2026
+        </p>
 
         <div className="space-y-8 leading-relaxed text-muted-foreground">
           <section>
@@ -70,11 +72,12 @@ export default function TerminosPage() {
             <h2 className="mb-3 text-lg font-semibold text-foreground">5. Cuentas y suspensión</h2>
             <p>
               Nos reservamos el derecho de suspender o eliminar cuentas que incumplan estas normas, sin
-              previo aviso. Puedes eliminar tu cuenta en cualquier momento escribiendo a{' '}
-              <a href="mailto:juan@bay-apps.com" className="text-foreground underline underline-offset-2">
-                juan@bay-apps.com
-              </a>
-              .
+              previo aviso.
+            </p>
+            <p className="mt-3">
+              Puedes eliminar tu cuenta tú mismo, en cualquier momento y sin dar explicaciones,
+              desde <strong className="text-foreground">Mi perfil → Eliminar cuenta</strong>. Se
+              borra todo y es inmediato.
             </p>
           </section>
 
