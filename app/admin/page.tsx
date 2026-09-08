@@ -1,7 +1,7 @@
 import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
-import { ToggleActiveBtn, DeleteUserBtn, ResolveReportBtn } from './admin-buttons'
+import { ToggleActiveBtn, DeleteUserBtn, ResolveReportBtn, BorrarComentarioBtn } from './admin-buttons'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
@@ -178,7 +178,12 @@ export default async function AdminPage() {
             <div className="space-y-3">
               {(feedback ?? []).map((f: any) => (
                 <div key={`f-${f.id}`} className="rounded-xl border border-border p-4">
-                  <p className="whitespace-pre-wrap text-sm">{f.content}</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 flex-1 whitespace-pre-wrap break-words text-sm">
+                      {f.content}
+                    </p>
+                    <BorrarComentarioBtn tabla="feedback" id={f.id} />
+                  </div>
                   <p className="mt-2 text-xs text-muted-foreground">
                     {(f.profiles as any)?.alias ?? 'cuenta eliminada'} ·{' '}
                     {f.created_at
@@ -191,12 +196,15 @@ export default async function AdminPage() {
               ))}
               {(suggestions ?? []).map((s: any) => (
                 <div key={`s-${s.id}`} className="rounded-xl border border-border p-4">
-                  <p className="text-sm">
-                    <span className="mr-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      hashtag
-                    </span>
-                    {s.suggestion}
-                  </p>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 flex-1 break-words text-sm">
+                      <span className="mr-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                        hashtag
+                      </span>
+                      {s.suggestion}
+                    </p>
+                    <BorrarComentarioBtn tabla="hashtag_suggestions" id={s.id} />
+                  </div>
                   <p className="mt-2 text-xs text-muted-foreground">
                     {(s.profiles as any)?.alias ?? 'cuenta eliminada'} ·{' '}
                     {s.created_at

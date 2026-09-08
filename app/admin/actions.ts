@@ -40,6 +40,34 @@ export async function deleteUserAccount(userId: string) {
   revalidatePath('/admin')
 }
 
+/**
+ * Borra un mensaje de la burbuja de feedback o una sugerencia de hashtag.
+ *
+ * `tabla` no se interpola en ningún sitio: se comprueba contra una lista
+ * cerrada y se usa el literal, no lo que llegue. Es una server action, o sea un
+ * endpoint, y el nombre de tabla viene del cliente.
+ */
+export async function eliminarComentario(
+  tabla: 'feedback' | 'hashtag_suggestions',
+  id: string,
+) {
+  await requireAdmin()
+
+  if (tabla !== 'feedback' && tabla !== 'hashtag_suggestions') {
+    throw new Error('Tabla no permitida')
+  }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from(tabla).delete().eq('id', id)
+
+  if (error) {
+    console.error('Error al borrar el comentario:', error)
+    throw new Error('No se pudo borrar')
+  }
+
+  revalidatePath('/admin')
+}
+
 export async function resolveReport(reportId: string) {
   await requireAdmin()
   const admin = createAdminClient()
