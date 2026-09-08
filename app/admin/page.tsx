@@ -32,6 +32,8 @@ export default async function AdminPage() {
     { count: failedEmailCount },
     { count: pendingEmailCount },
     { count: rateLimitCount },
+    { data: feedback },
+    { data: suggestions },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -50,6 +52,16 @@ export default async function AdminPage() {
     admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
     admin.from('email_queue').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     admin.from('rate_limits').select('id', { count: 'exact', head: true }).gte('window_start', lastHour),
+    admin
+      .from('feedback')
+      .select('id, content, created_at, profiles!profile_id(alias)')
+      .order('created_at', { ascending: false })
+      .limit(50),
+    admin
+      .from('hashtag_suggestions')
+      .select('id, suggestion, created_at, profiles!profile_id(alias)')
+      .order('created_at', { ascending: false })
+      .limit(50),
   ])
 
   const emailMap = Object.fromEntries(
@@ -96,6 +108,7 @@ export default async function AdminPage() {
             { label: 'Emails fallidos', value: failedEmailCount ?? 0, alert: (failedEmailCount ?? 0) > 0 },
             { label: 'Emails en cola', value: pendingEmailCount ?? 0, alert: (pendingEmailCount ?? 0) > 20 },
             { label: 'Rate limits (1h)', value: rateLimitCount ?? 0, alert: false },
+            { label: 'Feedback', value: feedback?.length ?? 0, alert: false },
           ] as const).map((s) => (
             <div
               key={s.label}
@@ -154,6 +167,46 @@ export default async function AdminPage() {
                     </div>
                   </div>
                 ))}
+            </div>
+          </section>
+        )}
+
+        {/* Lo que escribe la gente: antes se guardaba y no lo leía nadie */}
+        {((feedback?.length ?? 0) > 0 || (suggestions?.length ?? 0) > 0) && (
+          <section>
+            <h2 className="mb-4 text-lg font-semibold">Lo que nos cuentan</h2>
+            <div className="space-y-3">
+              {(feedback ?? []).map((f: any) => (
+                <div key={`f-${f.id}`} className="rounded-xl border border-border p-4">
+                  <p className="whitespace-pre-wrap text-sm">{f.content}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {(f.profiles as any)?.alias ?? 'cuenta eliminada'} ·{' '}
+                    {f.created_at
+                      ? new Date(f.created_at).toLocaleDateString('es-ES', {
+                          day: 'numeric', month: 'short', year: 'numeric',
+                        })
+                      : '—'}
+                  </p>
+                </div>
+              ))}
+              {(suggestions ?? []).map((s: any) => (
+                <div key={`s-${s.id}`} className="rounded-xl border border-border p-4">
+                  <p className="text-sm">
+                    <span className="mr-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      hashtag
+                    </span>
+                    {s.suggestion}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {(s.profiles as any)?.alias ?? 'cuenta eliminada'} ·{' '}
+                    {s.created_at
+                      ? new Date(s.created_at).toLocaleDateString('es-ES', {
+                          day: 'numeric', month: 'short', year: 'numeric',
+                        })
+                      : '—'}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
         )}
