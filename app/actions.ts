@@ -3,17 +3,31 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { toSlug, toLabel } from '@/lib/slug'
 
+/** Lo mismo que el `maxLength` del textarea de la burbuja de feedback. */
+const MAX_FEEDBACK = 1000
+const MAX_SUGERENCIA = 100
+
 export async function submitFeedback(content: string) {
   const supabase = await createClient()
   const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
+  // El `maxLength` del textarea solo vive en el navegador: la server action es
+  // un endpoint y se puede llamar directamente con lo que sea.
+  const trimmed = content.trim()
+  if (!trimmed || trimmed.length > MAX_FEEDBACK) return { error: 'Mensaje no válido' }
+
   const { error } = await supabase.from('feedback').insert({
     profile_id: user.id,
-    content: content.trim(),
+    content: trimmed,
   })
 
-  if (error) return { error: error.message }
+  // El mensaje de Postgres no le dice nada a quien escribe y puede filtrar
+  // detalles del esquema.
+  if (error) {
+    console.error('Error al guardar feedback:', error)
+    return { error: 'No se pudo enviar. Inténtalo de nuevo.' }
+  }
   return { success: true }
 }
 
@@ -22,12 +36,18 @@ export async function submitSuggestion(suggestion: string) {
   const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
+  const trimmed = suggestion.trim()
+  if (!trimmed || trimmed.length > MAX_SUGERENCIA) return { error: 'Sugerencia no válida' }
+
   const { error } = await supabase.from('hashtag_suggestions').insert({
     profile_id: user.id,
-    suggestion: suggestion.trim(),
+    suggestion: trimmed,
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    console.error('Error al guardar la sugerencia:', error)
+    return { error: 'No se pudo enviar. Inténtalo de nuevo.' }
+  }
   return { success: true }
 }
 
