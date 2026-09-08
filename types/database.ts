@@ -593,6 +593,7 @@ export type Database = {
         Returns: { allowed: boolean; remaining: number }[]
       }
       eliminar_mi_cuenta: { Args: Record<string, never>; Returns: undefined }
+      get_pending_count: { Args: Record<string, never>; Returns: number }
       get_unread_count: { Args: { user_uuid: string }; Returns: number }
       is_blocked_with: { Args: { p_other: string }; Returns: boolean }
       mark_connection_read: {

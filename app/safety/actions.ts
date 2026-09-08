@@ -117,32 +117,27 @@ export async function getHiddenUserIds(): Promise<string[]> {
 /**
  * Solicitudes pendientes que le salen al voluntario en la barra inferior.
  *
- * Vive aquí en vez de repetida en cada página porque descontar a los
- * bloqueados es parte de la cuenta, y no lo era en todas: el dashboard lo hacía
- * y el feed y el perfil no. Bloqueando a alguien con una solicitud abierta, la
- * barra decía «1» en una pestaña y «0» en otra, y al tocarla no había nada.
+ * Una sola consulta: el filtro de bloqueados lo hace `get_pending_count()` en
+ * SQL. Antes se pedían los ids bloqueados y luego se contaba con ese filtro,
+ * dos idas y vueltas encadenadas que cada pestaña pagaba antes de pintar.
  *
- * Quien ya tenga los ids ocultos a mano puede pasarlos y ahorrarse la consulta.
+ * Descontar a los bloqueados es parte de la cuenta, no un extra: el dashboard
+ * lo hacía y el feed y el perfil no, así que la barra decía «1» en una pestaña
+ * y «0» en otra.
  */
-export async function contarSolicitudesPendientes(hiddenIds?: string[]): Promise<number> {
+export async function contarSolicitudesPendientes(): Promise<number> {
   const supabase = await createClient()
   const user = await getUser()
   if (!user) return 0
 
-  const ocultos = hiddenIds ?? (await getHiddenUserIds())
+  const { data, error } = await supabase.rpc('get_pending_count')
 
-  let query = supabase
-    .from('connections')
-    .select('id', { count: 'exact', head: true })
-    .eq('volunteer_id', user.id)
-    .eq('status', 'pending')
-
-  if (ocultos.length > 0) {
-    query = query.not('seeker_id', 'in', `(${ocultos.join(',')})`)
+  if (error) {
+    console.error('get_pending_count failed:', error)
+    return 0
   }
 
-  const { count } = await query
-  return count ?? 0
+  return (data as number) ?? 0
 }
 
 /** ¿He bloqueado yo a este usuario? (estado del botón de bloqueo) */

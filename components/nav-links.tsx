@@ -24,8 +24,9 @@ export function NavLinks() {
         <Link
           key={href}
           href={href}
-          // Mismo motivo que en la barra inferior: cuatro prefetch por carga.
-          prefetch={false}
+          // Mismo criterio que en la barra inferior: `true` explícito, que es
+          // el único que precarga el contenido y no solo el esqueleto.
+          prefetch
           className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
             isActive(href, pathname)
               ? 'bg-muted font-medium text-foreground'

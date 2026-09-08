@@ -56,7 +56,7 @@ export default async function ChatsPage() {
   const rol = profile.role as Rol
   const connections = conversacionesVisibles((allConnections ?? []) as any[], rol, hiddenIds)
 
-  const pendingCount = rol === 'volunteer' ? await contarSolicitudesPendientes(hiddenIds) : 0
+  const pendingCount = rol === 'volunteer' ? await contarSolicitudesPendientes() : 0
 
   // Último mensaje de cada conversación. Antes se lanzaba una consulta por
   // conversación (N+1): con la lista abierta eso son N idas y vueltas, y esta

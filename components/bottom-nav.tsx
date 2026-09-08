@@ -45,13 +45,22 @@ export function BottomNav({ pendingCount = 0, chatUnread = 0 }: { pendingCount?:
             <Link
               key={href}
               href={href}
-              // Sin esto, Next precarga las CUATRO pestañas nada más pintar la
-              // barra: cada prefetch pasa por el middleware (validación de
-              // sesión por red) y renderiza la página entera en el servidor.
-              // Abrir la app costaba 5 renders en vez de 1. Con
-              // staleTimes.dynamic=30 la pestaña ya queda cacheada tras la
-              // primera visita, y mientras carga se ve su loading.tsx.
-              prefetch={false}
+              // `true` explícito, no el prefetch por defecto.
+              //
+              // En rutas dinámicas el prefetch por defecto solo trae el
+              // esqueleto del loading.tsx, no el contenido: por eso al medirlo
+              // en su día no cambiaba nada y se puso en `false`. Medido nº2, a
+              // 140 ms de latencia (España→Virginia) y con la página tardando
+              // 250 ms en resolver sus datos:
+              //
+              //   prefetch={false}      contenido a los 376 ms
+              //   prefetch por defecto  contenido a los 370 ms
+              //   prefetch={true}       contenido a los  95 ms
+              //
+              // Cuesta cuatro renders de fondo por carga, pero no retrasan
+              // nada: se lanzan después del `load` (619 ms sin, 625 ms con).
+              // Estas cuatro rutas son la app entera; es donde toca gastarlo.
+              prefetch
               className={`relative flex flex-1 flex-col items-center gap-0.5 py-3 text-xs transition-colors ${
                 active ? 'text-foreground' : 'text-muted-foreground'
               }`}

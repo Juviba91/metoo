@@ -56,7 +56,7 @@ export default async function FeedPage({
   const [postsResult, pendingCount, { data: unreadData }] = await Promise.all([
     buildPostsQuery(),
     profile.role === 'volunteer'
-      ? contarSolicitudesPendientes(hiddenIds)
+      ? contarSolicitudesPendientes()
       : Promise.resolve(0),
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
   ])
