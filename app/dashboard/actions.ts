@@ -225,7 +225,22 @@ export async function markConnectionRead(connectionId: string): Promise<void> {
 
   if (error) {
     console.error('Error marking connection as read:', error)
+    return
   }
+
+  // El globo de la barra inferior lo pinta cada pestaña en el servidor. Sin
+  // esto, marcar como leído solo cambiaba la base de datos: al volver atrás
+  // seguías viendo el aviso de un mensaje que acabas de leer, porque la página
+  // venía de la caché del router (`staleTimes.dynamic` está a 30 s).
+  //
+  // Se revalidan las cuatro pestañas, pero NO la ruta del chat: `ChatView`
+  // arranca su estado con `useState(initialMessages)` y los mensajes en vivo
+  // los lleva él, así que volver a renderizarla desde el servidor mientras
+  // estás dentro no aporta nada y puede pisar lo que ya se ve.
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/chats')
+  revalidatePath('/dashboard/perfil')
+  revalidatePath('/feed')
 }
 
 export async function toggleAvailability(isActive: boolean): Promise<void> {

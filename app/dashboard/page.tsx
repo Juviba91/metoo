@@ -49,7 +49,9 @@ export default async function DashboardPage() {
     matchesQuery = matchesQuery.not('id', 'in', `(${hiddenIds.join(',')})`)
   }
 
-  const [{ data: matches }, { data: connections }, { data: unreadData }, { data: allHashtags }] = await Promise.all([
+  const rol = profile.role as Rol
+
+  const [{ data: matches }, { data: connections }, { data: unreadData }, { data: allHashtags }, pendingCount] = await Promise.all([
     matchesQuery.limit(50),
 
     profile.role === 'seeker'
@@ -67,9 +69,11 @@ export default async function DashboardPage() {
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
 
     supabase.from('hashtags').select('id, slug, label').order('label'),
-  ])
 
-  const rol = profile.role as Rol
+    // Dentro del Promise.all, no después: colgando de un `await` propio añadía
+    // una ida y vuelta más antes de poder pintar la pestaña.
+    rol === 'volunteer' ? contarSolicitudesPendientes() : Promise.resolve(0),
+  ])
   const visibleConnections = conversacionesVisibles(
     (connections ?? []) as any[],
     rol,
@@ -84,11 +88,6 @@ export default async function DashboardPage() {
       .filter(([otherId]) => Boolean(otherId)),
   ) as Record<string, string>
 
-  // Se cuenta con el mismo helper que el resto de pantallas aunque aquí los
-  // datos ya estén cargados: la regla de qué cuenta como pendiente vivía en dos
-  // sitios y se habían separado.
-  const pendingCount =
-    profile.role === 'volunteer' ? await contarSolicitudesPendientes(hiddenIds) : 0
   const chatUnread = (unreadData as number) ?? 0
 
   const ownHashtags = (profile.profile_hashtags as any[])
