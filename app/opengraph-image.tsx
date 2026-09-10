@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-export const alt = 'metoo — Apoyo entre personas que lo han vivido'
+export const alt = 'metoo — Alguien ya estuvo donde estás tú'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -45,7 +45,7 @@ export default async function Image() {
           }}
         >
           <span style={{ fontSize: '16px' }}>💛</span>
-          <span>Apoyo real entre personas que lo han vivido</span>
+          <span>Apoyo de quien ya pasó por lo mismo</span>
         </div>
 
         {/* Marca: isotipo + wordmark */}
