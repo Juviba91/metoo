@@ -12,7 +12,7 @@ const FROM_EMAIL = Deno.env.get('FROM_EMAIL') ?? 'metoo <onboarding@resend.dev>'
 const PIE = `
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
   <p style="font-size:0.75rem;color:#9ca3af;">
-    metoo — apoyo entre personas que lo han vivido.<br />
+    metoo — apoyo de quien ya pasó por lo mismo.<br />
     Si no quieres recibir estos avisos, desactívalos en tu perfil.
   </p>
 `

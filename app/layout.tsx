@@ -12,7 +12,7 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 export const metadata: Metadata = {
   metadataBase: new URL('https://metoonetwork.xyz'),
   title: {
-    default: 'metoo — Apoyo entre personas que lo han vivido',
+    default: 'metoo — Alguien ya estuvo donde estás tú',
     template: '%s · metoo',
   },
   description: 'Conectamos a personas que pasan por momentos difíciles con voluntarios que han vivido la misma experiencia.',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title: 'metoo',
   },
   openGraph: {
-    title: 'metoo — Apoyo entre personas que lo han vivido',
+    title: 'metoo — Alguien ya estuvo donde estás tú',
     description: 'Conectamos a personas que pasan por momentos difíciles con voluntarios que han vivido la misma experiencia.',
     type: 'website',
     locale: 'es_ES',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'metoo — Apoyo entre personas que lo han vivido',
+    title: 'metoo — Alguien ya estuvo donde estás tú',
     description: 'Conectamos a personas que pasan por momentos difíciles con voluntarios que han vivido la misma experiencia.',
   },
 }

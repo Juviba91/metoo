@@ -17,7 +17,7 @@ export function AppAbout() {
           <div>
             <p className="font-semibold">metoo.</p>
             <p className="text-xs text-muted-foreground">
-              Apoyo entre personas que lo han vivido
+              Apoyo de quien ya pasó por lo mismo
             </p>
           </div>
         </div>

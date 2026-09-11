@@ -74,7 +74,7 @@ export default function Page() {
 
         <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground sm:mb-8">
           <Heart className="size-3.5" />
-          <span>Apoyo real entre personas que lo han vivido</span>
+          <span>Apoyo de quien ya pasó por lo mismo</span>
         </div>
 
         <h1 className="mb-5 text-4xl font-bold leading-tight tracking-tight sm:mb-6 sm:text-5xl lg:text-6xl">
