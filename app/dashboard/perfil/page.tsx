@@ -24,7 +24,7 @@ export default async function PerfilPage() {
   const [{ data: profile }, { data: allHashtags }, pendingCount, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, email_notifications_enabled, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, email_notifications_enabled, digest_enabled, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
@@ -76,7 +76,13 @@ export default async function PerfilPage() {
 
         <div className="mt-12 border-t border-border/60 pt-8">
           <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>
-          <AccountSection email={user.email} emailConfirmed={!!user.email_confirmed_at} emailNotificationsEnabled={profile.email_notifications_enabled} />
+          <AccountSection
+            email={user.email}
+            emailConfirmed={!!user.email_confirmed_at}
+            emailNotificationsEnabled={profile.email_notifications_enabled}
+            digestEnabled={profile.digest_enabled}
+            esVoluntario={profile.role === 'volunteer'}
+          />
         </div>
 
         <div className="mt-8 border-t border-border/60 pt-8">
