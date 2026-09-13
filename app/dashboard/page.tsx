@@ -28,7 +28,10 @@ export default async function DashboardPage() {
   const [{ data: profile }, hiddenIds] = await Promise.all([
     supabase
       .from('profiles')
-      .select('*, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      // Las columnas que se usan, no `*`. Además de traer de menos por la red,
+      // `*` incluye `digest_token`, cuya lectura está revocada para el cliente:
+      // con `*` esta consulta fallaría entera y el inicio no cargaría.
+      .select('role, alias, city, bio, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     getHiddenUserIds(),
