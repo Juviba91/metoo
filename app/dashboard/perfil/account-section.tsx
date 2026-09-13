@@ -5,10 +5,39 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { resendConfirmation } from '@/app/auth/actions'
 import { sendPasswordReset } from '@/app/auth/actions'
-import { toggleEmailNotifications } from '@/app/safety/actions'
-import { Mail, Key, CheckCircle2, Shield, Bell } from 'lucide-react'
+import { toggleEmailNotifications, toggleDigest } from '@/app/safety/actions'
+import { Mail, Key, CheckCircle2, Shield, Bell, Users } from 'lucide-react'
 
-export function AccountSection({ email, emailConfirmed, emailNotificationsEnabled = true }: { email?: string; emailConfirmed: boolean; emailNotificationsEnabled?: boolean }) {
+export function AccountSection({
+  email,
+  emailConfirmed,
+  emailNotificationsEnabled = true,
+  digestEnabled = true,
+  esVoluntario = false,
+}: {
+  email?: string
+  emailConfirmed: boolean
+  emailNotificationsEnabled?: boolean
+  digestEnabled?: boolean
+  esVoluntario?: boolean
+}) {
+  const [digestLoading, setDigestLoading] = useState(false)
+  const [digestOn, setDigestOn] = useState(digestEnabled)
+  const [digestMessage, setDigestMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  async function handleToggleDigest() {
+    setDigestLoading(true)
+    setDigestMessage(null)
+    const result = await toggleDigest(!digestOn)
+    if (result.success) {
+      setDigestOn(!digestOn)
+      setDigestMessage({ type: 'success', text: digestOn ? 'Avisos desactivados' : 'Avisos activados' })
+    } else {
+      setDigestMessage({ type: 'error', text: result.error || 'Error al actualizar preferencias.' })
+    }
+    setDigestLoading(false)
+  }
+
   const [resendLoading, setResendLoading] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
   const [notificationsLoading, setNotificationsLoading] = useState(false)
@@ -161,6 +190,40 @@ export function AccountSection({ email, emailConfirmed, emailNotificationsEnable
           )}
         </div>
       </div>
+
+      {/* Aviso de gente esperando: solo tiene sentido para voluntarios */}
+      {esVoluntario && (
+        <div className="rounded-lg border border-border px-4 py-3">
+          <div className="flex items-start gap-3">
+            <Users className="mt-0.5 size-4 text-muted-foreground" />
+            <div className="flex-1">
+              <p className="text-xs text-muted-foreground">Avisos de gente esperando</p>
+              <p className="text-sm font-medium">{digestOn ? 'Habilitados' : 'Deshabilitados'}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Como mucho uno por semana, y solo cuando hay alguien buscando
+                apoyo a quien podrías acompañar. Si no hay nadie, no se envía.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleToggleDigest}
+              disabled={digestLoading}
+              className="w-full text-xs"
+            >
+              {digestLoading ? 'Actualizando...' : digestOn ? 'Desactivar' : 'Activar'}
+            </Button>
+            {digestMessage && (
+              <p className={`mt-2 text-xs ${digestMessage.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+                {digestMessage.text}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Blocked users section */}
       <div className="rounded-lg border border-border px-4 py-3">

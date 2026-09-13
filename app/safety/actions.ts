@@ -170,6 +170,33 @@ export async function canInteractWith(userId: string): Promise<boolean> {
   return !data
 }
 
+/**
+ * Avisos de "hay gente esperando", separados de los de mensajes y solicitudes.
+ *
+ * Son dos cosas distintas y se guardan aparte a propósito: mucha gente quiere
+ * saber si le han escrito y no quiere nada más.
+ */
+export async function toggleDigest(
+  enabled: boolean,
+): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ digest_enabled: enabled })
+    .eq('id', user.id)
+
+  if (error) {
+    console.error('Error updating digest preference:', error)
+    return { error: 'Error al actualizar preferencias' }
+  }
+
+  revalidatePath('/dashboard/perfil')
+  return { success: true }
+}
+
 export async function toggleEmailNotifications(
   enabled: boolean,
 ): Promise<{ success?: boolean; error?: string }> {

@@ -456,6 +456,9 @@ export type Database = {
           created_at: string
           display_name: string | null
           email_notifications_enabled: boolean
+          digest_enabled: boolean
+          last_digest_at: string | null
+          digest_token: string
           hospital_id: string | null
           id: string
           is_active: boolean
@@ -472,6 +475,9 @@ export type Database = {
           country?: string
           created_at?: string
           display_name?: string | null
+          digest_enabled?: boolean
+          last_digest_at?: string | null
+          digest_token?: string
           email_notifications_enabled?: boolean
           hospital_id?: string | null
           id: string
@@ -489,6 +495,9 @@ export type Database = {
           country?: string
           created_at?: string
           display_name?: string | null
+          digest_enabled?: boolean
+          last_digest_at?: string | null
+          digest_token?: string
           email_notifications_enabled?: boolean
           hospital_id?: string | null
           id?: string
@@ -593,7 +602,16 @@ export type Database = {
         Returns: { allowed: boolean; remaining: number }[]
       }
       eliminar_mi_cuenta: { Args: Record<string, never>; Returns: undefined }
+      baja_resumen: { Args: { p_token: string }; Returns: boolean }
+      resumen_estado: {
+        Args: { p_token: string }
+        Returns: { alias: string; activo: boolean }[]
+      }
       get_pending_count: { Args: Record<string, never>; Returns: number }
+      voluntarios_a_avisar: {
+        Args: { p_dias?: number }
+        Returns: { volunteer_id: string; esperando: number; etiquetas: string[] }[]
+      }
       get_unread_count: { Args: { user_uuid: string }; Returns: number }
       is_blocked_with: { Args: { p_other: string }; Returns: boolean }
       mark_connection_read: {
