@@ -6,13 +6,14 @@ export const metadata: Metadata = { title: 'Privacidad' }
 /**
  * Datos del responsable del tratamiento.
  *
- * ⚠️ El RGPD (art. 13.1.a) exige identificar al responsable, y "el equipo de
- * metoo" no vale: hace falta el nombre de la persona física o la razón social.
- * Rellena NOMBRE y, si actúas como autónomo o entidad, también NIF y domicilio.
- * Es el único hueco de esta página que no se puede cerrar desde el código.
+ * El RGPD (art. 13.1.a) exige identificar al responsable: "el equipo de metoo"
+ * no vale, hace falta la persona física o la razón social.
+ *
+ * Si en algún momento actúas como autónomo o entidad, aquí harían falta
+ * también el NIF y el domicilio.
  */
 const RESPONSABLE = {
-  nombre: 'Juan Bayo', // ⚠️ COMPROBAR: nombre completo tal y como quieras que conste
+  nombre: 'Juan de Villanueva Baygual',
   email: 'juan@bay-apps.com',
 }
 
