@@ -33,7 +33,7 @@ export default async function PublicProfilePage({
     supabase
       .from('profiles')
       .select(
-        'id, alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))',
+        'id, alias, city, bio, role, is_active, deleted_at, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))',
       )
       .eq('id', id)
       .single(),
@@ -42,6 +42,9 @@ export default async function PublicProfilePage({
   if (!viewer) redirect('/onboarding')
   if (!profile) notFound()
   if (profile.role === viewer.role) notFound()
+  // La ficha de quien se dio de baja se conserva para que su conversación siga
+  // teniendo sentido, no para que se le pueda visitar el perfil.
+  if (profile.deleted_at) notFound()
 
   const [connectionResult, { data: unreadData }, pendingCount, isBlocked, canInteract] = await Promise.all([
     viewer.role === 'seeker'

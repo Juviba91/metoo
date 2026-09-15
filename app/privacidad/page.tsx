@@ -53,7 +53,11 @@ export default function PrivacidadPage() {
                 : quien administra la plataforma puede leerlos si hace falta moderar.
                 Preferimos decírtelo a que lo supongas.
               </li>
-              <li>Puedes borrarlo todo tú, cuando quieras, desde tu perfil.</li>
+              <li>
+                Puedes darte de baja tú, cuando quieras, desde tu perfil. Lo único que sobrevive
+                son las conversaciones que tuviste, porque también son de la otra persona
+                (punto 6).
+              </li>
             </ul>
           </section>
 
@@ -142,6 +146,12 @@ export default function PrivacidadPage() {
               al crear la cuenta y aceptar esta política. Puedes retirarlo cuando quieras
               eliminando tu cuenta, y no tienes que dar explicaciones. Retirarlo no afecta a lo
               que se hizo antes con tu permiso.
+            </p>
+            <p className="mt-3">
+              Con una excepción que te decimos por delante: los mensajes que ya enviaste se
+              quedan con la persona que los recibió, porque la conversación también es suya
+              (punto 6). Si hay algo concreto que necesitas que desaparezca, escríbenos y lo
+              miramos uno por uno.
             </p>
             <p className="mt-3">
               Tú decides cuánto cuentas. Puedes usar metoo sin escribir nada en tu descripción
@@ -243,8 +253,16 @@ export default function PrivacidadPage() {
             </h2>
             <ul className="ml-4 list-disc space-y-1.5">
               <li>
-                Mientras tengas la cuenta abierta. Si la borras, tu perfil, tus conversaciones,
-                tus publicaciones y tus contactos se eliminan en ese momento.
+                Mientras tengas la cuenta abierta. Si la borras, se eliminan en ese momento tu
+                acceso, tu perfil, tus publicaciones y tus contactos.
+              </li>
+              <li>
+                <strong className="text-foreground">Tus conversaciones no se borran</strong>, y es
+                importante que lo sepas antes de darte de baja. A la persona con la que hablabas le
+                queda el hilo entero, con tu alias, marcado como cuenta eliminada. Una conversación
+                es de dos: borrarla por un lado le dejaría a la otra persona un hueco sin
+                explicación, y en esta app eso duele. Del resto de tu ficha solo sobrevive el alias
+                —ni tu descripción, ni tu ciudad, ni tus etiquetas— y nadie puede escribirte ya.
               </li>
               <li>
                 Los reportes de moderación se conservan aunque te vayas, pero{' '}
@@ -275,10 +293,12 @@ export default function PrivacidadPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">8. Tus derechos</h2>
             <p>
-              <strong className="text-foreground">Borrar todo lo tuyo</strong> lo puedes hacer
-              tú, ahora mismo y sin pedir permiso, desde{' '}
+              <strong className="text-foreground">Darte de baja</strong> lo puedes hacer tú,
+              ahora mismo y sin pedir permiso, desde{' '}
               <strong className="text-foreground">Mi perfil → Eliminar cuenta</strong>. Es
-              inmediato y no se puede deshacer.
+              inmediato y no se puede deshacer. Se va todo menos las conversaciones, por lo que
+              te contamos en el punto 6; si quieres que también se borre alguna, escríbenos y lo
+              vemos caso por caso.
             </p>
             <p className="mt-3">
               También tienes derecho a acceder a tus datos, corregirlos, limitar u oponerte a su

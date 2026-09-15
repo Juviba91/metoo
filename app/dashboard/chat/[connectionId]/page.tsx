@@ -21,7 +21,7 @@ export default async function ChatPage({
   const { data: connection } = await supabase
     .from('connections')
     .select(
-      'id, status, seeker_id, volunteer_id, seeker:seeker_id(alias), volunteer:volunteer_id(alias)',
+      'id, status, seeker_id, volunteer_id, seeker:seeker_id(alias, deleted_at), volunteer:volunteer_id(alias, deleted_at)',
     )
     .eq('id', connectionId)
     .single()
@@ -33,9 +33,11 @@ export default async function ChatPage({
   if (!isMember) notFound()
 
   const isSeeker = user.id === connection.seeker_id
-  const otherAlias = isSeeker
-    ? (connection.volunteer as any)?.alias
-    : (connection.seeker as any)?.alias
+  const otherProfile = (isSeeker ? connection.volunteer : connection.seeker) as
+    | { alias?: string | null; deleted_at?: string | null }
+    | null
+  const otherAlias = otherProfile?.alias
+  const otherDeleted = Boolean(otherProfile?.deleted_at)
   const reportedId = isSeeker ? connection.volunteer_id : connection.seeker_id
 
   // La comprobación de bloqueo y los mensajes no dependen entre sí: se piden a
@@ -64,6 +66,7 @@ export default async function ChatPage({
         reportedId={reportedId}
         initialStatus={connection.status as 'pending' | 'accepted' | 'rejected'}
         volunteerId={connection.volunteer_id}
+        otherDeleted={otherDeleted}
       />
     </div>
   )

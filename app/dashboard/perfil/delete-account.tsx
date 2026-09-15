@@ -39,8 +39,8 @@ export function DeleteAccount() {
     return (
       <div>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Puedes eliminar tu cuenta cuando quieras. Se borra todo y no se puede
-          deshacer.
+          Puedes eliminar tu cuenta cuando quieras. No se puede deshacer, y lo
+          que escribiste en tus conversaciones se queda con quien lo recibió.
         </p>
         <Button
           size="sm"
@@ -63,8 +63,14 @@ export function DeleteAccount() {
             Esto no se puede deshacer
           </p>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            Se borra tu perfil, tus conversaciones, tus publicaciones y tus
-            contactos. Las personas con las que hablabas dejarán de ver el hilo.
+            Se borra tu acceso, tu perfil, tus publicaciones y tus contactos, y
+            dejas de aparecer en las búsquedas.
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            Tus conversaciones <strong className="text-foreground">no</strong>. A
+            quien hablaba contigo le queda el hilo entero, con tu alias, marcado
+            como cuenta eliminada. Una conversación es de dos, y borrarla por un
+            lado le dejaría un hueco sin explicación a la otra persona.
           </p>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
             Si solo necesitas parar un tiempo, arriba puedes desactivar tu perfil:

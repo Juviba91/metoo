@@ -1,7 +1,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
-import { conversacionesVisibles, type Rol } from '@/lib/connections'
+import { conversacionesVisibles, otraParteDeBaja, type Rol } from '@/lib/connections'
 import { MapPin, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
@@ -35,12 +35,12 @@ export default async function ChatsPage() {
     profile.role === 'seeker'
       ? supabase
           .from('connections')
-          .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city)')
+          .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city, deleted_at)')
           .eq('seeker_id', user.id)
           .order('created_at', { ascending: false })
       : supabase
           .from('connections')
-          .select('id, status, seeker_id, seeker:seeker_id(alias, city)')
+          .select('id, status, seeker_id, seeker:seeker_id(alias, city, deleted_at)')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false })
 
@@ -107,6 +107,7 @@ export default async function ChatsPage() {
               const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
               const last = lastMessages[conn.id]
               const lastIsMe = last?.sender_id === user.id
+              const seFue = otraParteDeBaja(conn, rol)
               return (
                 <Link
                   key={conn.id}
@@ -118,14 +119,16 @@ export default async function ChatsPage() {
                       <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
                       <span
                         className={`shrink-0 text-xs font-medium ${
-                          conn.status === 'accepted'
-                            ? 'text-green-600'
-                            : conn.status === 'rejected'
-                              ? 'text-destructive'
-                              : 'text-muted-foreground'
+                          seFue
+                            ? 'text-muted-foreground'
+                            : conn.status === 'accepted'
+                              ? 'text-green-600'
+                              : conn.status === 'rejected'
+                                ? 'text-destructive'
+                                : 'text-muted-foreground'
                         }`}
                       >
-                        {statusLabel[conn.status] ?? conn.status}
+                        {seFue ? 'Cuenta eliminada' : (statusLabel[conn.status] ?? conn.status)}
                       </span>
                     </div>
                     {last ? (

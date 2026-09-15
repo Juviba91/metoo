@@ -6,7 +6,7 @@ import { MapPin, MessageCircle } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
-import { conversacionesVisibles, otraParte, type Rol } from '@/lib/connections'
+import { conversacionesVisibles, otraParte, otraParteDeBaja, type Rol } from '@/lib/connections'
 import type { UserRole } from '@/types/database'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
@@ -63,12 +63,12 @@ export default async function DashboardPage() {
     profile.role === 'seeker'
       ? supabase
           .from('connections')
-          .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city)')
+          .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city, deleted_at)')
           .eq('seeker_id', user.id)
           .order('created_at', { ascending: false })
       : supabase
           .from('connections')
-          .select('id, status, seeker_id, seeker:seeker_id(alias, city, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
+          .select('id, status, seeker_id, seeker:seeker_id(alias, city, deleted_at, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
           .eq('volunteer_id', user.id)
           .order('created_at', { ascending: false }),
 
@@ -205,7 +205,11 @@ export default async function DashboardPage() {
             <div className="grid gap-3 sm:grid-cols-2">
               {(visibleConnections as any[]).map((conn) => {
                 const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
-                const isPendingVolunteer = conn.status === 'pending' && profile.role === 'volunteer'
+                const seFue = otraParteDeBaja(conn, rol)
+                // Una solicitud de quien ya no está no se puede aceptar: se
+                // enseña la conversación, pero sin botones que no hacen nada.
+                const isPendingVolunteer =
+                  conn.status === 'pending' && profile.role === 'volunteer' && !seFue
 
                 if (isPendingVolunteer) {
                   const seekerTags = ((other as any)?.profile_hashtags ?? [])
@@ -280,22 +284,28 @@ export default async function DashboardPage() {
                   >
                     <div>
                       <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
-                      {other?.city && (
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="size-3" /> {other.city}
-                        </p>
+                      {seFue ? (
+                        <p className="text-xs text-muted-foreground">Ya no está en metoo</p>
+                      ) : (
+                        other?.city && (
+                          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="size-3" /> {other.city}
+                          </p>
+                        )
                       )}
                     </div>
                     <span
                       className={`text-xs font-medium ${
-                        conn.status === 'accepted'
-                          ? 'text-green-600'
-                          : conn.status === 'rejected'
-                            ? 'text-destructive'
-                            : 'text-muted-foreground'
+                        seFue
+                          ? 'text-muted-foreground'
+                          : conn.status === 'accepted'
+                            ? 'text-green-600'
+                            : conn.status === 'rejected'
+                              ? 'text-destructive'
+                              : 'text-muted-foreground'
                       }`}
                     >
-                      {statusLabel[conn.status] ?? conn.status}
+                      {seFue ? 'Cuenta eliminada' : (statusLabel[conn.status] ?? conn.status)}
                     </span>
                   </Link>
                 )

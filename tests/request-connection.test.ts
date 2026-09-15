@@ -25,7 +25,17 @@ vi.mock('@/app/safety/actions', () => ({
 const { requestConnection } = await import('@/app/dashboard/actions')
 
 function setup(spec: MockSpec) {
-  state.mock = createSupabaseMock({ user: { id: 'seeker-1' }, ...spec })
+  state.mock = createSupabaseMock({
+    user: { id: 'seeker-1' },
+    ...spec,
+    responses: {
+      // Por defecto el voluntario existe y está de alta. `requestConnection`
+      // lo comprueba porque la ficha de quien se da de baja se conserva (para
+      // no romperle la conversación a nadie) pero no admite contacto nuevo.
+      'profiles.select': { data: { deleted_at: null } },
+      ...spec.responses,
+    },
+  })
   return state.mock
 }
 
@@ -127,6 +137,38 @@ describe('requestConnection', () => {
   it('exige sesión', async () => {
     const mock = setup({ user: null })
     const res = await requestConnection('vol-1')
+
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('connections', 'insert')).toBe(false)
+  })
+})
+
+describe('requestConnection: cuentas dadas de baja', () => {
+  it('no deja empezar una conversación con quien se dio de baja', async () => {
+    // Su ficha sigue existiendo para que las conversaciones que ya tenía no
+    // desaparezcan, así que no basta con que no salga en los listados.
+    const mock = setup({
+      responses: {
+        'profiles.select': { data: { deleted_at: '2026-09-15T10:00:00Z' } },
+        'connections.select': { data: null },
+      },
+    })
+
+    const res = await requestConnection('vol-1')
+
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('connections', 'insert')).toBe(false)
+  })
+
+  it('tampoco con un id que no existe', async () => {
+    const mock = setup({
+      responses: {
+        'profiles.select': { data: null },
+        'connections.select': { data: null },
+      },
+    })
+
+    const res = await requestConnection('vol-fantasma')
 
     expect(res.error).toBeTruthy()
     expect(mock.didCall('connections', 'insert')).toBe(false)
