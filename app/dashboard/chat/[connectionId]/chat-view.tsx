@@ -23,6 +23,7 @@ export function ChatView({
   reportedId,
   initialStatus,
   volunteerId,
+  otherDeleted,
 }: {
   connectionId: string
   initialMessages: Message[]
@@ -31,6 +32,8 @@ export function ChatView({
   reportedId: string
   initialStatus: 'pending' | 'accepted' | 'rejected'
   volunteerId: string
+  /** La otra persona se dio de baja: queda para leer, no para escribir. */
+  otherDeleted: boolean
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [content, setContent] = useState('')
@@ -294,8 +297,25 @@ export function ChatView({
         <div ref={bottomRef} />
       </div>
 
-      {/* Rejected state */}
-      {status === 'rejected' ? (
+      {/* La otra persona se dio de baja: la conversación se conserva entera,
+          pero ya no hay nadie al otro lado a quien escribir. Antes esto no
+          existía porque el chat desaparecía sin decir nada. */}
+      {otherDeleted ? (
+        <div className="border-t border-border bg-background px-4 py-5 text-center"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}>
+          <p className="mb-1 text-sm font-medium">{otherAlias} ya no está en metoo</p>
+          <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+            Eliminó su cuenta. Puedes seguir leyendo lo que os escribisteis, pero
+            no se pueden enviar mensajes nuevos.
+          </p>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+          >
+            Volver a Inicio →
+          </Link>
+        </div>
+      ) : status === 'rejected' ? (
         <div className="border-t border-border bg-background px-4 py-5 text-center"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}>
           <p className="mb-3 text-sm text-muted-foreground">Esta conversación ha terminado.</p>

@@ -464,6 +464,7 @@ export type Database = {
           email_notifications_enabled: boolean
           digest_enabled: boolean
           last_digest_at: string | null
+          deleted_at: string | null
           hospital_id: string | null
           id: string
           is_active: boolean
@@ -482,6 +483,7 @@ export type Database = {
           display_name?: string | null
           digest_enabled?: boolean
           last_digest_at?: string | null
+          deleted_at?: string | null
           email_notifications_enabled?: boolean
           hospital_id?: string | null
           id: string
@@ -501,6 +503,7 @@ export type Database = {
           display_name?: string | null
           digest_enabled?: boolean
           last_digest_at?: string | null
+          deleted_at?: string | null
           email_notifications_enabled?: boolean
           hospital_id?: string | null
           id?: string

@@ -192,3 +192,41 @@ describe('sendMessage', () => {
     expect(mock.didCall('messages', 'insert')).toBe(false)
   })
 })
+
+describe('sendMessage: cuando la otra persona se dio de baja', () => {
+  // La conversación se conserva entera para que no se esfume del otro lado,
+  // pero es solo para leerla. Esconder el campo de texto no impide nada: a una
+  // server action se la puede llamar directamente.
+  const BAJA = {
+    status: 'accepted',
+    seeker_id: 'seeker-1',
+    volunteer_id: 'vol-1',
+    seeker: { deleted_at: null },
+    volunteer: { deleted_at: '2026-09-15T10:00:00Z' },
+  }
+
+  it('no deja escribir al que sigue estando', async () => {
+    const mock = setup({ responses: { 'connections.select': { data: BAJA } } })
+
+    const res = await sendMessage('conn-1', 'hola?')
+
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('messages', 'insert')).toBe(false)
+  })
+
+  it('sí deja escribir si quien se fue eres tú mismo visto del otro lado', async () => {
+    // Mismo objeto, mirado desde el voluntario: el seeker sigue de alta, así
+    // que la conversación sigue viva para él.
+    const mock = setup({
+      user: { id: 'vol-1' },
+      responses: {
+        'connections.select': { data: { ...BAJA, volunteer: { deleted_at: null } } },
+      },
+    })
+
+    const res = await sendMessage('conn-1', 'aquí sigo')
+
+    expect(res.success).toBe(true)
+    expect(mock.didCall('messages', 'insert')).toBe(true)
+  })
+})

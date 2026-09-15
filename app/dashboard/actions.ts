@@ -56,6 +56,19 @@ export async function requestConnection(volunteerId: string) {
     return { error: 'No puedes contactar con este usuario' }
   }
 
+  // Quien se da de baja deja su ficha como lápida para no romper las
+  // conversaciones que ya tenía, pero no se le puede empezar una nueva. En los
+  // listados no sale (queda `is_active = false`); esto cubre la llamada directa.
+  const { data: destino } = await supabase
+    .from('profiles')
+    .select('deleted_at')
+    .eq('id', volunteerId)
+    .maybeSingle()
+
+  if (!destino || destino.deleted_at) {
+    return { error: 'Esta persona ya no está en metoo.' }
+  }
+
   // Solo puede haber una conexión por par (lo garantiza connections_unique_pair).
   const { data: existing } = await supabase
     .from('connections')
@@ -273,12 +286,28 @@ export async function sendMessage(connectionId: string, content: string) {
   // Auto-accept if the volunteer replies to a pending request
   const { data: conn } = await supabase
     .from('connections')
-    .select('status, volunteer_id, seeker_id')
+    // El embed va con el nombre de la clave ajena, no con el de la columna:
+    // `connections` apunta dos veces a `profiles` y sin la pista ni PostgREST
+    // ni los tipos generados saben por cuál de las dos entrar.
+    .select(
+      'status, volunteer_id, seeker_id, seeker:profiles!connections_seeker_id_fkey(deleted_at), volunteer:profiles!connections_volunteer_id_fkey(deleted_at)',
+    )
     .eq('id', connectionId)
     .single()
 
   if (!conn || (conn.seeker_id !== user.id && conn.volunteer_id !== user.id)) {
     return { error: 'No autorizado' }
+  }
+
+  // La conversación se conserva cuando la otra persona se da de baja, pero es
+  // solo para leerla. La UI esconde el campo de texto; esto es lo que de
+  // verdad lo impide, porque a una server action se la puede llamar directa.
+  const soyElSeeker = conn.seeker_id === user.id
+  const otraFicha = (soyElSeeker ? conn.volunteer : conn.seeker) as
+    | { deleted_at: string | null }
+    | null
+  if (otraFicha?.deleted_at) {
+    return { error: 'Esta persona ya no está en metoo.' }
   }
 
   // La UI oculta el campo de texto cuando la conversación está cerrada, pero
@@ -289,7 +318,7 @@ export async function sendMessage(connectionId: string, content: string) {
   }
 
   // Bloqueo en cualquiera de los dos sentidos
-  const otherUserId = conn.seeker_id === user.id ? conn.volunteer_id : conn.seeker_id
+  const otherUserId = soyElSeeker ? conn.volunteer_id : conn.seeker_id
   if (!(await canInteractWith(otherUserId))) {
     return { error: 'No puedes enviar mensajes a este usuario' }
   }

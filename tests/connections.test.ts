@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { conversacionesVisibles, otraParte } from '@/lib/connections'
+import {
+  conversacionAbierta,
+  conversacionesVisibles,
+  otraParte,
+  otraParteDeBaja,
+} from '@/lib/connections'
 
 const conexion = (id: string, status: string) => ({
   id,
@@ -54,5 +59,45 @@ describe('otraParte', () => {
 
     expect(otraParte(c, 'seeker')).toBe('vol-1')
     expect(otraParte(c, 'volunteer')).toBe('seeker-1')
+  })
+})
+
+describe('cuando la otra persona se da de baja', () => {
+  const conBaja = (status = 'accepted') => ({
+    ...conexion('a', status),
+    volunteer: { alias: 'ana', deleted_at: '2026-09-15T10:00:00Z' },
+    seeker: { alias: 'luis', deleted_at: null },
+  })
+
+  it('la conversación NO desaparece', () => {
+    // Es el punto entero del cambio: antes el ON DELETE CASCADE se llevaba la
+    // conexión y los mensajes, y al otro lado el chat se esfumaba sin que
+    // supieras si te habían bloqueado o si era un fallo.
+    expect(conversacionesVisibles([conBaja()], 'seeker', [])).toHaveLength(1)
+  })
+
+  it('se reconoce quién se fue, según desde qué lado se mire', () => {
+    expect(otraParteDeBaja(conBaja(), 'seeker')).toBe(true)
+    expect(otraParteDeBaja(conBaja(), 'volunteer')).toBe(false)
+  })
+
+  it('no se puede seguir escribiendo', () => {
+    expect(conversacionAbierta(conBaja(), 'seeker')).toBe(false)
+    expect(conversacionAbierta(conBaja(), 'volunteer')).toBe(true)
+  })
+
+  it('una conversación normal sigue abierta, y una rechazada no', () => {
+    const viva = { ...conexion('a', 'accepted'), volunteer: { alias: 'ana', deleted_at: null } }
+    const cerrada = { ...conexion('b', 'rejected'), volunteer: { alias: 'ana', deleted_at: null } }
+
+    expect(conversacionAbierta(viva, 'seeker')).toBe(true)
+    expect(conversacionAbierta(cerrada, 'seeker')).toBe(false)
+  })
+
+  it('sin ficha de la otra parte no se da por muerta la conversación', () => {
+    // Las consultas antiguas no piden `deleted_at`; que falte el dato no puede
+    // cerrar el chat de nadie.
+    expect(otraParteDeBaja(conexion('a', 'accepted'), 'seeker')).toBe(false)
+    expect(conversacionAbierta(conexion('a', 'accepted'), 'seeker')).toBe(true)
   })
 })
