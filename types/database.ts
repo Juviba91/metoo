@@ -126,6 +126,12 @@ export type Database = {
           },
         ]
       }
+      digest_tokens: {
+        Row: { profile_id: string; token: string }
+        Insert: { profile_id: string; token?: string }
+        Update: { profile_id?: string; token?: string }
+        Relationships: []
+      }
       email_queue: {
         Row: {
           created_at: string
@@ -458,7 +464,6 @@ export type Database = {
           email_notifications_enabled: boolean
           digest_enabled: boolean
           last_digest_at: string | null
-          digest_token: string
           hospital_id: string | null
           id: string
           is_active: boolean
@@ -477,7 +482,6 @@ export type Database = {
           display_name?: string | null
           digest_enabled?: boolean
           last_digest_at?: string | null
-          digest_token?: string
           email_notifications_enabled?: boolean
           hospital_id?: string | null
           id: string
@@ -497,7 +501,6 @@ export type Database = {
           display_name?: string | null
           digest_enabled?: boolean
           last_digest_at?: string | null
-          digest_token?: string
           email_notifications_enabled?: boolean
           hospital_id?: string | null
           id?: string

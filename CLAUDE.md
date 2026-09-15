@@ -135,6 +135,14 @@ SELECT p.alias, u.email, u.last_sign_in_at
   (patrón en `components/dashboard-matches.tsx` y `app/feed/post-list.tsx`).
 - Los helpers de test comparten `spec` con spread: `...spec` va **antes** de
   `responses`, o machaca las respuestas por defecto y deja el test vacío.
+- **`REVOKE SELECT (columna)` no hace nada si el rol tiene `SELECT` sobre la
+  tabla entera.** Revocar a nivel de columna solo cancela concesiones de
+  columna. Se creyó protegido así el token de baja y cualquiera con sesión
+  podía leerlo. Comprobar siempre con
+  `has_column_privilege('authenticated','public.tabla','col','SELECT')`, no dar
+  por hecho que el REVOKE surtió efecto. Lo que sí funciona para un dato
+  sensible: tabla aparte con RLS y sin políticas, como `email_queue` o
+  `digest_tokens`.
 - **`supabase/functions/_shared/email.ts` lo importan los tests de Node**
   (`tests/pure.test.ts` usa `escapeHtml`). `tsconfig` excluye
   `supabase/functions`, pero eso no vale para un fichero que alguien importa:
