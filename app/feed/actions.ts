@@ -3,12 +3,10 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, getHiddenUserIds } from '@/app/safety/actions'
-import { toSlug, toLabel } from '@/lib/slug'
+import { toSlug, toLabel, hashtagValido } from '@/lib/slug'
 
 /** Cuántas etiquetas distintas se dan de alta como mucho por publicación. */
 const MAX_HASHTAGS_POR_POST = 5
-/** Longitud máxima de una etiqueta, en caracteres. */
-const MAX_LONGITUD_HASHTAG = 40
 
 export async function createPost(content: string): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
@@ -41,33 +39,26 @@ export async function createPost(content: string): Promise<{ success?: boolean; 
     // guion bajo es la única forma de unir dos palabras, pero eso es cómo se
     // escribe, no cómo se lee.
     const label = toLabel(match.slice(1))
-    // Una etiqueta larguísima no la busca nadie y afea las sugerencias.
-    if (label.length > MAX_LONGITUD_HASHTAG) continue
-
     const slug = toSlug(label)
-    if (!slug || slugsVistos.has(slug)) continue
+
+    // Una etiqueta larguísima no la busca nadie y afea las sugerencias. Se
+    // descarta aquí, con las mismas reglas que aplica la base: allí saltárselas
+    // es una excepción, y un `#` raro no puede tumbar la publicación entera.
+    if (!hashtagValido(slug, label)) continue
+    if (slugsVistos.has(slug)) continue
     if (slugsVistos.size >= MAX_HASHTAGS_POR_POST) break
     slugsVistos.add(slug)
 
-    // `ignoreDuplicates` se traduce a ON CONFLICT DO NOTHING, y esa forma no
-    // devuelve la fila en conflicto: para un hashtag que YA existe (los de la
-    // lista curada, o cualquiera ya usado antes) el upsert no devuelve nada.
-    // Sin el fallback el post quedaba sin enlazar y no aparecía al filtrar.
-    let { data: hashtag } = await supabase
-      .from('hashtags')
-      .upsert({ slug, label }, { onConflict: 'slug', ignoreDuplicates: true })
-      .select('id')
-      .maybeSingle()
+    // Por RPC: la tabla ya no acepta INSERT desde fuera, y la función devuelve
+    // la fila tanto si la etiqueta ya existía como si acaba de crearla. Antes
+    // esto era un upsert con `ignoreDuplicates` (ON CONFLICT DO NOTHING, que
+    // NO devuelve la fila en conflicto) más una relectura de respaldo.
+    const { data: creado } = await supabase.rpc('crear_hashtag', {
+      p_slug: slug,
+      p_label: label,
+    })
 
-    if (!hashtag) {
-      const { data: existing } = await supabase
-        .from('hashtags')
-        .select('id')
-        .eq('slug', slug)
-        .maybeSingle()
-      hashtag = existing
-    }
-
+    const hashtag = (Array.isArray(creado) ? creado[0] : creado) as { id: string } | null | undefined
     if (!hashtag) continue
 
     const { error: phError } = await supabase

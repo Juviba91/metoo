@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient, getUser } from '@/lib/supabase/server'
-import { toSlug, toLabel } from '@/lib/slug'
+import { toSlug, toLabel, hashtagValido, MAX_LONGITUD_HASHTAG } from '@/lib/slug'
 
 /** Lo mismo que el `maxLength` del textarea de la burbuja de feedback. */
 const MAX_FEEDBACK = 1000
@@ -61,29 +61,27 @@ export async function createHashtag(
   // Misma normalización que en el feed: la etiqueta acaba en la misma tabla y
   // en la misma pantalla, venga de un post o del editor de perfil. El slug se
   // calcula con `toSlug`, que hasta ahora estaba copiado aquí a mano.
-  const trimmed = toLabel(label).slice(0, 50)
+  const trimmed = toLabel(label).slice(0, MAX_LONGITUD_HASHTAG)
   if (!trimmed) return { error: 'Hashtag vacío' }
 
   const slug = toSlug(trimmed)
-  if (!slug) return { error: 'Hashtag no válido' }
+  if (!hashtagValido(slug, trimmed)) return { error: 'Hashtag no válido' }
 
-  // Upsert: if slug exists return it, otherwise insert
-  const { data, error } = await supabase
-    .from('hashtags')
-    .upsert({ slug, label: trimmed }, { onConflict: 'slug', ignoreDuplicates: true })
-    .select('id, slug, label')
-    .single()
+  // Por RPC, no con un INSERT directo: la tabla ya no acepta escrituras desde
+  // fuera. La función comprueba la forma, gasta rate limit solo si la etiqueta
+  // es nueva de verdad, y devuelve la fila exista ya o se acabe de crear —el
+  // `ON CONFLICT DO NOTHING` no la devolvía y había que releerla a mano.
+  const { data, error } = await supabase.rpc('crear_hashtag', {
+    p_slug: slug,
+    p_label: trimmed,
+  })
 
-  if (error || !data) {
-    // Fallback: fetch the existing row if upsert returned no data
-    const { data: existing } = await supabase
-      .from('hashtags')
-      .select('id, slug, label')
-      .eq('slug', slug)
-      .single()
-    if (existing) return { hashtag: existing }
-    return { error: error?.message || 'Error al crear hashtag' }
-  }
+  const fila = (Array.isArray(data) ? data[0] : data) as
+    | { id: string; slug: string; label: string }
+    | null
+    | undefined
 
-  return { hashtag: data }
+  if (!fila) return { error: error?.message || 'Error al crear hashtag' }
+
+  return { hashtag: fila }
 }

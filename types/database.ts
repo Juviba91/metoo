@@ -611,6 +611,10 @@ export type Database = {
         Returns: { alias: string; activo: boolean }[]
       }
       get_pending_count: { Args: Record<string, never>; Returns: number }
+      crear_hashtag: {
+        Args: { p_slug: string; p_label: string }
+        Returns: { id: string; slug: string; label: string }[]
+      }
       voluntarios_a_avisar: {
         Args: { p_dias?: number }
         Returns: { volunteer_id: string; esperando: number; etiquetas: string[] }[]
