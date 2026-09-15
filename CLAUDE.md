@@ -46,9 +46,23 @@ falta solo porque no esté en los ficheros — compruébalo contra `pg_policies`
 `information_schema`. (Un aviso de "falta la política INSERT de hashtags"
 resultó ser falsa alarma justo por esto.)
 
-**La migración se aplica ANTES de desplegar.** Si el código pide una columna
-que aún no existe, las páginas revientan. Al abrir un PR que necesite
-migración, dilo en el cuerpo y verifica que está aplicada antes de mergear.
+**La migración se aplica ANTES de mergear, no después.** No basta con avisarlo
+en el cuerpo del PR: hay que ver la columna en la base antes de tocar el botón.
+Esta regla ya estaba escrita aquí y se saltó igual, así que lo importante es
+reconocer el síntoma.
+
+**No parece un error de base de datos.** Si el código pide una columna que aún
+no existe, PostgREST rechaza la consulta ENTERA y devuelve `data: null`. Y
+`null` es lo mismo que devuelve un usuario sin perfil, así que la app hace lo
+que hace siempre en ese caso: `redirect('/onboarding')`. El usuario ve "crea tu
+perfil" en vez de un fallo, y parece que se han perdido los datos.
+
+Pasó exactamente así con `digest_enabled`: PR mergeado, SQL sin pegar, y el
+dueño de la app sin poder entrar en su propio perfil.
+
+Corolario: **un `select('*')` es una bomba de relojería** con permisos por
+columna. Si se revoca la lectura de una sola columna, `*` tumba la consulta
+entera. Pide las columnas que uses.
 
 ### Datos de prueba
 
@@ -107,8 +121,12 @@ SELECT p.alias, u.email, u.last_sign_in_at
 - **`staleTimes.dynamic` vale 0 por defecto en Next 16**: sin configurarlo,
   volver a una pestaña la renderiza entera en el servidor otra vez. Está a 30 s
   en `next.config.mjs`.
-- **`<Link>` precarga por defecto**: la barra inferior disparaba cuatro renders
-  completos en el servidor por cada carga. Va con `prefetch={false}`.
+- **En rutas dinámicas, el prefetch por defecto de `<Link>` solo trae el
+  esqueleto del `loading.tsx`, no el contenido.** Por eso al medirlo parecía
+  inútil y se puso `prefetch={false}` — medición correcta, conclusión
+  incompleta. Hay que poner `prefetch` (o `prefetch={true}`) explícito. Medido a
+  140 ms de latencia, con datos que tardan 250 ms: `false` 376 ms, por defecto
+  370 ms, explícito **95 ms**. Las cuatro pestañas lo llevan.
 - **El cliente de navegador de Supabase arrastra el SDK entero** (realtime,
   websockets, storage). Solo se usa en el chat, que sí necesita realtime; el
   resto de auth va por server actions.
@@ -128,14 +146,22 @@ SELECT p.alias, u.email, u.last_sign_in_at
 
 ## Rendimiento
 
-La base de datos no es el cuello de botella (23 perfiles, consultas de ~0,1 ms)
-y Vercel y Supabase están los dos en `us-east-1`. Lo que sí pesaba: renders de
-más en el servidor y JavaScript de más en el móvil. Si vuelve a ir lento, mide
-antes de tocar: cuenta peticiones al servidor y kilobytes de JS con el
-navegador, y usa contexto limpio por ruta (si comparten caché, los números
+La base de datos no es el cuello de botella (un puñado de perfiles, consultas
+de ~0,1 ms). Lo que pesa es la geografía y la forma de las peticiones. Mide
+antes de tocar, y con contexto limpio por ruta (si comparten caché, los números
 mienten).
 
-Queda pendiente una validación de sesión duplicada por carga: el middleware
-llama a `auth.getUser()` (que va por red) y la página la repite. `getClaims()`
-la haría en local, pero solo con claves JWT asimétricas; con HS256 heredada
-vuelve a la llamada de red.
+**Cuidado al emular latencia con Chrome: no la aplica a `localhost`.** Una
+medición dio lo mismo con 0 ms que con 60 ms. Hay que servir por la IP de red y
+comprobar el emulador aparte (2000 ms declarados deben dar ~8 s de carga).
+
+Lo confirmado en los logs de producción: cada navegación son **dos invocaciones
+serverless**, `serverless-middleware` y luego `serverless`, que arrancan en frío
+por separado y validan la sesión contra Supabase por red cada una.
+
+Queda pendiente quitar esa validación duplicada: `getClaims()` la haría en
+local, pero solo con claves JWT asimétricas; con HS256 heredada vuelve a la
+llamada de red. Es un botón en Supabase → Settings → JWT Keys.
+
+Lo estructural que no tiene arreglo en código: plan hobby, región única en
+Virginia, usuarios en España.
