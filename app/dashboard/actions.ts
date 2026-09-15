@@ -3,7 +3,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, canInteractWith } from '@/app/safety/actions'
-import { sanitizeModes, sanitizeStage } from '@/lib/profile-fields'
+import { sanitizeModes, sanitizeStage, validarTextos } from '@/lib/profile-fields'
 
 export async function acceptConnection(connectionId: string): Promise<void> {
   const supabase = await createClient()
@@ -122,12 +122,15 @@ export async function updateProfile({
   const user = await getUser()
   if (!user) return { error: 'No autenticado' }
 
+  const textos = validarTextos({ alias, city, bio })
+  if (!textos.ok) return { error: textos.error }
+
   const { error } = await supabase
     .from('profiles')
     .update({
-      alias: alias.trim(),
-      city: city.trim(),
-      bio: bio.trim() || null,
+      alias: textos.valores.alias,
+      city: textos.valores.city,
+      bio: textos.valores.bio,
       // Se validan contra el vocabulario en vez de confiar en el cliente: la
       // restricción CHECK de la tabla rechazaría lo inventado, pero con un
       // error de base de datos en vez de un guardado limpio.

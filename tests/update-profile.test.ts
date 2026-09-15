@@ -80,3 +80,34 @@ describe('updateProfile: sync de hashtags', () => {
     expect(mock.didCall('profile_hashtags', 'delete')).toBe(true)
   })
 })
+
+describe('updateProfile: límites de los campos de texto', () => {
+  it('no escribe nada si la bio pasa del límite', async () => {
+    const mock = setup()
+
+    const res = await updateProfile({
+      alias: 'Ana',
+      city: 'Madrid',
+      bio: 'x'.repeat(301),
+      hashtags: TAGS,
+    })
+
+    // El `maxLength` del formulario no lo ve quien llama a la server action
+    // directamente, y la columna `bio` no tiene límite en la base.
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('profiles', 'update')).toBe(false)
+    expect(mock.didCall('profile_hashtags', 'upsert')).toBe(false)
+  })
+
+  it('guarda el alias recortado', async () => {
+    const mock = setup()
+
+    await updateProfile({ alias: '  Ana  ', city: ' Madrid ', bio: '  ', hashtags: [] })
+
+    expect(mock.payloadOf('profiles', 'update')).toMatchObject({
+      alias: 'Ana',
+      city: 'Madrid',
+      bio: null,
+    })
+  })
+})

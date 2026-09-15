@@ -28,9 +28,12 @@ export default async function DashboardPage() {
   const [{ data: profile }, hiddenIds] = await Promise.all([
     supabase
       .from('profiles')
-      // Las columnas que se usan, no `*`. Además de traer de menos por la red,
-      // `*` incluye `digest_token`, cuya lectura está revocada para el cliente:
-      // con `*` esta consulta fallaría entera y el inicio no cargaría.
+      // Las columnas que se usan, no `*`. Además de traer de menos por la
+      // red, `*` ata esta consulta a todas las columnas de la tabla: basta con
+      // que una sea nueva y aún no esté migrada, o que tenga la lectura
+      // revocada, para que PostgREST rechace la consulta entera y devuelva
+      // `null` — que es lo mismo que devuelve un usuario sin perfil, así que
+      // el inicio te manda al onboarding en vez de cargar.
       .select('role, alias, city, bio, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),

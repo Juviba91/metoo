@@ -7,6 +7,7 @@ import { ArrowRight, Heart } from 'lucide-react'
 import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
 import { completeOnboarding } from './actions'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
+import { LIMITES } from '@/lib/profile-fields'
 import Link from 'next/link'
 import { track } from '@vercel/analytics/react'
 import { Logo } from '@/components/logo'
@@ -317,7 +318,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
                 placeholder="Ej: luna_azul, padre_fuerte..."
                 value={alias}
                 onChange={(e) => setAlias(e.target.value)}
-                maxLength={30}
+                maxLength={LIMITES.alias}
                 className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
               />
               <p className="mt-1 text-xs text-muted-foreground">
@@ -331,6 +332,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
                 placeholder="Ej: Barcelona, Madrid, Valencia..."
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
+                maxLength={LIMITES.city}
                 className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
               />
             </div>
@@ -346,12 +348,12 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
                 }
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                maxLength={300}
+                maxLength={LIMITES.bio}
                 rows={3}
                 className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                {bio.length}/300 — se ve en tu perfil, al buscar personas como tú
+                {bio.length}/{LIMITES.bio} — se ve en tu perfil, al buscar personas como tú
               </p>
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
