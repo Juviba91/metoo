@@ -83,9 +83,17 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             <div>
               <p className="mb-1 font-semibold text-foreground">Personas reales, no profesionales</p>
               <p>
-                Los voluntarios comparten su experiencia vivida, no son psicólogos ni terapeutas.
-                Si lo necesitas, el{' '}
-                <strong className="text-foreground">024</strong> te escucha.
+                Los voluntarios comparten su experiencia vivida, no son psicólogos ni terapeutas, y
+                no comprobamos la historia de nadie. Esto no sustituye a tu médico.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-destructive">Aquí no hay nadie de guardia</p>
+              <p>
+                Nadie vigila los mensajes y puede que tarden días en contestarte. Si estás en
+                peligro o pensando en quitarte la vida, llama al{' '}
+                <strong className="text-foreground">024</strong> (gratuito, 24 h) o al{' '}
+                <strong className="text-foreground">112</strong>. Escribir aquí no avisa a nadie.
               </p>
             </div>
             <div>
@@ -118,6 +126,10 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               onChange={(e) => setAccepted(e.target.checked)}
               className="mt-0.5 size-4 shrink-0 accent-foreground"
             />
+            {/* El consentimiento del art. 9 RGPD (datos de salud) tiene que ser
+                explícito, y la política de privacidad dice que se da aquí. Antes
+                esta casilla solo nombraba las normas de la comunidad, así que lo
+                que la política afirmaba recoger no se estaba recogiendo. */}
             <span className="text-sm text-muted-foreground">
               He leído y acepto las{' '}
               <Link
@@ -127,6 +139,24 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               >
                 normas de la comunidad
               </Link>
+              {', los '}
+              <Link
+                href="/terminos"
+                target="_blank"
+                className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
+              >
+                términos de uso
+              </Link>
+              {' y la '}
+              <Link
+                href="/privacidad"
+                target="_blank"
+                className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
+              >
+                política de privacidad
+              </Link>
+              . Entiendo que lo que escriba puede hablar de mi salud y doy mi
+              consentimiento para que se trate con esa finalidad.
             </span>
           </label>
 
