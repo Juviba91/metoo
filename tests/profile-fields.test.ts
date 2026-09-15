@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import {
+  LIMITES,
   modeLabels,
   modeOptions,
   sanitizeModes,
   sanitizeStage,
   stageLabel,
   stageOptions,
+  validarTextos,
 } from '@/lib/profile-fields'
 
 describe('saneado antes de guardar', () => {
@@ -73,5 +75,40 @@ describe('etiquetas para pintar', () => {
   it('ignora un valor guardado que ya no exista en el vocabulario', () => {
     expect(stageLabel('seeker', 'retirado_del_menu')).toBeNull()
     expect(modeLabels('volunteer', ['escuchar', 'retirado'])).toEqual(['Escuchar sin juzgar'])
+  })
+})
+
+describe('validación de los campos de texto', () => {
+  const ok = { alias: 'Ana', city: 'Madrid', bio: 'Pasé por lo mismo.' }
+
+  it('recorta los espacios y deja la bio vacía como null', () => {
+    const res = validarTextos({ alias: '  Ana  ', city: ' Madrid ', bio: '   ' })
+    expect(res).toEqual({ ok: true, valores: { alias: 'Ana', city: 'Madrid', bio: null } })
+  })
+
+  it('acepta lo que cabe justo en el límite', () => {
+    const res = validarTextos({ ...ok, bio: 'x'.repeat(LIMITES.bio) })
+    expect(res.ok).toBe(true)
+  })
+
+  it('rechaza un alias vacío', () => {
+    // El formulario lo pide con `required`, pero una server action es un
+    // endpoint: se puede llamar sin pasar por el formulario.
+    expect(validarTextos({ ...ok, alias: '   ' })).toMatchObject({ ok: false })
+  })
+
+  it('rechaza textos más largos que el límite del formulario', () => {
+    // La base no tiene límite de longitud en estas columnas, así que sin esto
+    // una bio de 50.000 caracteres se guardaba y se pintaba en las tarjetas de
+    // búsqueda de todo el mundo.
+    expect(validarTextos({ ...ok, alias: 'x'.repeat(LIMITES.alias + 1) })).toMatchObject({ ok: false })
+    expect(validarTextos({ ...ok, city: 'x'.repeat(LIMITES.city + 1) })).toMatchObject({ ok: false })
+    expect(validarTextos({ ...ok, bio: 'x'.repeat(LIMITES.bio + 1) })).toMatchObject({ ok: false })
+  })
+
+  it('el error es legible, no el de Postgres', () => {
+    const res = validarTextos({ ...ok, bio: 'x'.repeat(LIMITES.bio + 1) })
+    expect(res.ok).toBe(false)
+    if (!res.ok) expect(res.error).toContain(String(LIMITES.bio))
   })
 })

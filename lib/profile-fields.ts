@@ -79,3 +79,44 @@ export function sanitizeModes(values: unknown): string[] {
   if (!Array.isArray(values)) return []
   return [...new Set(values.filter((v): v is string => typeof v === 'string' && ALL_MODE_VALUES.includes(v)))]
 }
+
+/**
+ * Límites de los campos de texto del perfil.
+ *
+ * Los mismos que pone el navegador (`maxLength` en el formulario y en el
+ * onboarding). Aquí también porque una server action es un endpoint: el
+ * `maxLength` del input no lo ve nadie que llame directamente, y la base no
+ * tiene límite de longitud en estas columnas.
+ *
+ * Importa más de lo que parece: la bio y el alias se pintan en las tarjetas de
+ * búsqueda de todo el mundo, y el alias viaja además en el asunto de los
+ * correos.
+ */
+export const LIMITES = { alias: 30, city: 60, bio: 300 } as const
+
+export type CamposTexto = { alias: string; city: string; bio: string }
+
+/**
+ * Recorta y valida los campos de texto. Devuelve un error legible, no el de
+ * Postgres, que no le dice nada a quien está rellenando el formulario.
+ */
+export function validarTextos({ alias, city, bio }: CamposTexto):
+  | { ok: true; valores: { alias: string; city: string; bio: string | null } }
+  | { ok: false; error: string } {
+  const a = (alias ?? '').trim()
+  const c = (city ?? '').trim()
+  const b = (bio ?? '').trim()
+
+  if (!a) return { ok: false, error: 'El alias no puede estar vacío.' }
+  if (a.length > LIMITES.alias) {
+    return { ok: false, error: `El alias no puede pasar de ${LIMITES.alias} caracteres.` }
+  }
+  if (c.length > LIMITES.city) {
+    return { ok: false, error: `La ciudad no puede pasar de ${LIMITES.city} caracteres.` }
+  }
+  if (b.length > LIMITES.bio) {
+    return { ok: false, error: `La descripción no puede pasar de ${LIMITES.bio} caracteres.` }
+  }
+
+  return { ok: true, valores: { alias: a, city: c, bio: b || null } }
+}

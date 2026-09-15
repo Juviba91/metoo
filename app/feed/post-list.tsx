@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
 import { toggleReaction, fetchMorePosts } from './actions'
+import { fusionarPosts } from '@/lib/feed'
 
 type Hashtag = { id: string; slug: string; label: string }
 
@@ -84,12 +85,22 @@ export function PostList({
   // useState se ignora en los re-renders, así que el post recién creado no
   // aparecía hasta recargar la página entera. Se resincroniza durante el
   // render (mismo patrón que dashboard-matches) en vez de con un efecto.
+  //
+  // Se fusiona en vez de sustituir: el servidor solo manda la primera página y
+  // `toggleReaction` también revalida, así que meter su lista tal cual hacía
+  // que dar a un corazón te devolviera al principio del feed. `hasMore` se
+  // deja tal y como estaba si hay páginas cargadas, porque entonces la
+  // longitud que llega es la de la primera página, no la de lo que se ve.
   const [prevInitial, setPrevInitial] = useState(initialPosts)
   if (prevInitial !== initialPosts) {
     setPrevInitial(initialPosts)
-    setPosts(initialPosts)
-    setReactions(reactionsOf(initialPosts))
-    setHasMore(initialPosts.length >= initialLimit)
+    const fusion = fusionarPosts(initialPosts, posts)
+    setPosts(fusion)
+    // Solo se refrescan los corazones de los posts que manda el servidor: los
+    // de las páginas de más abajo se quedan como estaban, que si no una
+    // reacción tuya en uno de ellos se veía volver atrás sola.
+    setReactions(reactionsOf(initialPosts, reactions))
+    if (fusion.length <= initialPosts.length) setHasMore(initialPosts.length >= initialLimit)
   }
 
   async function handleLoadMore() {

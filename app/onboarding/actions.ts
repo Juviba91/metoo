@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient, getUser } from '@/lib/supabase/server'
-import { sanitizeModes, sanitizeStage } from '@/lib/profile-fields'
+import { sanitizeModes, sanitizeStage, validarTextos } from '@/lib/profile-fields'
 
 export type HashtagInput = { id: string; slug: string; label: string }
 
@@ -27,13 +27,16 @@ export async function completeOnboarding({
 
   if (!user) return { error: 'No autenticado' }
 
+  const textos = validarTextos({ alias, city, bio })
+  if (!textos.ok) return { error: textos.error }
+
   const { error: profileError } = await supabase.from('profiles').insert({
     id: user.id,
-    alias: alias.trim(),
+    alias: textos.valores.alias,
     role,
-    city: city.trim(),
+    city: textos.valores.city,
     country: 'ES',
-    bio: bio.trim() || null,
+    bio: textos.valores.bio,
     stage: sanitizeStage(stage),
     support_modes: sanitizeModes(supportModes),
   })

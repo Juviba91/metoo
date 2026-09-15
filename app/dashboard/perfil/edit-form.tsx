@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { updateProfile } from '@/app/dashboard/actions'
 import { HashtagPicker, HashtagOption } from '@/components/hashtag-picker'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
+import { LIMITES } from '@/lib/profile-fields'
 import { Check } from 'lucide-react'
 
 export function EditForm({
@@ -94,7 +95,7 @@ export function EditForm({
           type="text"
           value={alias}
           onChange={(e) => setAlias(e.target.value)}
-          maxLength={30}
+          maxLength={LIMITES.alias}
           required
           className={inputClass}
         />
@@ -107,6 +108,7 @@ export function EditForm({
           type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          maxLength={LIMITES.city}
           required
           className={inputClass}
         />
@@ -119,7 +121,7 @@ export function EditForm({
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          maxLength={300}
+          maxLength={LIMITES.bio}
           rows={4}
           placeholder={
             role === 'volunteer'
@@ -128,7 +130,7 @@ export function EditForm({
           }
           className={`${inputClass} resize-none`}
         />
-        <p className="mt-1 text-xs text-muted-foreground">{bio.length}/300</p>
+        <p className="mt-1 text-xs text-muted-foreground">{bio.length}/{LIMITES.bio}</p>
       </div>
 
       <div>

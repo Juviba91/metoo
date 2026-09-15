@@ -65,13 +65,16 @@ Deno.serve(async (req: Request) => {
       continue
     }
 
-    const { data: perfil } = await supabase
-      .from('profiles')
-      .select('alias, digest_token')
-      .eq('id', fila.volunteer_id)
+    // El token vive en `digest_tokens`, no en `profiles`: como columna se podía
+    // leer con cualquier sesión, porque revocar una columna suelta no cancela
+    // el SELECT concedido sobre la tabla entera.
+    const { data: fila_token } = await supabase
+      .from('digest_tokens')
+      .select('token')
+      .eq('profile_id', fila.volunteer_id)
       .single()
 
-    const urlBaja = `${APP_URL}/baja/${perfil?.digest_token}`
+    const urlBaja = `${APP_URL}/baja/${fila_token?.token}`
     const gente = fila.esperando === 1 ? 'una persona' : `${fila.esperando} personas`
     const verbo = fila.esperando === 1 ? 'está buscando' : 'están buscando'
 

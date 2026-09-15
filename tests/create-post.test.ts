@@ -23,19 +23,12 @@ vi.mock('@/app/safety/actions', () => ({
 const { createPost } = await import('@/app/feed/actions')
 
 /**
- * `upsert(..., { ignoreDuplicates: true })` se traduce a
- * `ON CONFLICT DO NOTHING`, y en Postgres esa forma NO devuelve las filas en
- * conflicto por RETURNING. Verificado contra Postgres 17:
- *
- *   INSERT ... ON CONFLICT (slug) DO NOTHING RETURNING id  -> 0 filas
- *
- * Así que `.select('id').single()` sobre un hashtag YA EXISTENTE falla con
- * PGRST116 en vez de devolver el hashtag.
+ * `crear_hashtag` devuelve SETOF, así que PostgREST manda un array. Da igual
+ * que la etiqueta ya existiera o se acabe de crear: la función relee la fila
+ * antes de devolverla, que es justo lo que antes había que parchear a mano en
+ * cada sitio (`ON CONFLICT DO NOTHING` no devuelve la fila en conflicto).
  */
-const NO_ROWS = {
-  data: null,
-  error: { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' },
-}
+const HASHTAG_OK = { data: [{ id: 'ht-1', slug: 'x', label: 'X' }] }
 
 function setup(spec: MockSpec = {}) {
   state.mock = createSupabaseMock({
@@ -45,19 +38,26 @@ function setup(spec: MockSpec = {}) {
       'posts.insert': { data: { id: 'post-1' } },
       ...spec.responses,
     },
+    rpc: { crear_hashtag: HASHTAG_OK, ...spec.rpc },
   })
   return state.mock
 }
+
+const enlaces = (mock: ReturnType<typeof createSupabaseMock>) =>
+  mock.calls.filter((c) => c.table === 'post_hashtags' && c.op === 'upsert').length
+
+const etiquetasPedidas = (mock: ReturnType<typeof createSupabaseMock>) =>
+  mock.rpcCalls
+    .filter((c) => c.name === 'crear_hashtag')
+    .map((c) => (c.args as { p_slug: string }).p_slug)
 
 beforeEach(() => {
   vi.clearAllMocks()
 })
 
 describe('createPost: enlazado de hashtags', () => {
-  it('enlaza un hashtag NUEVO (el upsert sí devuelve fila)', async () => {
-    const mock = setup({
-      responses: { 'hashtags.upsert': { data: { id: 'ht-nuevo' } } },
-    })
+  it('enlaza la etiqueta que devuelve la base', async () => {
+    const mock = setup()
 
     const result = await createPost('Mi primera vez #EsteEsNuevo')
 
@@ -65,30 +65,36 @@ describe('createPost: enlazado de hashtags', () => {
     expect(mock.didCall('post_hashtags', 'upsert')).toBe(true)
   })
 
-  it('enlaza un hashtag YA EXISTENTE (p.ej. #Cáncer, de la lista curada)', async () => {
+  it('no escribe en `hashtags` directamente', async () => {
+    // La tabla ya no acepta INSERT desde fuera: su política `WITH CHECK (true)`
+    // dejaba a cualquiera con sesión llenar de basura el catálogo común, que es
+    // el que se ofrece como sugerencia a todo el mundo.
+    const mock = setup()
+
+    await createPost('Hablo de mi experiencia con #Cáncer')
+
+    expect(mock.didCall('hashtags', 'upsert')).toBe(false)
+    expect(mock.didCall('hashtags', 'insert')).toBe(false)
+    expect(etiquetasPedidas(mock)).toEqual(['cancer'])
+  })
+
+  it('sigue publicando aunque la etiqueta no se pueda crear', async () => {
+    // Pasa de verdad al llegar al tope de etiquetas nuevas por hora: la RPC
+    // devuelve error. El post ya está escrito y no se pierde por eso.
     const mock = setup({
-      responses: {
-        // El slug 'cancer' ya existe -> DO NOTHING -> 0 filas
-        'hashtags.upsert': NO_ROWS,
-        // ...pero la fila está en la tabla y una SELECT sí la encuentra
-        'hashtags.select': { data: { id: 'ht-cancer' } },
-      },
+      rpc: { crear_hashtag: { data: null, error: { message: 'Has creado demasiadas etiquetas nuevas.' } } },
     })
 
-    const result = await createPost('Hablo de mi experiencia con #Cáncer')
+    const result = await createPost('Sigo adelante #EtiquetaNueva')
 
     expect(result.success).toBe(true)
-    // El post debe quedar enlazado al hashtag existente para ser encontrable
-    expect(mock.didCall('post_hashtags', 'upsert')).toBe(true)
+    expect(enlaces(mock)).toBe(0)
   })
 })
 
 describe('createPost: límites del catálogo de hashtags', () => {
-  const enlaces = (mock: ReturnType<typeof createSupabaseMock>) =>
-    mock.calls.filter((c) => c.table === 'post_hashtags' && c.op === 'upsert').length
-
   it('no da de alta más de cinco etiquetas por publicación', async () => {
-    const mock = setup({ responses: { 'hashtags.upsert': { data: { id: 'ht-1' } } } })
+    const mock = setup()
 
     await createPost('#uno #dos #tres #cuatro #cinco #seis #siete #ocho #nueve #diez')
 
@@ -96,18 +102,28 @@ describe('createPost: límites del catálogo de hashtags', () => {
   })
 
   it('no cuenta dos veces la misma etiqueta repetida', async () => {
-    const mock = setup({ responses: { 'hashtags.upsert': { data: { id: 'ht-1' } } } })
+    const mock = setup()
 
     await createPost('#duelo hoy ha sido duro #duelo y mañana también #Duelo')
 
     expect(enlaces(mock)).toBe(1)
   })
 
-  it('descarta etiquetas absurdamente largas', async () => {
-    const mock = setup({ responses: { 'hashtags.upsert': { data: { id: 'ht-1' } } } })
+  it('descarta etiquetas absurdamente largas antes de llamar a la base', async () => {
+    const mock = setup()
 
     await createPost(`#${'a'.repeat(60)} #cancer`)
 
-    expect(enlaces(mock)).toBe(1)
+    expect(etiquetasPedidas(mock)).toEqual(['cancer'])
+  })
+
+  it('descarta una etiqueta de una sola letra', async () => {
+    // La base exige dos caracteres. Si no se filtrase aquí, la RPC lanzaría
+    // una excepción por cada `#a` suelto de una publicación.
+    const mock = setup()
+
+    await createPost('#a #cancer')
+
+    expect(etiquetasPedidas(mock)).toEqual(['cancer'])
   })
 })
