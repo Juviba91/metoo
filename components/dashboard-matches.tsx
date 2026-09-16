@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { opcionesDeHashtag } from '@/lib/temas'
 import { MapPin, Search } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
 import { modeLabels, stageLabel } from '@/lib/profile-fields'
@@ -39,6 +40,17 @@ export function DashboardMatches({
   const [activeHashtag, setActiveHashtag] = useState<string | null>(initialHashtag)
   const [visibleCount, setVisibleCount] = useState(12)
 
+  // `useState(initialHashtag)` se queda con el primer valor y NO ve los nuevos:
+  // yendo de /temas al inicio con un tema, volviendo y entrando con otro, la
+  // ruta es la misma y React reutiliza el componente, así que seguías viendo
+  // filtrado el tema anterior. Es la trampa de siempre; se resincroniza en el
+  // render, como en post-list y dashboard-matches.
+  const [prevInitialHashtag, setPrevInitialHashtag] = useState(initialHashtag)
+  if (prevInitialHashtag !== initialHashtag) {
+    setPrevInitialHashtag(initialHashtag)
+    setActiveHashtag(initialHashtag)
+  }
+
   // Al cambiar los filtros se vuelve a la primera página. Se ajusta durante el
   // render en vez de con un efecto: hacerlo en useEffect encadena un render
   // extra con la lista larga ya pintada.
@@ -57,10 +69,7 @@ export function DashboardMatches({
     return acc
   }, {})
 
-  // Show curated hashtags that have at least one match, sorted by count desc then label
-  const hashtagOptions = allHashtags
-    .filter((h) => (matchCountBySlug[h.slug] ?? 0) > 0)
-    .sort((a, b) => (matchCountBySlug[b.slug] ?? 0) - (matchCountBySlug[a.slug] ?? 0) || a.label.localeCompare(b.label, 'es'))
+  const hashtagOptions = opcionesDeHashtag(allHashtags, matchCountBySlug, activeHashtag)
 
   const filtered = matches.filter((m) => {
     const q = query.toLowerCase()
@@ -263,6 +272,17 @@ export function DashboardMatches({
           </p>
           {!query && !activeHashtag && (
             <p className="mt-1 text-sm">La comunidad está creciendo, vuelve pronto.</p>
+          )}
+          {(query || activeHashtag) && (
+            <button
+              onClick={() => {
+                setQuery('')
+                setActiveHashtag(null)
+              }}
+              className="mt-4 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              Quitar los filtros
+            </button>
           )}
         </div>
       )}

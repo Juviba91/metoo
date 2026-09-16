@@ -35,7 +35,10 @@ export function BottomNav({ pendingCount = 0, chatUnread = 0 }: { pendingCount?:
             (href === '/dashboard' && pathname === '/dashboard') ||
             (href === '/dashboard/chats' &&
               (pathname.startsWith('/dashboard/chats') || pathname.startsWith('/dashboard/chat/'))) ||
-            (href === '/feed' && pathname.startsWith('/feed')) ||
+            // Temas se entra desde el feed y es parte de él: sin esto, en
+            // /temas no se marcaba ninguna pestaña y te quedabas sin saber
+            // dónde estás.
+            (href === '/feed' && (pathname.startsWith('/feed') || pathname === '/temas')) ||
             // /dashboard/perfil/[id] es el perfil de OTRA persona: marcar ahí
             // "Perfil" hacía creer que estabas viendo el tuyo.
             (href === '/dashboard/perfil' &&
