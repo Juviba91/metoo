@@ -69,7 +69,16 @@ export default async function FeedPage({
 
       <main className="mx-auto w-full max-w-2xl flex-1 space-y-4 px-4 py-4 pb-24 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-6">
         <div>
-          <h1 className="hidden text-lg font-semibold sm:block">Feed de la comunidad</h1>
+          <div className="flex items-baseline justify-between gap-3">
+            <h1 className="hidden text-lg font-semibold sm:block">Feed de la comunidad</h1>
+            <Link
+              href="/temas"
+              prefetch
+              className="ml-auto shrink-0 text-sm font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+            >
+              Ver temas →
+            </Link>
+          </div>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Comparte tu experiencia, un pensamiento o un recurso que te haya ayudado. Usa <strong className="text-foreground">#hashtags</strong> para que otros puedan encontrarte.
           </p>

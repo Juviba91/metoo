@@ -614,6 +614,17 @@ export type Database = {
         Returns: { alias: string; activo: boolean }[]
       }
       get_pending_count: { Args: Record<string, never>; Returns: number }
+      temas_con_actividad: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          slug: string
+          label: string
+          personas: number
+          companeros: number
+          publicaciones: number
+        }[]
+      }
       crear_hashtag: {
         Args: { p_slug: string; p_label: string }
         Returns: { id: string; slug: string; label: string }[]

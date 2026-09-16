@@ -22,18 +22,21 @@ export function DashboardMatches({
   role,
   connectedTo,
   allHashtags = [],
+  initialHashtag = null,
 }: {
   matches: Match[]
   role: 'seeker' | 'volunteer'
   connectedTo: Record<string, string>
   allHashtags?: Hashtag[]
+  /** Filtro con el que se llega desde /temas, por la URL. */
+  initialHashtag?: string | null
 }) {
   // Las tarjetas muestran a gente del rol contrario al mío, y las etiquetas
   // de estos campos cambian según el rol de quien las escribió.
   const otherRole = role === 'seeker' ? 'volunteer' : 'seeker'
 
   const [query, setQuery] = useState('')
-  const [activeHashtag, setActiveHashtag] = useState<string | null>(null)
+  const [activeHashtag, setActiveHashtag] = useState<string | null>(initialHashtag)
   const [visibleCount, setVisibleCount] = useState(12)
 
   // Al cambiar los filtros se vuelve a la primera página. Se ajusta durante el
