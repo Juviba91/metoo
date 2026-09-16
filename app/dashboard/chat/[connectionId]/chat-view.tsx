@@ -360,6 +360,15 @@ export function ChatView({
               <Send className="size-4" />
             </Button>
           </div>
+          {/* Aquí y no solo en los términos: si alguien está mal de verdad, es
+              escribiendo cuando lo está, y nadie va a ir a buscar un teléfono a
+              una página legal. Va en una línea y en gris para no gritarle a
+              quien solo viene a charlar. */}
+          <p className="pb-1 text-center text-[11px] leading-snug text-muted-foreground">
+            Al otro lado hay una persona, no un profesional, y puede tardar. Si es
+            urgente: <strong className="font-medium">024</strong> o{' '}
+            <strong className="font-medium">112</strong>.
+          </p>
         </form>
       )}
     </div>

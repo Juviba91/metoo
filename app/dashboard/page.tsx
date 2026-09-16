@@ -17,11 +17,18 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Inicio' }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string }>
+}) {
   const supabase = await createClient()
   const user = await getUser()
 
   if (!user) redirect('/auth/login')
+
+  // Se llega aquí desde /temas con el tema ya elegido.
+  const { tag: temaInicial } = await searchParams
 
   // El perfil y los bloqueos no dependen entre sí: encadenarlos añadía una
   // ida y vuelta a Supabase antes de poder empezar siquiera las demás.
@@ -320,6 +327,7 @@ export default async function DashboardPage() {
           role={profile.role as UserRole}
           connectedTo={connectedTo}
           allHashtags={(allHashtags ?? []) as any}
+          initialHashtag={temaInicial ?? null}
         />
 
       </main>
