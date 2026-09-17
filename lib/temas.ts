@@ -60,3 +60,31 @@ export function textosTema(rol: Rol) {
 export function textoPublicaciones(n: number): string {
   return n === 1 ? '1 publicación' : `${n} publicaciones`
 }
+
+export type OpcionHashtag = { id: string; slug: string; label: string }
+
+/**
+ * Qué etiquetas se ofrecen como filtro en la búsqueda de personas.
+ *
+ * Las que tienen al menos un resultado, y SIEMPRE la que esté activa aunque no
+ * tenga ninguno. Esto último no es un capricho: se llega aquí desde /temas con
+ * el tema ya puesto en la URL, y si ese tema no casa con nadie —porque la
+ * lista va capada a 50, porque alguien cambió sus etiquetas, o porque el
+ * enlace es viejo— el chip no se pintaba, no había nada que pulsar para
+ * quitarlo y te quedabas en una pantalla vacía sin salida.
+ *
+ * Orden: primero los que más gente tienen, y a igualdad, por alfabeto.
+ */
+export function opcionesDeHashtag<T extends OpcionHashtag>(
+  todos: T[],
+  cuentaPorSlug: Record<string, number>,
+  activo: string | null,
+): T[] {
+  return todos
+    .filter((h) => (cuentaPorSlug[h.slug] ?? 0) > 0 || h.slug === activo)
+    .sort(
+      (a, b) =>
+        (cuentaPorSlug[b.slug] ?? 0) - (cuentaPorSlug[a.slug] ?? 0) ||
+        a.label.localeCompare(b.label, 'es'),
+    )
+}
