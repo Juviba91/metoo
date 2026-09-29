@@ -15,13 +15,18 @@ const categories = [
 ]
 
 /**
- * Los tres pasos describen lo que la app hace DE VERDAD.
+ * Los cuatro pasos describen lo que la app hace DE VERDAD.
  *
  * Antes prometían un hospital que no se pide, un emparejamiento que no existe
- * —aquí buscas tú— una respuesta que nadie puede garantizar, y acabar
- * quedando en persona, justo lo contrario de lo que pide el onboarding.
- * Quien llega aquí suele venir de alguien que se lo ha recomendado: si la
- * primera pantalla promete de más, le quema a quien te mandó.
+ * —aquí buscas tú— y una respuesta que nadie puede garantizar. Quien llega
+ * aquí suele venir recomendado por alguien: si la primera pantalla promete de
+ * más, le quema a quien te mandó.
+ *
+ * El paso 04 sí se queda, porque es lo que la app quiere de verdad y lo que
+ * ya dicen las normas de la comunidad: el chat es el principio, y cuando hay
+ * confianza se pasa al teléfono. Lo que no se nombra aquí es el encuentro en
+ * persona: en /guidelines está en contexto y con sus matices, y esta es la
+ * página que lee cualquiera desde Google.
  */
 const steps = [
   {
@@ -36,8 +41,13 @@ const steps = [
   },
   {
     n: '03',
-    title: 'Escribes cuando te apetezca',
+    title: 'Escribes tú, cuando quieras',
     desc: 'La conversación la abres tú. Nadie puede escribirte primero, y puedes parar cuando quieras.',
+  },
+  {
+    n: '04',
+    title: 'Del chat a la vida real',
+    desc: 'Si con el tiempo hay confianza, podéis seguir por teléfono. Sin prisa, y solo si os apetece a los dos.',
   },
 ]
 
@@ -119,7 +129,7 @@ export default function Page() {
       <section className="bg-muted/40 py-14 sm:py-20">
         <div className="mx-auto max-w-5xl px-6">
           <h2 className="mb-10 text-center text-2xl font-bold sm:mb-14 sm:text-3xl">Cómo funciona</h2>
-          <div className="grid gap-8 md:grid-cols-3 sm:gap-10">
+          <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 md:grid-cols-4">
             {steps.map((step) => (
               <div key={step.n}>
                 <span className="text-5xl font-bold text-border">{step.n}</span>
