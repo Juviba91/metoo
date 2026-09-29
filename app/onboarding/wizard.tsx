@@ -97,10 +97,15 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               </p>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-foreground">Tu privacidad, primero</p>
+              <p className="mb-1 font-semibold text-foreground">Tu privacidad, la llevas tú</p>
               <p>
-                Usa un nombre de usuario y comparte solo lo que quieras. Evita datos personales
-                en el chat como tu nombre real, teléfono o dirección.
+                Empiezas con un alias y no hace falta nada más: ni nombre real, ni teléfono, ni
+                dónde vives. Si más adelante confías en esa persona y queréis seguir por
+                teléfono, es tu decisión y la tomas cuando tú veas.{' '}
+                <strong className="text-foreground">
+                  Si alguien te lo pide con prisa o insistiendo, eso ya te está diciendo algo
+                </strong>
+                : puedes bloquear y reportar sin dar explicaciones.
               </p>
             </div>
             <div>
