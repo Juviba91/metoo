@@ -1,6 +1,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
@@ -97,6 +98,13 @@ export default async function EscribirGuiaPage({
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+        <Link
+          href="/guias"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Guías
+        </Link>
+
         <div>
           <h1 className="text-lg font-semibold">Cuenta lo que aprendiste</h1>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
@@ -148,14 +156,26 @@ export default async function EscribirGuiaPage({
                   Contesta solo lo que sepas. Cada respuesta se guarda por su cuenta, y
                   puedes volver otro día a por el resto.
                 </p>
-                <p className="text-center text-xs">
-                  <Link
-                    href={`/guias/${hospitalSlug}/${temaSlug}`}
-                    className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
-                  >
-                    Ver cómo queda la página →
-                  </Link>
-                </p>
+                {/* Solo si la guía ya tiene algo escrito. La página pública
+                    hace notFound() cuando está vacía —para que no haya páginas
+                    fantasma con el nombre de un hospital— así que este enlace
+                    daba un 404 justo al abrir el formulario, que es cuando más
+                    apetece pulsarlo. */}
+                {Object.keys(cuantasPorPregunta).length > 0 ? (
+                  <p className="text-center text-xs">
+                    <Link
+                      href={`/guias/${hospitalSlug}/${temaSlug}`}
+                      className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                    >
+                      Ver cómo queda la página →
+                    </Link>
+                  </p>
+                ) : (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Esta guía todavía está vacía. En cuanto escribas algo tendrá su
+                    propia página.
+                  </p>
+                )}
               </div>
             ) : (
               <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">

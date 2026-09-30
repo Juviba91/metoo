@@ -1,6 +1,6 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { MapPin } from 'lucide-react'
+import { ArrowLeft, MapPin } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
 import { mesYAno } from '@/lib/guias'
@@ -56,6 +56,13 @@ export default async function GuiasPage() {
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-12 sm:py-16">
+        <Link
+          href={haySesion ? '/dashboard' : '/'}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> {haySesion ? 'Inicio' : 'metoo'}
+        </Link>
+
         <h1 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
           Lo que aprendieron otras familias
         </h1>
