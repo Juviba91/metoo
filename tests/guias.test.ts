@@ -126,3 +126,17 @@ describe('agruparPorPregunta: el rol viaja con la respuesta', () => {
     expect(bloques[0].respuestas.map((r) => r.autor_rol)).toEqual(['seeker', 'volunteer'])
   })
 })
+
+describe('la firma es opcional', () => {
+  it('el alias viaja solo cuando la aportación lo pidió', () => {
+    // El filtro de verdad está en la vista (`CASE WHEN mostrar_alias`), no
+    // aquí: si no se pidió firma, el alias no sale de la base. Esto comprueba
+    // que el agrupado no lo pierde cuando sí viene, ni lo inventa cuando no.
+    const bloques = agruparPorPregunta([
+      { ...fila('p1', 1, 'firmada'), autor_alias: 'luna_azul' },
+      { ...fila('p1', 1, 'anónima', '2025-01-01T00:00:00Z') },
+    ])
+
+    expect(bloques[0].respuestas.map((r) => r.autor_alias)).toEqual(['luna_azul', null])
+  })
+})

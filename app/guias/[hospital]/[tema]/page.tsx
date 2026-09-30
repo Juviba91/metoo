@@ -20,7 +20,7 @@ const cargar = cache(async (hospital: string, tema: string) => {
 
   const { data } = await supabase
     .from('guias_publicas')
-    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, hospital, ciudad, tema')
+    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, hospital, ciudad, tema')
     .eq('hospital_slug', hospital)
     .eq('tema_slug', tema)
 
@@ -110,6 +110,11 @@ export default async function GuiaPage({ params }: { params: Params }) {
                   >
                     <p className="whitespace-pre-line">{r.contenido}</p>
                     <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                      {/* El alias solo si esa aportación pidió firma. La base ya
+                          filtra: si no la pidió, aquí llega null. */}
+                      {r.autor_alias && (
+                        <span className="font-medium text-foreground">{r.autor_alias}</span>
+                      )}
                       {etiquetaAutor(r.autor_rol) && (
                         <span className="rounded-full border border-border px-2 py-0.5">
                           {etiquetaAutor(r.autor_rol)}

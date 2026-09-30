@@ -289,6 +289,7 @@ export type Database = {
           revisada_en: string
           oculta: boolean
           oculta_motivo: string | null
+          mostrar_alias: boolean
         }
         Insert: {
           id?: string
@@ -301,6 +302,7 @@ export type Database = {
           revisada_en?: string
           oculta?: boolean
           oculta_motivo?: string | null
+          mostrar_alias?: boolean
         }
         Update: {
           id?: string
@@ -313,6 +315,7 @@ export type Database = {
           revisada_en?: string
           oculta?: boolean
           oculta_motivo?: string | null
+          mostrar_alias?: boolean
         }
         Relationships: []
       }
@@ -690,6 +693,7 @@ export type Database = {
           contenido: string
           revisada_en: string
           autor_rol: string | null
+          autor_alias: string | null
         }
         Relationships: []
       }
@@ -728,9 +732,11 @@ export type Database = {
           p_tema_slug: string
           p_pregunta_id: string
           p_contenido: string
+          p_mostrar_alias?: boolean
         }
         Returns: string
       }
+      quitar_mi_firma_en_guias: { Args: Record<string, never>; Returns: number }
       temas_con_actividad: {
         Args: Record<string, never>
         Returns: {

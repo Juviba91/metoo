@@ -5,7 +5,7 @@ import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { CajaPregunta, Selectores } from './guia-form'
+import { CajaPregunta, QuitarFirma, Selectores } from './guia-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Escribir una guía' }
@@ -23,7 +23,7 @@ export default async function EscribirGuiaPage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, profile_hashtags(hashtags(slug, label))')
+    .select('role, alias, profile_hashtags(hashtags(slug, label))')
     .eq('id', user.id)
     .single()
 
@@ -141,6 +141,7 @@ export default async function EscribirGuiaPage({
                     enunciado={p.enunciado}
                     ayuda={p.ayuda}
                     yaRespondida={cuantasPorPregunta[p.id] ?? 0}
+                    alias={profile.alias}
                   />
                 ))}
                 <p className="pt-2 text-center text-xs text-muted-foreground">
@@ -155,6 +156,9 @@ export default async function EscribirGuiaPage({
                     Ver cómo queda la página →
                   </Link>
                 </p>
+                <div className="border-t border-border pt-4 text-center">
+                  <QuitarFirma />
+                </div>
               </div>
             ) : (
               <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
