@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, MapPin } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
-import { agruparPorPregunta, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
+import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
 import type { Metadata } from 'next'
 
 type Params = Promise<{ hospital: string; tema: string }>
@@ -20,7 +20,7 @@ const cargar = cache(async (hospital: string, tema: string) => {
 
   const { data } = await supabase
     .from('guias_publicas')
-    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, hospital, ciudad, tema')
+    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, hospital, ciudad, tema')
     .eq('hospital_slug', hospital)
     .eq('tema_slug', tema)
 
@@ -109,11 +109,16 @@ export default async function GuiaPage({ params }: { params: Params }) {
                     className="rounded-xl border border-border bg-muted/20 p-4 text-sm leading-relaxed"
                   >
                     <p className="whitespace-pre-line">{r.contenido}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {mesYAno(r.revisada_en)}
+                    <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                      {etiquetaAutor(r.autor_rol) && (
+                        <span className="rounded-full border border-border px-2 py-0.5">
+                          {etiquetaAutor(r.autor_rol)}
+                        </span>
+                      )}
+                      <span>{mesYAno(r.revisada_en)}</span>
                       {puedeEstarDesfasada(r.revisada_en) && (
                         <span className="text-amber-700 dark:text-amber-500">
-                          {' '}· puede estar desfasado
+                          · puede estar desfasado
                         </span>
                       )}
                     </p>

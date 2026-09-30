@@ -689,6 +689,7 @@ export type Database = {
           ayuda: string | null
           contenido: string
           revisada_en: string
+          autor_rol: string | null
         }
         Relationships: []
       }

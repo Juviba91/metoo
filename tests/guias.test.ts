@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   agruparPorPregunta,
+  etiquetaAutor,
   mesYAno,
   puedeEstarDesfasada,
   MESES_HASTA_CADUCAR,
@@ -96,5 +97,32 @@ describe('puedeEstarDesfasada', () => {
 
   it('una fecha inválida no se marca como vieja', () => {
     expect(puedeEstarDesfasada('ayer', ahora)).toBe(false)
+  })
+})
+
+describe('etiquetaAutor', () => {
+  it('nombra el momento, no el papel en la app', () => {
+    // «Voluntario» no le dice nada a quien llega de Google; «ya pasó por esto»
+    // sí, y es la diferencia que cambia cómo se lee una respuesta.
+    expect(etiquetaAutor('volunteer')).toBe('Ya pasó por esto')
+    expect(etiquetaAutor('seeker')).toBe('Lo está viviendo')
+  })
+
+  it('sin autor no inventa etiqueta', () => {
+    // La cuenta se dio de baja: la aportación se sigue viendo, sin etiqueta.
+    expect(etiquetaAutor(null)).toBeNull()
+    expect(etiquetaAutor(undefined)).toBeNull()
+    expect(etiquetaAutor('otra-cosa')).toBeNull()
+  })
+})
+
+describe('agruparPorPregunta: el rol viaja con la respuesta', () => {
+  it('conserva el rol de cada aportación', () => {
+    const bloques = agruparPorPregunta([
+      { ...fila('p1', 1, 'desde dentro'), autor_rol: 'seeker' },
+      { ...fila('p1', 1, 'ya salí', '2025-01-01T00:00:00Z'), autor_rol: 'volunteer' },
+    ])
+
+    expect(bloques[0].respuestas.map((r) => r.autor_rol)).toEqual(['seeker', 'volunteer'])
   })
 })
