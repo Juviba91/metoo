@@ -240,6 +240,82 @@ export type Database = {
         }
         Relationships: []
       }
+      guia_preguntas: {
+        Row: {
+          id: string
+          hashtag_id: string | null
+          orden: number
+          enunciado: string
+          ayuda: string | null
+          activa: boolean
+        }
+        Insert: {
+          id?: string
+          hashtag_id?: string | null
+          orden: number
+          enunciado: string
+          ayuda?: string | null
+          activa?: boolean
+        }
+        Update: {
+          id?: string
+          hashtag_id?: string | null
+          orden?: number
+          enunciado?: string
+          ayuda?: string | null
+          activa?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'guia_preguntas_hashtag_id_fkey'
+            columns: ['hashtag_id']
+            isOneToOne: false
+            referencedRelation: 'hashtags'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      // Se escribe por `aportar_a_guia` y se lee por `guias_publicas`: ni anon
+      // ni authenticated tienen permisos sobre esta tabla.
+      guia_respuestas: {
+        Row: {
+          id: string
+          hospital_id: string
+          hashtag_id: string
+          pregunta_id: string
+          contenido: string
+          autor_id: string | null
+          creada_en: string
+          revisada_en: string
+          oculta: boolean
+          oculta_motivo: string | null
+        }
+        Insert: {
+          id?: string
+          hospital_id: string
+          hashtag_id: string
+          pregunta_id: string
+          contenido: string
+          autor_id?: string | null
+          creada_en?: string
+          revisada_en?: string
+          oculta?: boolean
+          oculta_motivo?: string | null
+        }
+        Update: {
+          id?: string
+          hospital_id?: string
+          hashtag_id?: string
+          pregunta_id?: string
+          contenido?: string
+          autor_id?: string | null
+          creada_en?: string
+          revisada_en?: string
+          oculta?: boolean
+          oculta_motivo?: string | null
+        }
+        Relationships: []
+      }
       hospitals: {
         Row: {
           city: string
@@ -249,6 +325,7 @@ export type Database = {
           lng: number | null
           name: string
           region: string | null
+          slug: string
         }
         Insert: {
           city: string
@@ -596,7 +673,37 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      // Las guías se leen SOLO por vista, nunca por `guia_respuestas`: así el
+      // `autor_id` no puede salir por la API ni pidiendo `*`.
+      guias_publicas: {
+        Row: {
+          id: string
+          hospital_slug: string
+          hospital: string
+          ciudad: string
+          tema_slug: string
+          tema: string
+          pregunta_id: string
+          orden: number
+          enunciado: string
+          ayuda: string | null
+          contenido: string
+          revisada_en: string
+        }
+        Relationships: []
+      }
+      guias_indice: {
+        Row: {
+          hospital_slug: string
+          hospital: string
+          ciudad: string
+          tema_slug: string
+          tema: string
+          aportaciones: number
+          ultima: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
       blocked_user_ids: {
@@ -614,6 +721,15 @@ export type Database = {
         Returns: { alias: string; activo: boolean }[]
       }
       get_pending_count: { Args: Record<string, never>; Returns: number }
+      aportar_a_guia: {
+        Args: {
+          p_hospital_slug: string
+          p_tema_slug: string
+          p_pregunta_id: string
+          p_contenido: string
+        }
+        Returns: string
+      }
       temas_con_actividad: {
         Args: Record<string, never>
         Returns: {
