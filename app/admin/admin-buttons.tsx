@@ -1,7 +1,13 @@
 'use client'
 
 import { useTransition } from 'react'
-import { toggleProfileActive, deleteUserAccount, resolveReport, eliminarComentario } from './actions'
+import {
+  toggleProfileActive,
+  deleteUserAccount,
+  resolveReport,
+  eliminarComentario,
+  ocultarAportacionGuia,
+} from './actions'
 
 export function ToggleActiveBtn({ profileId, isActive }: { profileId: string; isActive: boolean }) {
   const [pending, start] = useTransition()
@@ -67,6 +73,40 @@ export function ResolveReportBtn({ reportId }: { reportId: string }) {
       className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-50"
     >
       {pending ? '...' : 'Resolver'}
+    </button>
+  )
+}
+
+export function OcultarAportacionBtn({
+  id,
+  oculta,
+}: {
+  id: string
+  oculta: boolean
+}) {
+  const [pending, start] = useTransition()
+
+  return (
+    <button
+      disabled={pending}
+      onClick={() => {
+        // Se pide motivo solo al ocultar, y es opcional: obligar a escribir
+        // algo hace que se escriba "spam" en todo. Sirve para acordarse dentro
+        // de seis meses de por qué se quitó.
+        if (oculta) {
+          start(() => ocultarAportacionGuia(id, false))
+          return
+        }
+        const motivo = prompt('¿Por qué la ocultas? (opcional)') ?? undefined
+        start(() => ocultarAportacionGuia(id, true, motivo))
+      }}
+      className={`shrink-0 rounded-lg border px-2.5 py-1 text-xs disabled:opacity-50 ${
+        oculta
+          ? 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+          : 'border-border text-muted-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive'
+      }`}
+    >
+      {pending ? '...' : oculta ? 'Mostrar' : 'Ocultar'}
     </button>
   )
 }
