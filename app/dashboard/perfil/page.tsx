@@ -8,6 +8,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from './account-section'
 import { DeleteAccount } from './delete-account'
 import { AppAbout } from '@/components/app-about'
+import { AjustesCuenta } from './ajustes-cuenta'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { HowItWorks } from '@/components/how-it-works'
 import type { UserRole } from '@/types/database'
@@ -74,25 +75,30 @@ export default async function PerfilPage() {
           <HowItWorks />
         </div>
 
-        <div className="mt-12 border-t border-border/60 pt-8">
-          <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>
-          <AccountSection
-            email={user.email}
-            emailConfirmed={!!user.email_confirmed_at}
-            emailNotificationsEnabled={profile.email_notifications_enabled}
-            digestEnabled={profile.digest_enabled}
-            esVoluntario={profile.role === 'volunteer'}
-          />
-        </div>
+        {/* Todo lo que no se edita cada día, recogido: el correo, los avisos,
+            eliminar la cuenta y lo de metoo. Antes ocupaba media pantalla de
+            scroll por delante de lo único que vienes a cambiar. */}
+        <AjustesCuenta>
+          <div>
+            <h3 className="mb-4 text-sm font-semibold">Cuenta</h3>
+            <AccountSection
+              email={user.email}
+              emailConfirmed={!!user.email_confirmed_at}
+              emailNotificationsEnabled={profile.email_notifications_enabled}
+              digestEnabled={profile.digest_enabled}
+              esVoluntario={profile.role === 'volunteer'}
+            />
+          </div>
 
-        <div className="mt-8 border-t border-border/60 pt-8">
-          <h2 className="mb-1 text-sm font-semibold text-destructive">Eliminar cuenta</h2>
-          <DeleteAccount />
-        </div>
+          <div className="border-t border-border/60 pt-8">
+            <h3 className="mb-1 text-sm font-semibold text-destructive">Eliminar cuenta</h3>
+            <DeleteAccount />
+          </div>
 
-        <div className="mt-12">
-          <AppAbout />
-        </div>
+          <div className="border-t border-border/60 pt-8">
+            <AppAbout />
+          </div>
+        </AjustesCuenta>
 
       </main>
 

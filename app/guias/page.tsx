@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
@@ -25,6 +25,13 @@ export const metadata: Metadata = {
 export default async function GuiasPage() {
   const supabase = await createClient()
 
+  // Esta página es pública, pero eso no significa que no haya nadie dentro.
+  // Sin mirarlo, los enlaces mandaban a registrarse a quien ya tenía sesión, y
+  // /auth/login rebota al panel: acabas en Inicio en vez de escribiendo.
+  const user = await getUser()
+  const haySesion = Boolean(user)
+  const aEscribir = haySesion ? '/dashboard/guias' : '/auth/login?tab=register'
+
   const { data } = await supabase
     .from('guias_indice')
     .select('hospital_slug, hospital, ciudad, tema_slug, tema, aportaciones, ultima')
@@ -40,10 +47,10 @@ export default async function GuiasPage() {
             <Logo size={28} />
           </Link>
           <Link
-            href="/auth/login?tab=register"
+            href={haySesion ? '/dashboard' : '/auth/login?tab=register'}
             className="text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
           >
-            Entrar
+            {haySesion ? 'Ir a metoo' : 'Entrar'}
           </Link>
         </div>
       </header>
@@ -70,7 +77,7 @@ export default async function GuiasPage() {
             tres líneas por pregunta bastan.
           </p>
           <Link
-            href="/dashboard/guias"
+            href={aEscribir}
             className="mt-3 inline-block rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
           >
             Contar lo que sé →
@@ -83,10 +90,7 @@ export default async function GuiasPage() {
             <p>Todavía no hay ninguna guía escrita.</p>
             <p className="mt-1 text-sm">
               Si has pasado por un hospital y quieres contar lo que aprendiste,{' '}
-              <Link
-                href="/auth/login?tab=register"
-                className="text-foreground underline underline-offset-2"
-              >
+              <Link href={aEscribir} className="text-foreground underline underline-offset-2">
                 puedes ser el primero
               </Link>
               .
