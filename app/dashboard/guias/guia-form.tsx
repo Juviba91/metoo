@@ -62,7 +62,7 @@ export function Selectores({
           ))}
         </select>
         <span className="mt-1 block text-xs text-muted-foreground">
-          Solo los de tu perfil: se escribe de lo que se ha vivido.
+          Los de tu perfil salen primero. Escribe de lo que hayas vivido.
         </span>
       </label>
     </div>

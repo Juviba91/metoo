@@ -2,7 +2,7 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { DashboardMatches } from '@/components/dashboard-matches'
-import { MapPin, MessageCircle } from 'lucide-react'
+import { BookOpen, MapPin, MessageCircle } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
@@ -199,6 +199,38 @@ export default async function DashboardPage({
                 </button>
               </form>
             )}
+          </div>
+        </div>
+
+        {/* Guías por hospital.
+            A todo el mundo, y no solo a los voluntarios: para quien busca
+            apoyo es lo único de la app que sirve ahora mismo, sin esperar a
+            que alguien conteste. */}
+        <div className="rounded-xl border border-border p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <BookOpen className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold">Guías por hospital</h2>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                Dónde dormir, cómo son los horarios de verdad, qué papeles pedir. Lo
+                práctico que nadie te cuenta, escrito por quien ya pasó por ahí.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-4 text-sm">
+                <Link
+                  href="/guias"
+                  prefetch
+                  className="font-medium text-foreground underline-offset-2 hover:underline"
+                >
+                  Ver las guías →
+                </Link>
+                <Link
+                  href="/dashboard/guias"
+                  className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                >
+                  Contar lo que sé
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 

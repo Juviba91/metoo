@@ -86,7 +86,7 @@ export default async function GuiaPage({ params }: { params: Params }) {
             un hospital se lee como si la hubiera escrito el hospital. */}
         <div className="mt-8 rounded-xl border-2 border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
           <p className="font-semibold">
-            Esto lo escriben familias que han pasado por aquí, no el hospital.
+            Esto lo escriben personas que han pasado por algo parecido, no el hospital.
           </p>
           <p className="mt-1 text-muted-foreground">
             No es información médica ni oficial, y puede haber cambiado. Para cualquier

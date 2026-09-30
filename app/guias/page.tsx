@@ -57,8 +57,8 @@ export default async function GuiasPage() {
           Lo práctico que nadie te cuenta, hospital por hospital.
         </p>
         <p className="mb-10 max-w-2xl text-sm text-muted-foreground">
-          Lo escriben personas que han pasado por ahí, no los hospitales. No hace falta
-          cuenta para leerlo.
+          Lo escriben personas que han pasado por algo parecido, no los hospitales.
+          No hace falta cuenta para leerlo.
         </p>
 
         {guias.length === 0 ? (
