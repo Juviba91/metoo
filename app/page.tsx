@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Heart, MapPin, Shield, Users } from 'lucide-react'
+import { ArrowRight, Hand, Heart, Shield, Users } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
 
@@ -14,21 +14,40 @@ const categories = [
   { emoji: '❤️', label: 'Cuidadores', sub: 'Acompañar a alguien que sufre agota' },
 ]
 
+/**
+ * Los cuatro pasos describen lo que la app hace DE VERDAD.
+ *
+ * Antes prometían un hospital que no se pide, un emparejamiento que no existe
+ * —aquí buscas tú— y una respuesta que nadie puede garantizar. Quien llega
+ * aquí suele venir recomendado por alguien: si la primera pantalla promete de
+ * más, le quema a quien te mandó.
+ *
+ * El paso 04 sí se queda, porque es lo que la app quiere de verdad y lo que
+ * ya dicen las normas de la comunidad: el chat es el principio, y cuando hay
+ * confianza se pasa al teléfono. Lo que no se nombra aquí es el encuentro en
+ * persona: en /guidelines está en contexto y con sus matices, y esta es la
+ * página que lee cualquiera desde Google.
+ */
 const steps = [
   {
     n: '01',
-    title: 'Cuéntanos tu situación',
-    desc: 'Elige la experiencia que estás viviendo y tu ubicación. A veces también el hospital.',
+    title: 'Eliges un alias',
+    desc: 'Ni nombre real, ni foto, ni teléfono. Marcas por lo que estás pasando y, si quieres, tu ciudad.',
   },
   {
     n: '02',
-    title: 'Te conectamos con alguien',
-    desc: 'Un voluntario que ha pasado exactamente por lo mismo, cerca de ti, responde.',
+    title: 'Miras quién lo ha vivido',
+    desc: 'Ves a los voluntarios que han pasado por algo parecido y lees lo que cuentan de sí mismos. Eliges tú.',
   },
   {
     n: '03',
+    title: 'Escribes tú, cuando quieras',
+    desc: 'La conversación la abres tú. Nadie puede escribirte primero, y puedes parar cuando quieras.',
+  },
+  {
+    n: '04',
     title: 'Del chat a la vida real',
-    desc: 'Rompéis el hielo en el chat. Cuando estéis listos, os llamáis, os escribís o quedáis.',
+    desc: 'Si con el tiempo hay confianza, podéis seguir por teléfono. Sin prisa, y solo si os apetece a los dos.',
   },
 ]
 
@@ -36,12 +55,12 @@ const reasons = [
   {
     icon: Shield,
     title: 'Privacidad primero',
-    desc: 'Anónimo por defecto. Tu nombre real solo si tú quieres.',
+    desc: 'No pedimos nombre real, ni foto, ni hospital. Un alias y ya.',
   },
   {
-    icon: MapPin,
-    title: 'Cerca de ti',
-    desc: 'Filtra por ciudad, barrio o incluso hospital.',
+    icon: Hand,
+    title: 'Tú das el primer paso',
+    desc: 'Nadie puede escribirte sin que tú abras la conversación.',
   },
   {
     icon: Users,
@@ -84,8 +103,8 @@ export default function Page() {
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:mb-10 sm:text-xl">
-          metoo conecta a personas que atraviesan momentos difíciles con voluntarios que han vivido
-          la misma experiencia. Cerca de ti. Sin juicios.
+          metoo te deja hablar con alguien que ya pasó por lo que estás pasando tú.
+          Sin dar tu nombre. Sin que nadie te juzgue.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -110,7 +129,7 @@ export default function Page() {
       <section className="bg-muted/40 py-14 sm:py-20">
         <div className="mx-auto max-w-5xl px-6">
           <h2 className="mb-10 text-center text-2xl font-bold sm:mb-14 sm:text-3xl">Cómo funciona</h2>
-          <div className="grid gap-8 md:grid-cols-3 sm:gap-10">
+          <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 md:grid-cols-4">
             {steps.map((step) => (
               <div key={step.n}>
                 <span className="text-5xl font-bold text-border">{step.n}</span>
@@ -124,9 +143,10 @@ export default function Page() {
 
       {/* Categories */}
       <section className="mx-auto max-w-5xl px-6 py-14 sm:py-20">
-        <h2 className="mb-3 text-center text-2xl font-bold sm:text-3xl">Situaciones que acompañamos</h2>
+        <h2 className="mb-3 text-center text-2xl font-bold sm:text-3xl">Para lo que está pensada</h2>
         <p className="mb-8 text-center text-muted-foreground sm:mb-12">
-          No estás solo. Hay alguien que ha pasado exactamente por lo mismo.
+          metoo acaba de empezar y todavía somos pocos: no en todos los temas hay
+          alguien esperando, y preferimos decírtelo antes de que entres.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {categories.map((cat) => (

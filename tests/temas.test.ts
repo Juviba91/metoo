@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { partirTemas, temaTieneVida, textosTema, textoPublicaciones, type Tema } from '@/lib/temas'
+import {
+  opcionesDeHashtag,
+  partirTemas,
+  temaTieneVida,
+  textosTema,
+  textoPublicaciones,
+  type Tema,
+} from '@/lib/temas'
 
 const tema = (label: string, personas = 0, companeros = 0, publicaciones = 0): Tema => ({
   id: label,
@@ -67,5 +74,37 @@ describe('textosTema', () => {
 
   it('cada rol ve un texto distinto para lo mismo', () => {
     expect(textosTema('seeker').verPersonas).not.toBe(textosTema('volunteer').verPersonas)
+  })
+})
+
+describe('opcionesDeHashtag', () => {
+  const etiqueta = (slug: string, label = slug) => ({ id: slug, slug, label })
+  const TODOS = [etiqueta('cancer', 'Cáncer'), etiqueta('duelo', 'Duelo'), etiqueta('ucin', 'UCIN')]
+
+  it('solo ofrece las que tienen a alguien', () => {
+    const opciones = opcionesDeHashtag(TODOS, { cancer: 2, ucin: 1 }, null)
+    expect(opciones.map((o) => o.slug)).toEqual(['cancer', 'ucin'])
+  })
+
+  it('ordena por cuántos hay, y a igualdad por alfabeto', () => {
+    const opciones = opcionesDeHashtag(TODOS, { cancer: 1, duelo: 5, ucin: 1 }, null)
+    expect(opciones.map((o) => o.slug)).toEqual(['duelo', 'cancer', 'ucin'])
+  })
+
+  it('siempre pinta la activa, aunque no tenga a nadie', () => {
+    // El bug: se llega desde /temas con el tema en la URL. Si no casaba con
+    // nadie, no se pintaba su chip, no había nada que pulsar para quitar el
+    // filtro, y la pantalla se quedaba vacía y sin salida.
+    const opciones = opcionesDeHashtag(TODOS, { cancer: 2 }, 'duelo')
+    expect(opciones.map((o) => o.slug)).toContain('duelo')
+  })
+
+  it('la activa sin resultados va al final, no se cuela arriba', () => {
+    const opciones = opcionesDeHashtag(TODOS, { cancer: 2, ucin: 1 }, 'duelo')
+    expect(opciones.map((o) => o.slug)).toEqual(['cancer', 'ucin', 'duelo'])
+  })
+
+  it('sin filtro activo no inventa ninguna', () => {
+    expect(opcionesDeHashtag(TODOS, {}, null)).toEqual([])
   })
 })
