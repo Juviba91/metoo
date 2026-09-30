@@ -35,6 +35,17 @@ permiso del conector. Las escrituras las ejecuta el usuario en
 https://supabase.com/dashboard/project/rsqjecmcplscuyibfncp/sql/new — pásale el
 SQL listo para copiar y pegar.
 
+**El SQL va SIEMPRE en el chat, entero.** Nunca «ábrelo en el fichero del PR»:
+lo lee desde el móvil y lo que pasa es que corre solo el trozo que le pegaste.
+Ya ocurrió con las guías: se aplicó la primera mitad de la migración, el resto
+no, y el código quedó llamando a cuatro objetos que no existían. Si son 250
+líneas, son 250 líneas en el chat.
+
+Y antes de dárselo, **comprueba qué falta de verdad** contra la base en vez de
+listar los ficheros pendientes: puede haber corrido parte, o una migración
+posterior puede dejar obsoleta a la anterior y entonces basta un bloque en vez
+de tres.
+
 En wichwoch **sí** hay escritura. Úsalo solo como banco de pruebas (esquema
 aparte, y bórralo al terminar), nunca para nada de metoo.
 
