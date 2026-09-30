@@ -20,7 +20,7 @@ const cargar = cache(async (hospital: string, tema: string) => {
 
   const { data } = await supabase
     .from('guias_publicas')
-    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, hospital, ciudad, tema')
+    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, autor_id, hospital, ciudad, tema')
     .eq('hospital_slug', hospital)
     .eq('tema_slug', tema)
 
@@ -110,11 +110,23 @@ export default async function GuiaPage({ params }: { params: Params }) {
                   >
                     <p className="whitespace-pre-line">{r.contenido}</p>
                     <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                      {/* El alias solo si esa aportación pidió firma. La base ya
-                          filtra: si no la pidió, aquí llega null. */}
-                      {r.autor_alias && (
-                        <span className="font-medium text-foreground">{r.autor_alias}</span>
-                      )}
+                      {/* El alias se enseña siempre y se puede pulsar para ver
+                          el perfil de quien escribió. Decisión de producto: el
+                          alias es un seudónimo y poder mirar quién lo dice es
+                          parte de que la información se pueda valorar.
+                          El perfil pide sesión, así que a quien llegue de Google
+                          le saldrá el acceso — eso es lo que hay. */}
+                      {r.autor_alias &&
+                        (r.autor_id ? (
+                          <Link
+                            href={`/dashboard/perfil/${r.autor_id}`}
+                            className="font-medium text-foreground underline-offset-2 hover:underline"
+                          >
+                            {r.autor_alias}
+                          </Link>
+                        ) : (
+                          <span className="font-medium text-foreground">{r.autor_alias}</span>
+                        ))}
                       {etiquetaAutor(r.autor_rol) && (
                         <span className="rounded-full border border-border px-2 py-0.5">
                           {etiquetaAutor(r.autor_rol)}

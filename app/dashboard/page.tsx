@@ -64,7 +64,14 @@ export default async function DashboardPage({
 
   const rol = profile.role as Rol
 
-  const [{ data: matches }, { data: connections }, { data: unreadData }, { data: allHashtags }, pendingCount] = await Promise.all([
+  const [
+    { data: matches },
+    { data: connections },
+    { data: unreadData },
+    { data: allHashtags },
+    { data: guias },
+    pendingCount,
+  ] = await Promise.all([
     matchesQuery.limit(50),
 
     profile.role === 'seeker'
@@ -82,6 +89,13 @@ export default async function DashboardPage({
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
 
     supabase.from('hashtags').select('id, slug, label').order('label'),
+
+    // Las cuatro con más escrito. El listado entero está en /guias.
+    supabase
+      .from('guias_indice')
+      .select('hospital_slug, hospital, ciudad, tema_slug, tema, aportaciones')
+      .order('aportaciones', { ascending: false })
+      .limit(4),
 
     // Dentro del Promise.all, no después: colgando de un `await` propio añadía
     // una ida y vuelta más antes de poder pintar la pestaña.
@@ -206,32 +220,53 @@ export default async function DashboardPage({
             A todo el mundo, y no solo a los voluntarios: para quien busca
             apoyo es lo único de la app que sirve ahora mismo, sin esperar a
             que alguien conteste. */}
-        <div className="rounded-xl border border-border p-4 sm:p-5">
-          <div className="flex items-start gap-3">
-            <BookOpen className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
-            <div className="min-w-0 flex-1">
-              <h2 className="font-semibold">Guías por hospital</h2>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Dónde dormir, cómo son los horarios de verdad, qué papeles pedir. Lo
-                práctico que nadie te cuenta, escrito por quien ya pasó por ahí.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-4 text-sm">
-                <Link
-                  href="/guias"
-                  prefetch
-                  className="font-medium text-foreground underline-offset-2 hover:underline"
-                >
-                  Ver las guías →
-                </Link>
-                <Link
-                  href="/dashboard/guias"
-                  className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-                >
-                  Contar lo que sé
-                </Link>
-              </div>
+        <div>
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <BookOpen className="size-5" />
+            Guías
+          </h2>
+          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+            Dónde dormir, cómo son los horarios de verdad, qué papeles pedir. Lo
+            práctico que nadie te cuenta, hospital por hospital.
+          </p>
+
+          {(guias ?? []).length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              <p>Todavía no hay ninguna guía escrita.</p>
+              <Link
+                href="/guias"
+                prefetch
+                className="mt-2 inline-block font-medium text-foreground underline-offset-2 hover:underline"
+              >
+                Ver de qué van →
+              </Link>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {(guias ?? []).map((g) => (
+                  <Link
+                    key={`${g.hospital_slug}/${g.tema_slug}`}
+                    href={`/guias/${g.hospital_slug}/${g.tema_slug}`}
+                    className="rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+                  >
+                    <p className="font-semibold">{g.tema}</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{g.hospital}</p>
+                    <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="size-3" /> {g.ciudad}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href="/guias"
+                prefetch
+                className="mt-4 block w-full rounded-lg border border-border py-2.5 text-center text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Ver más
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Conversations */}

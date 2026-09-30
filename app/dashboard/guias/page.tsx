@@ -1,11 +1,12 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { CajaPregunta, QuitarFirma, Selectores } from './guia-form'
+import { CajaPregunta, Selectores } from './guia-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Escribir una guía' }
@@ -97,6 +98,13 @@ export default async function EscribirGuiaPage({
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+        <Link
+          href="/guias"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Guías
+        </Link>
+
         <div>
           <h1 className="text-lg font-semibold">Cuenta lo que aprendiste</h1>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
@@ -114,12 +122,13 @@ export default async function EscribirGuiaPage({
             {/* Se dice ANTES de escribir, no después: lo que se escriba queda
                 público en internet, aunque sin tu alias. */}
             <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
-              <p className="font-semibold">Esto se publica, y sin tu nombre</p>
+              <p className="font-semibold">Esto se publica, y con tu alias</p>
               <p className="mt-1 text-muted-foreground">
                 Lo que escribas lo podrá leer cualquiera en internet, también sin tener
-                cuenta. No aparece tu alias en ningún sitio. No cuentes nada que te pueda
-                identificar —ni fechas exactas, ni nombres de personas del hospital— y nada
-                sobre tratamientos o medicación.
+                cuenta, y aparecerá firmado como{' '}
+                <strong className="text-foreground">{profile.alias}</strong>. No cuentes
+                nada que te pueda identificar —ni fechas exactas, ni nombres de personas
+                del hospital— y nada sobre tratamientos o medicación.
               </p>
             </div>
 
@@ -141,24 +150,32 @@ export default async function EscribirGuiaPage({
                     enunciado={p.enunciado}
                     ayuda={p.ayuda}
                     yaRespondida={cuantasPorPregunta[p.id] ?? 0}
-                    alias={profile.alias}
                   />
                 ))}
                 <p className="pt-2 text-center text-xs text-muted-foreground">
                   Contesta solo lo que sepas. Cada respuesta se guarda por su cuenta, y
                   puedes volver otro día a por el resto.
                 </p>
-                <p className="text-center text-xs">
-                  <Link
-                    href={`/guias/${hospitalSlug}/${temaSlug}`}
-                    className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
-                  >
-                    Ver cómo queda la página →
-                  </Link>
-                </p>
-                <div className="border-t border-border pt-4 text-center">
-                  <QuitarFirma />
-                </div>
+                {/* Solo si la guía ya tiene algo escrito. La página pública
+                    hace notFound() cuando está vacía —para que no haya páginas
+                    fantasma con el nombre de un hospital— así que este enlace
+                    daba un 404 justo al abrir el formulario, que es cuando más
+                    apetece pulsarlo. */}
+                {Object.keys(cuantasPorPregunta).length > 0 ? (
+                  <p className="text-center text-xs">
+                    <Link
+                      href={`/guias/${hospitalSlug}/${temaSlug}`}
+                      className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                    >
+                      Ver cómo queda la página →
+                    </Link>
+                  </p>
+                ) : (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Esta guía todavía está vacía. En cuanto escribas algo tendrá su
+                    propia página.
+                  </p>
+                )}
               </div>
             ) : (
               <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">

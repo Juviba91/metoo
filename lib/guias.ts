@@ -15,8 +15,10 @@ export type FilaGuia = {
   revisada_en: string
   /** 'seeker' | 'volunteer', o null si la cuenta se dio de baja. */
   autor_rol?: string | null
-  /** Solo si esa aportación pidió firma. La base ya filtra: aquí llega null. */
+  /** Null solo si la cuenta se dio de baja. */
   autor_alias?: string | null
+  /** Para enlazar al perfil. Null si la cuenta se dio de baja. */
+  autor_id?: string | null
 }
 
 export type RespuestaGuia = {
@@ -24,6 +26,7 @@ export type RespuestaGuia = {
   revisada_en: string
   autor_rol?: string | null
   autor_alias?: string | null
+  autor_id?: string | null
 }
 
 export type BloqueGuia = {
@@ -65,6 +68,7 @@ export function agruparPorPregunta(filas: FilaGuia[]): BloqueGuia[] {
       revisada_en: fila.revisada_en,
       autor_rol: fila.autor_rol ?? null,
       autor_alias: fila.autor_alias ?? null,
+      autor_id: fila.autor_id ?? null,
     })
   }
 

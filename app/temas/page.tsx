@@ -1,6 +1,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
@@ -41,6 +42,13 @@ export default async function TemasPage() {
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+        <Link
+          href="/feed"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Feed
+        </Link>
+
         <div>
           <h1 className="text-lg font-semibold">Temas</h1>
           <p className="mt-1 text-sm text-muted-foreground">
