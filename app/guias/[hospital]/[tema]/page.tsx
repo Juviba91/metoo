@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, MapPin } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
-import { agruparPorPregunta, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
+import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
 import type { Metadata } from 'next'
 
 type Params = Promise<{ hospital: string; tema: string }>
@@ -20,7 +20,7 @@ const cargar = cache(async (hospital: string, tema: string) => {
 
   const { data } = await supabase
     .from('guias_publicas')
-    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, hospital, ciudad, tema')
+    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, hospital, ciudad, tema')
     .eq('hospital_slug', hospital)
     .eq('tema_slug', tema)
 
@@ -86,7 +86,7 @@ export default async function GuiaPage({ params }: { params: Params }) {
             un hospital se lee como si la hubiera escrito el hospital. */}
         <div className="mt-8 rounded-xl border-2 border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
           <p className="font-semibold">
-            Esto lo escriben familias que han pasado por aquí, no el hospital.
+            Esto lo escriben personas que han pasado por algo parecido, no el hospital.
           </p>
           <p className="mt-1 text-muted-foreground">
             No es información médica ni oficial, y puede haber cambiado. Para cualquier
@@ -109,11 +109,21 @@ export default async function GuiaPage({ params }: { params: Params }) {
                     className="rounded-xl border border-border bg-muted/20 p-4 text-sm leading-relaxed"
                   >
                     <p className="whitespace-pre-line">{r.contenido}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {mesYAno(r.revisada_en)}
+                    <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                      {/* El alias solo si esa aportación pidió firma. La base ya
+                          filtra: si no la pidió, aquí llega null. */}
+                      {r.autor_alias && (
+                        <span className="font-medium text-foreground">{r.autor_alias}</span>
+                      )}
+                      {etiquetaAutor(r.autor_rol) && (
+                        <span className="rounded-full border border-border px-2 py-0.5">
+                          {etiquetaAutor(r.autor_rol)}
+                        </span>
+                      )}
+                      <span>{mesYAno(r.revisada_en)}</span>
                       {puedeEstarDesfasada(r.revisada_en) && (
                         <span className="text-amber-700 dark:text-amber-500">
-                          {' '}· puede estar desfasado
+                          · puede estar desfasado
                         </span>
                       )}
                     </p>

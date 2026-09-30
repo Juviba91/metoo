@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { aportar } from './actions'
+import { aportar, quitarMiFirma } from './actions'
 
 /** Los dos selectores. Van por la URL para que la página siga siendo servidor. */
 export function Selectores({
@@ -62,7 +62,7 @@ export function Selectores({
           ))}
         </select>
         <span className="mt-1 block text-xs text-muted-foreground">
-          Solo los de tu perfil: se escribe de lo que se ha vivido.
+          Los de tu perfil salen primero. Escribe de lo que hayas vivido.
         </span>
       </label>
     </div>
@@ -79,6 +79,7 @@ export function CajaPregunta({
   enunciado,
   ayuda,
   yaRespondida,
+  alias,
 }: {
   hospitalSlug: string
   temaSlug: string
@@ -86,8 +87,11 @@ export function CajaPregunta({
   enunciado: string
   ayuda: string | null
   yaRespondida: number
+  /** El alias de quien escribe, para poder enseñárselo en la casilla. */
+  alias: string
 }) {
   const [texto, setTexto] = useState('')
+  const [firmar, setFirmar] = useState(false)
   const [estado, setEstado] = useState<'listo' | 'enviando' | 'guardado'>('listo')
   const [error, setError] = useState<string | null>(null)
 
@@ -99,7 +103,7 @@ export function CajaPregunta({
     setEstado('enviando')
     setError(null)
 
-    const res = await aportar(hospitalSlug, temaSlug, preguntaId, texto)
+    const res = await aportar(hospitalSlug, temaSlug, preguntaId, texto, firmar)
 
     if (res.error) {
       setError(res.error)
@@ -135,6 +139,28 @@ export function CajaPregunta({
         className="mt-3 w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
       />
 
+      {/* Desmarcada por defecto, y con el alias a la vista: "mostrar mi alias"
+          en abstracto no se lee igual que ver el tuyo escrito ahí. Y se dice
+          dónde va a acabar, porque estas páginas salen en Google. */}
+      <label className="mt-2 flex cursor-pointer items-start gap-2">
+        <input
+          type="checkbox"
+          checked={firmar}
+          onChange={(e) => setFirmar(e.target.checked)}
+          className="mt-0.5 size-3.5 shrink-0 accent-foreground"
+        />
+        <span className="text-xs leading-relaxed text-muted-foreground">
+          Firmar como <strong className="font-medium text-foreground">{alias}</strong>
+          {firmar ? (
+            <span className="text-amber-700 dark:text-amber-500">
+              {' '}— tu alias se verá en la página pública, que sale en Google
+            </span>
+          ) : (
+            <span> — si no lo marcas, no aparece tu alias en ningún sitio</span>
+          )}
+        </span>
+      </label>
+
       <div className="mt-2 flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">
           {estado === 'guardado' ? (
@@ -155,5 +181,51 @@ export function CajaPregunta({
         </Button>
       </div>
     </section>
+  )
+}
+
+/**
+ * Retirar la firma de todo lo escrito, de un clic.
+ *
+ * Es la pieza que hace aceptable que la firma vaya por casilla: si alguien la
+ * marcó sin pensarlo, tiene que poder deshacerlo sin escribir a nadie.
+ */
+export function QuitarFirma() {
+  const [estado, setEstado] = useState<'listo' | 'enviando' | 'hecho'>('listo')
+  const [quitadas, setQuitadas] = useState(0)
+
+  async function quitar() {
+    setEstado('enviando')
+    const res = await quitarMiFirma()
+    if (res.error) {
+      setEstado('listo')
+      return
+    }
+    setQuitadas(res.quitadas ?? 0)
+    setEstado('hecho')
+  }
+
+  if (estado === 'hecho') {
+    return (
+      <p className="text-xs text-muted-foreground">
+        {quitadas === 0
+          ? 'No tenías ninguna aportación firmada.'
+          : quitadas === 1
+            ? 'Quitada la firma de 1 aportación.'
+            : `Quitada la firma de ${quitadas} aportaciones.`}
+      </p>
+    )
+  }
+
+  return (
+    <button
+      onClick={quitar}
+      disabled={estado === 'enviando'}
+      className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground disabled:opacity-50"
+    >
+      {estado === 'enviando'
+        ? 'Quitando…'
+        : 'Quitar mi alias de todo lo que he escrito en las guías'}
+    </button>
   )
 }

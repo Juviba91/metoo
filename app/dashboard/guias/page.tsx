@@ -5,7 +5,7 @@ import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { CajaPregunta, Selectores } from './guia-form'
+import { CajaPregunta, QuitarFirma, Selectores } from './guia-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Escribir una guía' }
@@ -23,7 +23,7 @@ export default async function EscribirGuiaPage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, profile_hashtags(hashtags(slug, label))')
+    .select('role, alias, profile_hashtags(hashtags(slug, label))')
     .eq('id', user.id)
     .single()
 
@@ -31,16 +31,25 @@ export default async function EscribirGuiaPage({
 
   const esVoluntario = profile.role === 'volunteer'
 
-  // Los temas que esa persona ha vivido, que son los únicos sobre los que la
-  // base le va a dejar escribir (lo comprueba `aportar_a_guia`).
-  const temas = ((profile.profile_hashtags ?? []) as { hashtags: { slug: string; label: string } | null }[])
-    .map((ph) => ph.hashtags)
-    .filter((t): t is { slug: string; label: string } => Boolean(t))
-    .sort((a, b) => a.label.localeCompare(b.label, 'es'))
+  // Los temas del perfil se siguen leyendo, pero ya no limitan: se usan para
+  // ponerlos primero en el desplegable. Escribir de lo que has vivido es lo
+  // normal, y lo normal se pone a mano, no se impone.
+  const mios = new Set(
+    ((profile.profile_hashtags ?? []) as { hashtags: { slug: string } | null }[])
+      .map((ph) => ph.hashtags?.slug)
+      .filter((s): s is string => Boolean(s)),
+  )
 
-  const [{ data: hospitales }, { data: preguntas }, { data: yaHay }, pendingCount, { data: unreadData }] =
-    await Promise.all([
+  const [
+    { data: hospitales },
+    { data: todosLosTemas },
+    { data: preguntas },
+    { data: yaHay },
+    pendingCount,
+    { data: unreadData },
+  ] = await Promise.all([
       supabase.from('hospitals').select('slug, name, city').order('name'),
+      supabase.from('hashtags').select('slug, label').order('label'),
       temaSlug
         ? supabase
             .from('guia_preguntas')
@@ -58,6 +67,13 @@ export default async function EscribirGuiaPage({
       esVoluntario ? contarSolicitudesPendientes() : Promise.resolve(0),
       supabase.rpc('get_unread_count', { user_uuid: user.id }),
     ])
+
+  // Los tuyos arriba: es lo que vas a elegir nueve de cada diez veces.
+  const temas = [...((todosLosTemas ?? []) as { slug: string; label: string }[])].sort(
+    (a, b) =>
+      Number(mios.has(b.slug)) - Number(mios.has(a.slug)) ||
+      a.label.localeCompare(b.label, 'es'),
+  )
 
   // Las generales (sin tema) más las del tema elegido.
   const preguntasDelTema = ((preguntas ?? []) as {
@@ -89,28 +105,9 @@ export default async function EscribirGuiaPage({
           </p>
         </div>
 
-        {!esVoluntario ? (
+        {temas.length === 0 ? (
           <div className="rounded-xl border border-border p-8 text-center text-sm text-muted-foreground">
-            <p>Las guías las escriben los voluntarios, que ya pasaron por ahí.</p>
-            <p className="mt-2">
-              Puedes leerlas todas en{' '}
-              <Link href="/guias" className="text-foreground underline underline-offset-2">
-                las guías por hospital
-              </Link>
-              .
-            </p>
-          </div>
-        ) : temas.length === 0 ? (
-          <div className="rounded-xl border border-border p-8 text-center text-sm text-muted-foreground">
-            <p>Primero añade a tu perfil los temas que has vivido.</p>
-            <p className="mt-2">
-              <Link
-                href="/dashboard/perfil"
-                className="text-foreground underline underline-offset-2"
-              >
-                Ir a mi perfil
-              </Link>
-            </p>
+            <p>Todavía no hay temas en el catálogo.</p>
           </div>
         ) : (
           <>
@@ -144,6 +141,7 @@ export default async function EscribirGuiaPage({
                     enunciado={p.enunciado}
                     ayuda={p.ayuda}
                     yaRespondida={cuantasPorPregunta[p.id] ?? 0}
+                    alias={profile.alias}
                   />
                 ))}
                 <p className="pt-2 text-center text-xs text-muted-foreground">
@@ -158,6 +156,9 @@ export default async function EscribirGuiaPage({
                     Ver cómo queda la página →
                   </Link>
                 </p>
+                <div className="border-t border-border pt-4 text-center">
+                  <QuitarFirma />
+                </div>
               </div>
             ) : (
               <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">

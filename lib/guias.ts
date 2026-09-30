@@ -13,6 +13,17 @@ export type FilaGuia = {
   ayuda: string | null
   contenido: string
   revisada_en: string
+  /** 'seeker' | 'volunteer', o null si la cuenta se dio de baja. */
+  autor_rol?: string | null
+  /** Solo si esa aportación pidió firma. La base ya filtra: aquí llega null. */
+  autor_alias?: string | null
+}
+
+export type RespuestaGuia = {
+  contenido: string
+  revisada_en: string
+  autor_rol?: string | null
+  autor_alias?: string | null
 }
 
 export type BloqueGuia = {
@@ -20,7 +31,7 @@ export type BloqueGuia = {
   orden: number
   enunciado: string
   ayuda: string | null
-  respuestas: { contenido: string; revisada_en: string }[]
+  respuestas: RespuestaGuia[]
 }
 
 /**
@@ -49,7 +60,12 @@ export function agruparPorPregunta(filas: FilaGuia[]): BloqueGuia[] {
       }
       porPregunta.set(fila.pregunta_id, bloque)
     }
-    bloque.respuestas.push({ contenido: fila.contenido, revisada_en: fila.revisada_en })
+    bloque.respuestas.push({
+      contenido: fila.contenido,
+      revisada_en: fila.revisada_en,
+      autor_rol: fila.autor_rol ?? null,
+      autor_alias: fila.autor_alias ?? null,
+    })
   }
 
   const bloques = [...porPregunta.values()]
@@ -93,4 +109,20 @@ export function puedeEstarDesfasada(iso: string, ahora: Date = new Date()): bool
     (ahora.getUTCMonth() - fecha.getUTCMonth())
 
   return meses >= MESES_HASTA_CADUCAR
+}
+
+/**
+ * Cómo se presenta quién escribió, sin decir quién es.
+ *
+ * El rol no identifica —son dos valores para toda la app— pero cambia cómo se
+ * lee una respuesta: alguien ingresado ahora y alguien que salió hace tres años
+ * no cuentan lo mismo, y hasta ahora se leían igual.
+ *
+ * Se nombra por el momento en que está, no por su papel en la app: «voluntario»
+ * no le dice nada a quien llega de Google.
+ */
+export function etiquetaAutor(rol: string | null | undefined): string | null {
+  if (rol === 'volunteer') return 'Ya pasó por esto'
+  if (rol === 'seeker') return 'Lo está viviendo'
+  return null
 }
