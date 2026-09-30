@@ -61,6 +61,22 @@ export default async function GuiasPage() {
           No hace falta cuenta para leerlo.
         </p>
 
+        {/* «Contar lo que sé» vive aquí, no en Inicio: es donde ya estás
+            leyendo guías y donde tiene sentido que se te ocurra añadir algo. */}
+        <div className="mb-10 rounded-xl border border-border bg-muted/20 p-5">
+          <p className="font-semibold">¿Has pasado por un hospital?</p>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+            Lo que tú aprendiste le puede ahorrar horas a quien acaba de llegar. Dos o
+            tres líneas por pregunta bastan.
+          </p>
+          <Link
+            href="/dashboard/guias"
+            className="mt-3 inline-block rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+          >
+            Contar lo que sé →
+          </Link>
+        </div>
+
         {guias.length === 0 ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
             <p className="mb-2 text-3xl">🌱</p>

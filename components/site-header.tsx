@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, LogOut, Settings } from 'lucide-react'
+import { ArrowUpRight, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { signOut } from '@/app/auth/actions'
 import { NavLinks } from './nav-links'
@@ -74,18 +74,20 @@ export async function SiteHeader() {
     <SiteHeaderShell
       adminLink={
         isAdmin ? (
-          // Visible también en móvil: iba con `hidden sm:flex` y desde el
-          // teléfono no había forma de llegar al panel salvo escribiendo la
-          // URL. Cabe de sobra, porque el menú y «Normas» ya están ocultos a
-          // este ancho, y además esto solo lo ve una persona.
+          // «DB» en texto, no el engranaje: un engranaje se lee como ajustes
+          // de la cuenta, y esto es el panel de administración. Dos letras
+          // caben en móvil, que es donde el icono solo no se entendía.
+          //
+          // Visible también en móvil a propósito: iba con `hidden sm:flex` y
+          // desde el teléfono no había forma de llegar al panel salvo
+          // escribiendo la URL.
           <Link
             href="/admin"
-            className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-amber-600 transition-colors hover:bg-amber-50 hover:text-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30 dark:hover:text-amber-300 sm:px-2.5"
-            title="Admin"
+            className="flex items-center rounded-lg px-2 py-1.5 text-xs font-semibold text-amber-600 transition-colors hover:bg-amber-50 hover:text-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30 dark:hover:text-amber-300 sm:px-2.5"
+            title="Panel de administración"
             aria-label="Panel de administración"
           >
-            <Settings className="size-4" />
-            <span className="hidden md:inline">Admin</span>
+            DB
           </Link>
         ) : null
       }

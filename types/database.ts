@@ -694,6 +694,7 @@ export type Database = {
           revisada_en: string
           autor_rol: string | null
           autor_alias: string | null
+          autor_id: string | null
         }
         Relationships: []
       }

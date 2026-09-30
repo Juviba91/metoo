@@ -5,7 +5,7 @@ import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { CajaPregunta, QuitarFirma, Selectores } from './guia-form'
+import { CajaPregunta, Selectores } from './guia-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Escribir una guía' }
@@ -114,12 +114,13 @@ export default async function EscribirGuiaPage({
             {/* Se dice ANTES de escribir, no después: lo que se escriba queda
                 público en internet, aunque sin tu alias. */}
             <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
-              <p className="font-semibold">Esto se publica, y sin tu nombre</p>
+              <p className="font-semibold">Esto se publica, y con tu alias</p>
               <p className="mt-1 text-muted-foreground">
                 Lo que escribas lo podrá leer cualquiera en internet, también sin tener
-                cuenta. No aparece tu alias en ningún sitio. No cuentes nada que te pueda
-                identificar —ni fechas exactas, ni nombres de personas del hospital— y nada
-                sobre tratamientos o medicación.
+                cuenta, y aparecerá firmado como{' '}
+                <strong className="text-foreground">{profile.alias}</strong>. No cuentes
+                nada que te pueda identificar —ni fechas exactas, ni nombres de personas
+                del hospital— y nada sobre tratamientos o medicación.
               </p>
             </div>
 
@@ -141,7 +142,6 @@ export default async function EscribirGuiaPage({
                     enunciado={p.enunciado}
                     ayuda={p.ayuda}
                     yaRespondida={cuantasPorPregunta[p.id] ?? 0}
-                    alias={profile.alias}
                   />
                 ))}
                 <p className="pt-2 text-center text-xs text-muted-foreground">
@@ -156,9 +156,6 @@ export default async function EscribirGuiaPage({
                     Ver cómo queda la página →
                   </Link>
                 </p>
-                <div className="border-t border-border pt-4 text-center">
-                  <QuitarFirma />
-                </div>
               </div>
             ) : (
               <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">

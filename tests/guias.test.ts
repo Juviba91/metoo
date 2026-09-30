@@ -127,16 +127,26 @@ describe('agruparPorPregunta: el rol viaja con la respuesta', () => {
   })
 })
 
-describe('la firma es opcional', () => {
-  it('el alias viaja solo cuando la aportación lo pidió', () => {
-    // El filtro de verdad está en la vista (`CASE WHEN mostrar_alias`), no
-    // aquí: si no se pidió firma, el alias no sale de la base. Esto comprueba
-    // que el agrupado no lo pierde cuando sí viene, ni lo inventa cuando no.
+describe('el alias y el enlace al perfil', () => {
+  it('viajan con cada aportación', () => {
+    // El alias se enseña siempre y es pulsable, así que hace falta tanto el
+    // nombre como el id para poder enlazar al perfil.
     const bloques = agruparPorPregunta([
-      { ...fila('p1', 1, 'firmada'), autor_alias: 'luna_azul' },
-      { ...fila('p1', 1, 'anónima', '2025-01-01T00:00:00Z') },
+      { ...fila('p1', 1, 'la mía'), autor_alias: 'luna_azul', autor_id: 'u-1' },
     ])
 
-    expect(bloques[0].respuestas.map((r) => r.autor_alias)).toEqual(['luna_azul', null])
+    expect(bloques[0].respuestas[0]).toMatchObject({
+      autor_alias: 'luna_azul',
+      autor_id: 'u-1',
+    })
+  })
+
+  it('una cuenta dada de baja no deja ni nombre ni enlace', () => {
+    // `autor_id` queda a NULL al darse de baja, y entonces no hay perfil al
+    // que enlazar: la aportación se sigue viendo, sin firma.
+    const bloques = agruparPorPregunta([fila('p1', 1, 'de alguien que se fue')])
+
+    expect(bloques[0].respuestas[0].autor_alias).toBeNull()
+    expect(bloques[0].respuestas[0].autor_id).toBeNull()
   })
 })

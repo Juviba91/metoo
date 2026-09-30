@@ -16,7 +16,6 @@ export async function aportar(
   temaSlug: string,
   preguntaId: string,
   contenido: string,
-  mostrarAlias: boolean,
 ): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const user = await getUser()
@@ -27,7 +26,8 @@ export async function aportar(
     p_tema_slug: temaSlug,
     p_pregunta_id: preguntaId,
     p_contenido: contenido,
-    p_mostrar_alias: mostrarAlias,
+    // Sin `p_mostrar_alias`: el alias se enseña siempre y el parámetro de la
+    // función ya no decide nada. Se deja en la base por si se vuelve atrás.
   })
 
   if (error) {
@@ -40,28 +40,4 @@ export async function aportar(
   revalidatePath(`/guias/${hospitalSlug}/${temaSlug}`)
   revalidatePath('/guias')
   return { success: true }
-}
-
-/**
- * Quita el alias de TODO lo que esta persona haya escrito en las guías.
- *
- * Existe porque la firma es opcional y se marca con una casilla, y una casilla
- * marcada sin pensar no puede ser definitiva cuando el resultado lo indexa
- * Google. Devuelve cuántas aportaciones ha dejado sin firma.
- */
-export async function quitarMiFirma(): Promise<{ quitadas?: number; error?: string }> {
-  const supabase = await createClient()
-  const user = await getUser()
-  if (!user) return { error: 'No autenticado' }
-
-  const { data, error } = await supabase.rpc('quitar_mi_firma_en_guias')
-
-  if (error) {
-    console.error('quitar_mi_firma_en_guias failed:', error)
-    return { error: 'No se pudo quitar la firma' }
-  }
-
-  revalidatePath('/dashboard/guias')
-  revalidatePath('/guias')
-  return { quitadas: (data as number) ?? 0 }
 }
