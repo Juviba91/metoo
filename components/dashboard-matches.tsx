@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { opcionesDeHashtag } from '@/lib/temas'
-import { MapPin, Search } from 'lucide-react'
+import { HeartHandshake, MapPin, Search } from 'lucide-react'
 import { ContactButton } from '@/components/contact-button'
 import { modeLabels, stageLabel } from '@/lib/profile-fields'
 import Link from 'next/link'
@@ -89,10 +89,18 @@ export function DashboardMatches({
   return (
     <div>
       <div className="mb-4 flex items-center gap-2">
-        <h2 className="text-lg font-semibold">
+        {/* Con icono, igual que «Guías»: si una sección lo lleva y la de al
+            lado no, parece que falta algo. */}
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <HeartHandshake className="size-5" />
           {role === 'seeker' ? 'Voluntarios disponibles' : 'Personas que buscan apoyo'}
         </h2>
-        <span className="text-sm text-muted-foreground">({filtered.length})</span>
+        {/* Sin el «(0)»: un cero al lado del titulo no informa de nada y lo
+            unico que hace es subrayar que no hay nadie. El estado vacio de
+            abajo ya lo dice, y con palabras. */}
+        {filtered.length > 0 && (
+          <span className="text-sm text-muted-foreground">({filtered.length})</span>
+        )}
       </div>
 
       {/* Hashtag filter chips */}

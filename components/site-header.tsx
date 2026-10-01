@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, LogOut } from 'lucide-react'
+import { ArrowUpRight, LogOut, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { signOut } from '@/app/auth/actions'
 import { NavLinks } from './nav-links'
@@ -50,6 +50,19 @@ export function SiteHeaderShell({ adminLink }: { adminLink?: React.ReactNode }) 
             className="hidden items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
           >
             Normas <ArrowUpRight className="size-3" />
+          </Link>
+
+          {/* Los ajustes de la cuenta estaban al final del perfil, que es donde
+              editas lo que la gente ve de ti: dos cosas distintas en una página
+              larga. No se tocan casi nunca, pero cuando se buscan se buscan a
+              propósito, y para eso sirve un sitio fijo arriba. */}
+          <Link
+            href="/dashboard/ajustes"
+            className="flex items-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title="Ajustes de la cuenta"
+            aria-label="Ajustes de la cuenta"
+          >
+            <Settings className="size-4" />
           </Link>
 
           <form action={signOut}>
