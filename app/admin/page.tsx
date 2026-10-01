@@ -1,7 +1,12 @@
 import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
-import { DeleteUserBtn, ResolveReportBtn, BorrarComentarioBtn } from './admin-buttons'
+import {
+  DeleteUserBtn,
+  ResolveReportBtn,
+  BorrarComentarioBtn,
+  OcultarAportacionBtn,
+} from './admin-buttons'
 import { StatsGrid } from './stats-grid'
 import { UsersSection } from './users-section'
 import Link from 'next/link'
@@ -36,6 +41,7 @@ export default async function AdminPage() {
     { count: rateLimitCount },
     { data: feedback },
     { data: suggestions },
+    { data: aportaciones },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -64,6 +70,16 @@ export default async function AdminPage() {
       .select('id, suggestion, created_at, profiles!profile_id(alias)')
       .order('created_at', { ascending: false })
       .limit(50),
+    // Las guías son públicas, indexables y las escribe cualquiera con cuenta:
+    // es el contenido que más falta hace poder moderar. Se traen también las
+    // ocultas, para poder deshacer.
+    admin
+      .from('guia_respuestas')
+      .select(
+        'id, contenido, creada_en, oculta, oculta_motivo, hospitals(name, slug), hashtags(label, slug), guia_preguntas(enunciado), profiles(alias)',
+      )
+      .order('creada_en', { ascending: false })
+      .limit(100),
   ])
 
   const emailMap = Object.fromEntries(
@@ -142,6 +158,67 @@ export default async function AdminPage() {
                     </div>
                   </div>
                 ))}
+            </div>
+          </section>
+        )}
+
+        {/* Guías: lo único público e indexable que escribe cualquiera. Se
+            oculta, no se borra: no hay historial, así que un error de
+            moderación tiene que poder deshacerse. */}
+        {(aportaciones?.length ?? 0) > 0 && (
+          <section>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+              Guías
+              <span className="text-sm font-normal text-muted-foreground">
+                ({aportaciones?.length})
+              </span>
+            </h2>
+            <div className="space-y-3">
+              {(aportaciones ?? []).map((a: any) => (
+                <div
+                  key={a.id}
+                  className={`rounded-xl border p-4 ${
+                    a.oculta ? 'border-destructive/30 bg-destructive/5' : 'border-border'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-muted-foreground">
+                        {a.hashtags?.label} · {a.hospitals?.name}
+                      </p>
+                      <p className="mt-1 text-xs font-medium">{a.guia_preguntas?.enunciado}</p>
+                      <p className="mt-2 whitespace-pre-wrap break-words text-sm">
+                        {a.contenido}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <OcultarAportacionBtn id={a.id} oculta={a.oculta} />
+                      {a.hospitals?.slug && a.hashtags?.slug && (
+                        <Link
+                          href={`/guias/${a.hospitals.slug}/${a.hashtags.slug}`}
+                          target="_blank"
+                          className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          Ver ↗
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {a.profiles?.alias ?? 'cuenta eliminada'} ·{' '}
+                    {a.creada_en
+                      ? new Date(a.creada_en).toLocaleDateString('es-ES', {
+                          day: 'numeric', month: 'short', year: 'numeric',
+                        })
+                      : '—'}
+                    {a.oculta && (
+                      <span className="text-destructive">
+                        {' '}· oculta{a.oculta_motivo ? `: ${a.oculta_motivo}` : ''}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
         )}

@@ -5,10 +5,6 @@ import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
-import { AccountSection } from './account-section'
-import { DeleteAccount } from './delete-account'
-import { AppAbout } from '@/components/app-about'
-import { AjustesCuenta } from './ajustes-cuenta'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { HowItWorks } from '@/components/how-it-works'
 import type { UserRole } from '@/types/database'
@@ -25,7 +21,7 @@ export default async function PerfilPage() {
   const [{ data: profile }, { data: allHashtags }, pendingCount, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, email_notifications_enabled, digest_enabled, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
@@ -74,32 +70,6 @@ export default async function PerfilPage() {
         <div className="mt-12 border-t border-border/60 pt-8">
           <HowItWorks />
         </div>
-
-        {/* Todo lo que no se edita cada día, recogido: el correo, los avisos,
-            eliminar la cuenta y lo de metoo. Antes ocupaba media pantalla de
-            scroll por delante de lo único que vienes a cambiar. */}
-        <AjustesCuenta>
-          <div>
-            <h3 className="mb-4 text-sm font-semibold">Cuenta</h3>
-            <AccountSection
-              email={user.email}
-              emailConfirmed={!!user.email_confirmed_at}
-              emailNotificationsEnabled={profile.email_notifications_enabled}
-              digestEnabled={profile.digest_enabled}
-              esVoluntario={profile.role === 'volunteer'}
-            />
-          </div>
-
-          <div className="border-t border-border/60 pt-8">
-            <h3 className="mb-1 text-sm font-semibold text-destructive">Eliminar cuenta</h3>
-            <DeleteAccount />
-          </div>
-
-          <div className="border-t border-border/60 pt-8">
-            <AppAbout />
-          </div>
-        </AjustesCuenta>
-
       </main>
 
       <SiteFooter className="hidden sm:block" />

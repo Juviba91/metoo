@@ -78,3 +78,47 @@ export async function resolveReport(reportId: string) {
   }
   revalidatePath('/admin')
 }
+
+/**
+ * Oculta o vuelve a mostrar una aportación de una guía.
+ *
+ * Ocultar, no borrar: las guías son públicas, las escribe cualquiera con
+ * cuenta y no llevan historial, así que un error de moderación tiene que poder
+ * deshacerse. La fila se queda con quién la escribió y con el motivo.
+ *
+ * Va por el cliente de service role como el resto del panel: nadie más puede
+ * escribir en `guia_respuestas` —ni `anon` ni `authenticated` tienen permisos
+ * sobre esa tabla— así que esto no abre ninguna puerta nueva.
+ */
+export async function ocultarAportacionGuia(
+  id: string,
+  oculta: boolean,
+  motivo?: string,
+) {
+  await requireAdmin()
+  const admin = createAdminClient()
+
+  const { error } = await admin
+    .from('guia_respuestas')
+    .update({
+      oculta,
+      // Al volver a mostrarla se limpia el motivo: si no, queda una razón
+      // colgada de algo que ya no está oculto y engaña al mirarlo dentro de
+      // seis meses.
+      oculta_motivo: oculta ? (motivo?.trim() || null) : null,
+    })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error ocultando aportación de guía:', error)
+    throw new Error('Error al ocultar la aportación')
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/guias')
+  // Y la página de la guía, no solo el índice: con `staleTimes.dynamic` a 30 s,
+  // quien la tuviera abierta seguiría viendo lo que acabas de ocultar. Con el
+  // patrón de la ruta dinámica se invalidan todas sus instancias, que es lo que
+  // hace falta porque aquí no sabemos de qué guía era.
+  revalidatePath('/guias/[hospital]/[tema]', 'page')
+}

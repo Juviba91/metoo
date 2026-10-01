@@ -41,7 +41,7 @@ export default async function GuiasPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/60 px-6 py-4">
+      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 px-6 py-4 backdrop-blur-sm">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link href="/">
             <Logo size={28} />
