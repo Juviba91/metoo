@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SiteHeaderPublic } from '@/components/site-header-public'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Privacidad' }
@@ -22,13 +23,7 @@ const ACTUALIZADA = 'septiembre de 2026'
 export default function PrivacidadPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/60 px-6 py-4">
-        <div className="mx-auto max-w-3xl">
-          <Link href="/" className="text-xl font-bold tracking-tight">
-            metoo.
-          </Link>
-        </div>
-      </header>
+      <SiteHeaderPublic showAuth={false} />
 
       <main className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="mb-2 text-3xl font-bold">Política de privacidad</h1>

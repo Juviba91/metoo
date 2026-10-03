@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, MapPin } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
-import { Logo } from '@/components/logo'
 import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
+import { SiteHeaderPublic } from '@/components/site-header-public'
 import type { Metadata } from 'next'
 
 type Params = Promise<{ hospital: string; tema: string }>
@@ -61,19 +61,17 @@ export default async function GuiaPage({ params }: { params: Params }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 px-6 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link href="/">
-            <Logo size={28} />
-          </Link>
+      <SiteHeaderPublic
+        showAuth={false}
+        rightContent={
           <Link
             href="/guias"
             className="flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
           >
             <ArrowLeft className="size-3.5" /> Todas las guías
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       <main className="mx-auto max-w-3xl px-6 py-12 sm:py-16">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{tema}</h1>
