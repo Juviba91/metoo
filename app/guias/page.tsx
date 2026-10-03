@@ -2,8 +2,8 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { ArrowLeft, MapPin } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
-import { Logo } from '@/components/logo'
 import { mesYAno } from '@/lib/guias'
+import { SiteHeaderPublic } from '@/components/site-header-public'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -41,19 +41,7 @@ export default async function GuiasPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 px-6 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <Link href="/">
-            <Logo size={28} />
-          </Link>
-          <Link
-            href={haySesion ? '/dashboard' : '/auth/login?tab=register'}
-            className="text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-          >
-            {haySesion ? 'Ir a metoo' : 'Entrar'}
-          </Link>
-        </div>
-      </header>
+      <SiteHeaderPublic showAuth={!haySesion} />
 
       <main className="mx-auto max-w-4xl px-6 py-12 sm:py-16">
         <Link

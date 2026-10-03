@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { ArrowRight, Hand, Heart, Shield, Users } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
+import { SiteHeaderPublic } from '@/components/site-header-public'
 
 const categories = [
   { emoji: '🏥', label: 'UCIN y prematuridad', sub: 'Bebés en cuidados intensivos neonatales' },
@@ -72,20 +73,7 @@ const reasons = [
 export default function Page() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar */}
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Logo size={32} />
-          <div className="flex gap-2">
-            <Link href="/auth/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
-              Entrar
-            </Link>
-            <Link href="/auth/login?tab=register" className={cn(buttonVariants({ size: 'sm' }))}>
-              Crear cuenta
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeaderPublic />
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-24">
