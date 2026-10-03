@@ -45,10 +45,10 @@ export default async function AjustesPage() {
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-6 py-8 pb-28 sm:pb-8">
         <Link
-          href="/dashboard"
+          href="/dashboard/perfil"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="size-4" /> Inicio
+          <ArrowLeft className="size-4" /> Perfil
         </Link>
 
         <h1 className="text-2xl font-bold">Ajustes de la cuenta</h1>
