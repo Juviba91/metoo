@@ -3,9 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, MapPin } from 'lucide-react'
-import { SiteFooter } from '@/components/site-footer'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
-import { SiteHeaderPublic } from '@/components/site-header-public'
+import { GuiasShell } from '@/components/guias-shell'
 import type { Metadata } from 'next'
 
 type Params = Promise<{ hospital: string; tema: string }>
@@ -60,29 +61,26 @@ export default async function GuiaPage({ params }: { params: Params }) {
   const bloques = agruparPorPregunta(filas)
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <SiteHeaderPublic
-        showAuth={false}
-        rightContent={
-          <Link
-            href="/guias"
-            className="flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-          >
-            <ArrowLeft className="size-3.5" /> Todas las guías
-          </Link>
-        }
-      />
+    <GuiasShell>
+      <main className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+        <Link
+          href="/guias"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Guías
+        </Link>
 
-      <main className="mx-auto max-w-4xl px-6 py-12 sm:py-16">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{tema}</h1>
-        <p className="mt-2 text-lg text-muted-foreground">{hospital}</p>
-        <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-          <MapPin className="size-3.5" /> {ciudad}
-        </p>
+        <div>
+          <h1 className="text-2xl font-bold">{tema}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{hospital}</p>
+          <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+            <MapPin className="size-3.5" /> {ciudad}
+          </p>
+        </div>
 
         {/* Esto va arriba y no en el pie: una página titulada con el nombre de
             un hospital se lee como si la hubiera escrito el hospital. */}
-        <div className="mt-8 rounded-xl border-2 border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
+        <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
           <p className="font-semibold">
             Esto lo escriben personas que han pasado por algo parecido, no el hospital.
           </p>
@@ -92,19 +90,19 @@ export default async function GuiaPage({ params }: { params: Params }) {
           </p>
         </div>
 
-        <div className="mt-10 space-y-10">
+        <div className="space-y-8">
           {bloques.map((bloque) => (
             <section key={bloque.pregunta_id}>
-              <h2 className="text-lg font-semibold">{bloque.enunciado}</h2>
+              <h2 className="font-semibold">{bloque.enunciado}</h2>
               {bloque.ayuda && (
                 <p className="mt-0.5 text-sm text-muted-foreground">{bloque.ayuda}</p>
               )}
 
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 space-y-3">
                 {bloque.respuestas.map((r, i) => (
                   <div
                     key={i}
-                    className="rounded-xl border border-border bg-muted/20 p-4 text-sm leading-relaxed"
+                    className="rounded-xl border border-border p-4 text-sm leading-relaxed"
                   >
                     <p className="whitespace-pre-line">{r.contenido}</p>
                     <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
@@ -144,21 +142,19 @@ export default async function GuiaPage({ params }: { params: Params }) {
           ))}
         </div>
 
-        <div className="mt-14 rounded-xl border border-border p-6 text-center">
+        <div className="rounded-xl border border-border p-4">
           <p className="font-semibold">¿Has pasado por aquí?</p>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             Lo que tú aprendiste le puede ahorrar horas a quien acaba de llegar.
           </p>
           <Link
             href={`/dashboard/guias?hospital=${hospitalSlug}&tema=${temaSlug}`}
-            className="mt-4 inline-block rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            className={cn(buttonVariants({ size: 'sm' }), 'mt-3')}
           >
-            Añadir lo que sepas →
+            Añadir lo que sepas
           </Link>
         </div>
       </main>
-
-      <SiteFooter />
-    </div>
+    </GuiasShell>
   )
 }

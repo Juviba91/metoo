@@ -23,7 +23,7 @@ const ACTUALIZADA = 'septiembre de 2026'
 export default function PrivacidadPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SiteHeaderPublic showAuth={false} />
+      <SiteHeaderPublic showAuth={false} ancho="max-w-3xl" />
 
       <main className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="mb-2 text-3xl font-bold">Política de privacidad</h1>
