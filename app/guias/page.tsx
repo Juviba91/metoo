@@ -1,9 +1,10 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { ArrowLeft, MapPin } from 'lucide-react'
-import { SiteFooter } from '@/components/site-footer'
+import { BookOpen, MapPin, PenLine } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { mesYAno } from '@/lib/guias'
-import { SiteHeaderPublic } from '@/components/site-header-public'
+import { GuiasShell } from '@/components/guias-shell'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -40,40 +41,26 @@ export default async function GuiasPage() {
   const guias = data ?? []
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <SiteHeaderPublic showAuth={!haySesion} />
-
-      <main className="mx-auto max-w-4xl px-6 py-12 sm:py-16">
-        <Link
-          href={haySesion ? '/dashboard' : '/'}
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> {haySesion ? 'Inicio' : 'metoo'}
-        </Link>
-
-        <h1 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
-          Guías
-        </h1>
-        <p className="mb-10 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Dónde dormir, cómo son los horarios de verdad, qué papeles pedir, qué llevarte.
-          Lo práctico que nadie te cuenta, hospital por hospital. Lo escriben personas que
-          han pasado por algo parecido, no los hospitales.
-        </p>
+    <GuiasShell>
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+        <div>
+          <h1 className="flex items-center gap-2 text-lg font-semibold">
+            <BookOpen className="size-5" />
+            Guías
+          </h1>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+            Dónde dormir, cómo son los horarios de verdad, qué papeles pedir, qué llevarte.
+            Lo escriben personas que han pasado por algo parecido, no los hospitales.
+          </p>
+        </div>
 
         {guias.length === 0 ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
             <p className="mb-2 text-3xl">🌱</p>
             <p>Todavía no hay ninguna guía escrita.</p>
-            <p className="mt-1 text-sm">
-              Si has pasado por un hospital y quieres contar lo que aprendiste,{' '}
-              <Link href={aEscribir} className="text-foreground underline underline-offset-2">
-                puedes ser el primero
-              </Link>
-              .
-            </p>
           </div>
         ) : (
-          <div className="mb-10 grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {guias.map((g) => (
               <Link
                 key={`${g.hospital_slug}/${g.tema_slug}`}
@@ -96,24 +83,24 @@ export default async function GuiasPage() {
           </div>
         )}
 
-        {/* «Contar lo que sé» vive aquí, no en Inicio: es donde ya estás
-            leyendo guías y donde tiene sentido que se te ocurra añadir algo. */}
-        <div className="rounded-xl border border-border bg-muted/20 p-5">
-          <p className="font-semibold">¿Has pasado por un hospital?</p>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Lo que tú aprendiste le puede ahorrar horas a quien acaba de llegar. Dos o
-            tres líneas por pregunta bastan.
-          </p>
-          <Link
-            href={aEscribir}
-            className="mt-3 inline-block rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
-          >
-            Contar lo que sé →
-          </Link>
+        {/* Redactar va después de leer: es leyendo guías cuando se le ocurre a
+            alguien que podría añadir la suya. */}
+        <div>
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <PenLine className="size-5" />
+            Redactar
+          </h2>
+          <div className="rounded-xl border border-border p-4">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Si has pasado por un hospital, lo que aprendiste le puede ahorrar horas a
+              quien acaba de llegar. Dos o tres líneas por pregunta bastan.
+            </p>
+            <Link href={aEscribir} className={cn(buttonVariants({ size: 'sm' }), 'mt-3')}>
+              Contar lo que sé
+            </Link>
+          </div>
         </div>
       </main>
-
-      <SiteFooter />
-    </div>
+    </GuiasShell>
   )
 }
