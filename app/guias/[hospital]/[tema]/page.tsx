@@ -73,7 +73,7 @@ export default async function GuiaPage({ params }: { params: Params }) {
         }
       />
 
-      <main className="mx-auto max-w-3xl px-6 py-12 sm:py-16">
+      <main className="mx-auto max-w-4xl px-6 py-12 sm:py-16">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{tema}</h1>
         <p className="mt-2 text-lg text-muted-foreground">{hospital}</p>
         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">

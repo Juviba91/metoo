@@ -152,66 +152,69 @@ export default async function DashboardPage({
         )}
 
         {/* Profile header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <p className="mb-1 text-sm text-muted-foreground">
-              {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
-            </p>
-            <h1 className="text-2xl font-bold">{profile.alias}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              {profile.city && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="size-3.5" /> {profile.city}
-                </span>
-              )}
-            </div>
-            {profile.bio && (
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
-            )}
-            {ownHashtags.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {ownHashtags.map((tag: any) => (
-                  <span
-                    key={tag.id}
-                    className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
+        <div>
+          <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">{profile.alias}</h1>
+
+          <div className="rounded-xl border border-border bg-muted/20 p-4 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="mb-2 text-sm text-muted-foreground">
+                  {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
+                </p>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  {profile.city && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="size-3.5" /> {profile.city}
+                    </span>
+                  )}
+                </div>
+                {profile.bio && (
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
+                )}
+                {ownHashtags.length > 0 ? (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {ownHashtags.map((tag: any) => (
+                      <span
+                        key={tag.id}
+                        className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
+                      >
+                        #{tag.label}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <Link
+                    href="/dashboard/perfil"
+                    className="mt-3 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
                   >
-                    #{tag.label}
-                  </span>
-                ))}
+                    + Añade hashtags a tu perfil para aparecer en búsquedas
+                  </Link>
+                )}
               </div>
-            ) : (
               <Link
                 href="/dashboard/perfil"
-                className="mt-3 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                + Añade hashtags a tu perfil para aparecer en búsquedas
+                Editar
               </Link>
+            </div>
+
+            {profile.role === 'volunteer' && (
+              <form action={toggleAvailability.bind(null, !profile.is_active)} className="mt-4 self-start">
+                <button
+                  type="submit"
+                  className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
+                    profile.is_active
+                      ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400'
+                      : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                  {profile.is_active ? '● Disponible para ayudar' : '○ No disponible'}
+                </button>
+              </form>
             )}
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Link
-              href="/dashboard/perfil"
-              className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              Editar
-            </Link>
-          </div>
         </div>
-
-        {profile.role === 'volunteer' && (
-          <form action={toggleAvailability.bind(null, !profile.is_active)} className="self-start">
-            <button
-              type="submit"
-              className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
-                profile.is_active
-                  ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400'
-                  : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              {profile.is_active ? '● Disponible para ayudar' : '○ No disponible'}
-            </button>
-          </form>
-        )}
 
         {/* Guías por hospital.
             A todo el mundo, y no solo a los voluntarios: para quien busca
