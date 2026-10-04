@@ -51,7 +51,7 @@ export default async function AjustesPage() {
           <ArrowLeft className="size-4" /> Perfil
         </Link>
 
-        <h1 className="text-2xl font-bold">Ajustes de la cuenta</h1>
+        <h1 className="hidden text-2xl font-bold sm:block">Ajustes de la cuenta</h1>
 
         <div>
           <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>

@@ -73,7 +73,7 @@ const reasons = [
 export default function Page() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SiteHeaderPublic />
+      <SiteHeaderPublic ancho="max-w-6xl" />
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-24">

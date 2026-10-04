@@ -2,7 +2,7 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { DashboardMatches } from '@/components/dashboard-matches'
-import { BookOpen, MapPin, MessageCircle } from 'lucide-react'
+import { BookOpen, MapPin, MessageCircle, UserRound } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
@@ -153,9 +153,12 @@ export default async function DashboardPage({
 
         {/* Profile header */}
         <div>
-          <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">{profile.alias}</h1>
+          <h1 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <UserRound className="size-5" />
+            {profile.alias}
+          </h1>
 
-          <div className="rounded-xl border border-border bg-muted/20 p-4 sm:p-6">
+          <div className="rounded-xl border border-border p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <p className="mb-2 text-sm text-muted-foreground">
