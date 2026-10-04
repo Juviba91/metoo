@@ -187,7 +187,7 @@ export default async function DashboardPage({
                   </div>
                 ) : (
                   <Link
-                    href="/dashboard/perfil"
+                    href="/dashboard/perfil/editar"
                     className="mt-3 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
                   >
                     + Añade hashtags a tu perfil para aparecer en búsquedas
@@ -195,7 +195,7 @@ export default async function DashboardPage({
                 )}
               </div>
               <Link
-                href="/dashboard/perfil"
+                href="/dashboard/perfil/editar"
                 className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 Editar

@@ -1,17 +1,16 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
-import { MapPin, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { BlockButton } from '@/components/block-button'
 import { isUserBlocked, canInteractWith, contarSolicitudesPendientes } from '@/app/safety/actions'
-import { modeLabels, stageLabel } from '@/lib/profile-fields'
+import { ProfileCard } from '@/components/profile-card'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import type { Metadata } from 'next'
-import type { Role } from '@/lib/profile-fields'
 
 export const metadata: Metadata = { title: 'Perfil' }
 
@@ -75,8 +74,6 @@ export default async function PublicProfilePage({
   const existingConn = connectionResult.data
   const alreadySent = !!existingConn && existingConn.status !== 'rejected'
 
-  const supportModes = modeLabels(profile.role as Role, profile.support_modes)
-
   const hashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
@@ -93,84 +90,33 @@ export default async function PublicProfilePage({
           <ArrowLeft className="size-4" /> Volver
         </Link>
 
-        <div className="rounded-xl border border-border p-5 sm:p-6">
-          <div className="mb-4">
-            <p className="mb-1 text-sm text-muted-foreground">
-              {profile.role === 'volunteer' ? '💛 Ofreciendo ayuda' : '🤝 Buscando apoyo'}
-            </p>
-            <h1 className="text-2xl font-bold">{profile.alias}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              {profile.city && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="size-3.5" /> {profile.city}
-                </span>
-              )}
-              {stageLabel(profile.role as Role, profile.stage) && (
-                <span>🕰️ {stageLabel(profile.role as Role, profile.stage)}</span>
-              )}
-            </div>
-          </div>
-
-          {hashtags.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              {hashtags.map((tag: any) => (
-                <span
-                  key={tag.id}
-                  className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
-                >
-                  #{tag.label}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {supportModes.length > 0 && (
-            <div className="mb-4">
-              <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-                {profile.role === 'volunteer' ? 'Puede acompañar con' : 'Le vendría bien'}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {supportModes.map((label) => (
-                  <span key={label} className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
-                    {label}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {profile.bio && (
-            <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
-          )}
-
-          <div className="space-y-3">
-            {viewer.role === 'seeker' ? (
-              profile.is_active ? (
-                <ContactButton
-                  volunteerId={id}
-                  alreadySent={alreadySent}
-                  connectionId={alreadySent ? existingConn?.id : undefined}
-                />
-              ) : (
-                <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
-                  No disponible en este momento
-                </div>
-              )
-            ) : existingConn && existingConn.status !== 'rejected' ? (
-              <Link
-                href={`/dashboard/chat/${existingConn.id}`}
-                className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
-              >
-                Ver conversación →
-              </Link>
+        <ProfileCard perfil={{ ...profile, hashtags }}>
+          {viewer.role === 'seeker' ? (
+            profile.is_active ? (
+              <ContactButton
+                volunteerId={id}
+                alreadySent={alreadySent}
+                connectionId={alreadySent ? existingConn?.id : undefined}
+              />
             ) : (
               <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
-                Esperando contacto
+                No disponible en este momento
               </div>
-            )}
-            <BlockButton userId={id} isBlocked={isBlocked} />
-          </div>
-        </div>
+            )
+          ) : existingConn && existingConn.status !== 'rejected' ? (
+            <Link
+              href={`/dashboard/chat/${existingConn.id}`}
+              className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            >
+              Ver conversación →
+            </Link>
+          ) : (
+            <div className="flex w-full items-center justify-center rounded-lg border border-border py-2 text-sm text-muted-foreground">
+              Esperando contacto
+            </div>
+          )}
+          <BlockButton userId={id} isBlocked={isBlocked} />
+        </ProfileCard>
 
       </main>
 

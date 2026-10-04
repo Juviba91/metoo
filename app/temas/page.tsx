@@ -63,7 +63,7 @@ export default async function TemasPage() {
             <p>Todavía no hay movimiento en ningún tema.</p>
             <p className="mt-1 text-sm">
               Añade los tuyos desde{' '}
-              <Link href="/dashboard/perfil" className="text-foreground underline underline-offset-2">
+              <Link href="/dashboard/perfil/editar" className="text-foreground underline underline-offset-2">
                 tu perfil
               </Link>{' '}
               y serás el primero.

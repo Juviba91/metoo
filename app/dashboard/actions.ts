@@ -191,7 +191,9 @@ export async function updateProfile({
   }
 
   revalidatePath('/dashboard')
-  revalidatePath('/dashboard/perfil')
+  // 'layout' para que entren también /dashboard/perfil/editar y el resto de
+  // subrutas: si no, al volver a editar salía lo de antes de guardar.
+  revalidatePath('/dashboard/perfil', 'layout')
   return { success: true }
 }
 
@@ -272,6 +274,7 @@ export async function toggleAvailability(isActive: boolean): Promise<void> {
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/perfil', 'layout')
 }
 
 export async function sendMessage(connectionId: string, content: string) {
