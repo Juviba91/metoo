@@ -42,7 +42,9 @@ export function BottomNav({ pendingCount = 0, chatUnread = 0 }: { pendingCount?:
             // /dashboard/perfil/[id] es el perfil de OTRA persona: marcar ahí
             // "Perfil" hacía creer que estabas viendo el tuyo.
             (href === '/dashboard/perfil' &&
-              (pathname === '/dashboard/perfil' || pathname === '/dashboard/perfil/blocked'))
+              (pathname === '/dashboard/perfil' ||
+                pathname === '/dashboard/perfil/editar' ||
+                pathname === '/dashboard/perfil/blocked'))
           const aviso = avisos[href] ?? 0
           return (
             <Link

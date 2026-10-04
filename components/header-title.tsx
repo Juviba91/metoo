@@ -22,6 +22,7 @@ const TITLES: [test: (p: string) => boolean, title: string][] = [
   [(p) => p === '/dashboard/perfil/blocked', 'Bloqueados'],
   [(p) => p === '/dashboard/ajustes', 'Ajustes'],
   [(p) => p === '/dashboard/perfil', 'Mi perfil'],
+  [(p) => p === '/dashboard/perfil/editar', 'Editar perfil'],
   [(p) => p.startsWith('/dashboard/perfil/'), 'Perfil'],
 ]
 

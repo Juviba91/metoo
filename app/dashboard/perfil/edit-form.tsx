@@ -76,10 +76,10 @@ export function EditForm({
       setError(result.error)
     } else {
       setSaved(true)
-      // Recarga los datos del servidor para que `initial` refleje lo guardado
-      // y el aviso de cambios pendientes desaparezca.
-      router.refresh()
-      setTimeout(() => setSaved(false), 3000)
+      // De vuelta a la ficha: es donde se ve cómo ha quedado lo que has
+      // cambiado, tal y como lo verán los demás.
+      router.push('/dashboard/perfil')
+      return
     }
     setLoading(false)
   }
