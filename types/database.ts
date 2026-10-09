@@ -538,6 +538,8 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           city: string | null
+          consentimiento_en: string | null
+          consentimiento_version: string | null
           country: string
           created_at: string
           display_name: string | null
@@ -558,6 +560,8 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          consentimiento_en?: string | null
+          consentimiento_version?: string | null
           country?: string
           created_at?: string
           display_name?: string | null
@@ -578,6 +582,8 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          consentimiento_en?: string | null
+          consentimiento_version?: string | null
           country?: string
           created_at?: string
           display_name?: string | null

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { SiteHeaderPublic } from '@/components/site-header-public'
+import { TEXTOS_ACTUALIZADOS } from '@/lib/legal'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Privacidad' }
@@ -18,8 +19,6 @@ const RESPONSABLE = {
   email: 'juan@bay-apps.com',
 }
 
-const ACTUALIZADA = 'septiembre de 2026'
-
 export default function PrivacidadPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -28,7 +27,7 @@ export default function PrivacidadPage() {
       <main className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="mb-2 text-3xl font-bold">Política de privacidad</h1>
         <p className="mb-10 text-sm text-muted-foreground">
-          Última actualización: {ACTUALIZADA}
+          Última actualización: {TEXTOS_ACTUALIZADOS}
         </p>
 
         <div className="space-y-8 leading-relaxed text-muted-foreground">
@@ -49,9 +48,13 @@ export default function PrivacidadPage() {
                 Preferimos decírtelo a que lo supongas.
               </li>
               <li>
-                Puedes darte de baja tú, cuando quieras, desde tu perfil. Lo único que sobrevive
+                Puedes darte de baja tú, cuando quieras, desde Ajustes. Lo único que sobrevive
                 son las conversaciones que tuviste, porque también son de la otra persona
-                (punto 6).
+                (punto 7), y lo que escribiste en las guías, sin tu alias (punto 3).
+              </li>
+              <li>
+                Las guías por hospital son públicas: lo que escribas en ellas lo puede leer
+                cualquiera, también sin cuenta, y sale con tu alias (punto 3).
               </li>
             </ul>
           </section>
@@ -108,6 +111,14 @@ export default function PrivacidadPage() {
                 reacciones que dejas.
               </li>
               <li>
+                <strong className="text-foreground">Lo que escribes en las guías</strong>, con el
+                hospital y el tema al que se refieren (punto 3).
+              </li>
+              <li>
+                <strong className="text-foreground">Cuándo aceptaste estos textos</strong>, y qué
+                versión era, para poder demostrar que diste tu consentimiento.
+              </li>
+              <li>
                 <strong className="text-foreground">
                   Bloqueos, reportes y lo que nos escribes por la burbuja de feedback
                 </strong>
@@ -123,7 +134,47 @@ export default function PrivacidadPage() {
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">
-              3. Datos sobre tu salud
+              3. Las guías por hospital
+            </h2>
+            <p>
+              Las guías son lo único de metoo que se puede leer sin tener cuenta, y por eso van
+              aparte: lo que escribes ahí no es privado.
+            </p>
+            <ul className="ml-4 mt-3 list-disc space-y-1.5">
+              <li>
+                <strong className="text-foreground">Qué se publica:</strong> tus respuestas a las
+                preguntas de la guía, el hospital y el tema al que se refieren, tu alias —que, para
+                quien tiene cuenta, lleva a tu perfil— y si ya pasaste por ello o lo estás
+                viviendo.
+              </li>
+              <li>
+                <strong className="text-foreground">Quién lo ve:</strong> cualquiera, con o sin
+                cuenta, y los buscadores pueden indexarlo.
+              </li>
+              <li>
+                <strong className="text-foreground">Cuándo lo sabes:</strong> te lo recordamos en
+                la pantalla donde escribes, antes de enviar nada.
+              </li>
+              <li>
+                <strong className="text-foreground">Si te das de baja:</strong> tus respuestas se
+                quedan, pero sin tu alias ni enlace a tu perfil. Si prefieres que se borren,
+                escríbenos y las borramos.
+              </li>
+              <li>
+                <strong className="text-foreground">Moderación:</strong> no las revisamos antes de
+                que salgan. Ocultamos lo que incumple las normas cuando lo sabemos.
+              </li>
+            </ul>
+            <p className="mt-3">
+              Una guía puede revelar datos de salud tuyos o de tu familia. Por eso te pedimos que
+              no cuentes nada que te identifique, ni nombres de personas del hospital, y nada
+              sobre tratamientos.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">
+              4. Datos sobre tu salud
             </h2>
             <p>
               Esto merece un apartado propio, porque es lo más delicado que hay aquí.
@@ -145,8 +196,13 @@ export default function PrivacidadPage() {
             <p className="mt-3">
               Con una excepción que te decimos por delante: los mensajes que ya enviaste se
               quedan con la persona que los recibió, porque la conversación también es suya
-              (punto 6). Si hay algo concreto que necesitas que desaparezca, escríbenos y lo
+              (punto 7). Si hay algo concreto que necesitas que desaparezca, escríbenos y lo
               miramos uno por uno.
+            </p>
+            <p className="mt-3">
+              Lo mismo vale para lo que publiques en las guías (punto 3), con una diferencia: ahí
+              lo lee cualquiera. Lo das al enviar cada respuesta, después de leer el aviso que lo
+              precede.
             </p>
             <p className="mt-3">
               Tú decides cuánto cuentas. Puedes usar metoo sin escribir nada en tu descripción
@@ -156,7 +212,7 @@ export default function PrivacidadPage() {
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">
-              4. Para qué los usamos, y con qué derecho
+              5. Para qué los usamos, y con qué derecho
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -186,7 +242,24 @@ export default function PrivacidadPage() {
                   <tr className="border-b border-border/50">
                     <td className="py-2 pr-4">Avisarte por correo de mensajes y solicitudes</td>
                     <td className="py-2">
-                      Ejecución del servicio (art. 6.1.b). Puedes desactivarlos en tu perfil
+                      Ejecución del servicio (art. 6.1.b). Puedes desactivarlos en Ajustes
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">
+                      Publicar tus respuestas en las guías por hospital
+                    </td>
+                    <td className="py-2">
+                      Tu consentimiento (arts. 6.1.a y 9.2.a), que das al enviar cada respuesta
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">
+                      Guardar cuándo aceptaste estos textos y qué versión era
+                    </td>
+                    <td className="py-2">
+                      Poder demostrar tu consentimiento (art. 7.1) y defendernos ante una
+                      reclamación (art. 6.1.f)
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -203,6 +276,11 @@ export default function PrivacidadPage() {
               </table>
             </div>
             <p className="mt-4">
+              Los correos de aviso dicen quién te ha escrito, pero nunca lo que te dice: el
+              contenido de los mensajes no sale de la app. Los avisos se pueden desactivar en
+              Ajustes.
+            </p>
+            <p className="mt-4">
               <strong className="text-foreground">
                 No vendemos ni cedemos tus datos a nadie, ni hay publicidad, ni tomamos
                 decisiones automatizadas sobre ti.
@@ -212,7 +290,7 @@ export default function PrivacidadPage() {
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">
-              5. Quién más los toca, y dónde están
+              6. Quién más los toca, y dónde están
             </h2>
             <p>
               metoo no tiene servidores propios. Para funcionar se apoya en tres proveedores,
@@ -244,7 +322,7 @@ export default function PrivacidadPage() {
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">
-              6. Cuánto tiempo los guardamos
+              7. Cuánto tiempo los guardamos
             </h2>
             <ul className="ml-4 list-disc space-y-1.5">
               <li>
@@ -260,9 +338,20 @@ export default function PrivacidadPage() {
                 —ni tu descripción, ni tu ciudad, ni tus etiquetas— y nadie puede escribirte ya.
               </li>
               <li>
-                Los reportes de moderación se conservan aunque te vayas, pero{' '}
+                <strong className="text-foreground">Tus respuestas en las guías</strong> se
+                quedan, sin tu alias ni enlace a ti (punto 3). Si quieres que se borren,
+                escríbenos.
+              </li>
+              <li>
+                Los reportes de moderación, lo que nos escribes por la burbuja de feedback y tus
+                sugerencias de etiquetas se conservan aunque te vayas, pero{' '}
                 <strong className="text-foreground">sin quedar ligados a ti</strong>: se borra
-                quién los hizo y sobre quién. Sirven para detectar patrones, no personas.
+                quién los hizo, sobre quién y en qué conversación. Sirven para detectar patrones,
+                no personas.
+              </li>
+              <li>
+                La fecha en que aceptaste estos textos y la versión se conservan junto al alias de
+                la ficha que queda, para poder demostrar tu consentimiento.
               </li>
               <li>
                 Los registros técnicos de nuestros proveedores se conservan según sus propios
@@ -272,7 +361,7 @@ export default function PrivacidadPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">7. Cookies y analítica</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">8. Cookies y analítica</h2>
             <p>
               Usamos cookies estrictamente necesarias para mantener tu sesión abierta. No hay
               cookies de rastreo ni de publicidad, así que no verás ningún banner pidiéndote
@@ -286,13 +375,13 @@ export default function PrivacidadPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">8. Tus derechos</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">9. Tus derechos</h2>
             <p>
               <strong className="text-foreground">Darte de baja</strong> lo puedes hacer tú,
               ahora mismo y sin pedir permiso, desde{' '}
-              <strong className="text-foreground">Mi perfil → Eliminar cuenta</strong>. Es
+              <strong className="text-foreground">Ajustes → Eliminar cuenta</strong>. Es
               inmediato y no se puede deshacer. Se va todo menos las conversaciones, por lo que
-              te contamos en el punto 6; si quieres que también se borre alguna, escríbenos y lo
+              te contamos en el punto 7; si quieres que también se borre alguna, escríbenos y lo
               vemos caso por caso.
             </p>
             <p className="mt-3">
@@ -305,7 +394,8 @@ export default function PrivacidadPage() {
               >
                 {RESPONSABLE.email}
               </a>
-              . Respondemos como mucho en un mes.
+              . Lo mismo si quieres que borremos tus respuestas de las guías. Respondemos como
+              mucho en un mes.
             </p>
             <p className="mt-3">
               Si crees que no hemos hecho bien nuestro trabajo, puedes reclamar ante la{' '}
@@ -323,7 +413,7 @@ export default function PrivacidadPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">9. Seguridad</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">10. Seguridad</h2>
             <p>
               Las conexiones van por HTTPS y los datos están cifrados en reposo en los
               servidores de nuestros proveedores. Cada persona solo puede leer sus propias
@@ -342,16 +432,17 @@ export default function PrivacidadPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">10. Menores</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">11. Menores</h2>
             <p>
               metoo es para mayores de 16 años. Si detectamos una cuenta de alguien menor de esa
               edad, la eliminamos. Si eres madre, padre o tutor y crees que tu hijo o hija se ha
-              registrado, escríbenos y lo resolvemos enseguida.
+              registrado, escríbenos y lo resolvemos enseguida. Te pedimos que confirmes la edad al
+              registrarte, pero no tenemos forma de comprobarla.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">11. Cambios</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">12. Cambios</h2>
             <p>
               Si cambiamos algo importante de esta política te avisaremos por correo antes de
               que entre en vigor, para que puedas irte si no te convence. Los cambios menores se

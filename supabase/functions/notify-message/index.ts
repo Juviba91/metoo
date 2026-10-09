@@ -57,10 +57,7 @@ Deno.serve(async (req: Request) => {
 
   const chatUrl = `${APP_URL}/dashboard/chat/${message.connection_id}`
   const senderAlias = sender.alias ?? 'Alguien'
-  const rawPreview =
-    message.content.substring(0, 200) + (message.content.length > 200 ? '…' : '')
-  // Contenido escrito por usuarios: se escapa antes de meterlo en el HTML
-  const preview = escapeHtml(rawPreview)
+  // El alias lo elige el usuario: se escapa antes de meterlo en el HTML
   const safeAlias = escapeHtml(senderAlias)
 
   const result = await deliverEmail(supabase, RESEND_API_KEY, {
@@ -70,15 +67,12 @@ Deno.serve(async (req: Request) => {
     subject: `${senderAlias} te ha enviado un mensaje en metoo`,
     html: `
       <p>Hola,</p>
-      <p><strong>${safeAlias}</strong> te ha enviado un mensaje en metoo:</p>
-      <blockquote style="border-left:3px solid #e5e7eb;padding-left:1rem;color:#6b7280;">
-        ${preview}
-      </blockquote>
-      <p><a href="${chatUrl}">Ver conversación →</a></p>
+      <p><strong>${safeAlias}</strong> te ha enviado un mensaje en metoo.</p>
+      <p><a href="${chatUrl}">Leerlo en la conversación →</a></p>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
       <p style="font-size:0.75rem;color:#9ca3af;">
         metoo — apoyo de quien ya pasó por lo mismo.<br />
-        Si no quieres recibir estos avisos, desactívalos en tu perfil.
+        Si no quieres recibir estos avisos, desactívalos en Ajustes.
       </p>
     `,
   })

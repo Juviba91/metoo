@@ -16,6 +16,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [accepted, setAccepted] = useState(false)
+  const [consentSalud, setConsentSalud] = useState(false)
   const [role, setRole] = useState<'seeker' | 'volunteer' | null>(null)
   const [roleConfirmed, setRoleConfirmed] = useState(false)
   const [hashtags, setHashtags] = useState<HashtagOption[]>([])
@@ -32,7 +33,17 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
     setLoading(true)
     setError(null)
 
-    const result = await completeOnboarding({ role, hashtags, alias, city, bio, stage, supportModes })
+    const result = await completeOnboarding({
+      role,
+      hashtags,
+      alias,
+      city,
+      bio,
+      stage,
+      supportModes,
+      aceptaTextos: accepted,
+      consentimientoSalud: consentSalud,
+    })
 
     if (result.error) {
       setError(result.error)
@@ -124,17 +135,13 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             </div>
           </div>
 
-          <label className="mb-6 flex cursor-pointer items-start gap-3">
+          <label className="mb-4 flex cursor-pointer items-start gap-3">
             <input
               type="checkbox"
               checked={accepted}
               onChange={(e) => setAccepted(e.target.checked)}
               className="mt-0.5 size-4 shrink-0 accent-foreground"
             />
-            {/* El consentimiento del art. 9 RGPD (datos de salud) tiene que ser
-                explícito, y la política de privacidad dice que se da aquí. Antes
-                esta casilla solo nombraba las normas de la comunidad, así que lo
-                que la política afirmaba recoger no se estaba recogiendo. */}
             <span className="text-sm text-muted-foreground">
               He leído y acepto las{' '}
               <Link
@@ -160,12 +167,31 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
               >
                 política de privacidad
               </Link>
-              . Entiendo que lo que escriba puede hablar de mi salud y doy mi
-              consentimiento para que se trate con esa finalidad.
+              , y tengo al menos 16 años.
             </span>
           </label>
 
-          <Button onClick={() => setStep(2)} disabled={!accepted} className="w-full gap-2">
+          {/* El consentimiento del art. 9 RGPD (datos de salud) va en su propia
+              casilla: tiene que ser explícito y no puede ir mezclado con la
+              aceptación de unos textos. La política de privacidad dice que se
+              da aquí. */}
+          <label className="mb-6 flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={consentSalud}
+              onChange={(e) => setConsentSalud(e.target.checked)}
+              className="mt-0.5 size-4 shrink-0 accent-foreground"
+            />
+            <span className="text-sm text-muted-foreground">
+              Entiendo que lo que cuente aquí —mi descripción, mis etiquetas, mis mensajes y lo
+              que publique en las guías— puede revelar información sobre mi salud, y doy mi
+              consentimiento explícito para que se trate para conectarme con otras personas. Puedo
+              retirarlo cuando quiera eliminando mi cuenta; qué pasa con mis conversaciones lo
+              explica la política de privacidad.
+            </span>
+          </label>
+
+          <Button onClick={() => setStep(2)} disabled={!accepted || !consentSalud} className="w-full gap-2">
             Continuar <ArrowRight className="size-4" />
           </Button>
         </div>

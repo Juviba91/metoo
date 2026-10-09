@@ -154,6 +154,20 @@ SELECT p.alias, u.email, u.last_sign_in_at
   por hecho que el REVOKE surtió efecto. Lo que sí funciona para un dato
   sensible: tabla aparte con RLS y sin políticas, como `email_queue` o
   `digest_tokens`.
+- **La baja conserva la ficha como lápida, así que `ON DELETE SET NULL` hacia
+  `profiles` no salta nunca.** Todo lo que cuelga de una cuenta (guías,
+  reportes, feedback…) seguía ligado a ella tras darse de baja, y las guías
+  seguían sirviendo el alias en abierto. Toda tabla nueva con clave ajena a
+  `profiles` tiene que desvincularse a mano en `eliminar_mi_cuenta`;
+  `tests/baja-datos.test.ts` lo vigila sobre la última definición de la
+  función en las migraciones. El texto legal (`/privacidad`) promete cosas
+  concretas sobre la baja: si cambias una, cambia la otra.
+- **Los textos legales tienen versión** (`lib/legal.ts`). Se guarda con la
+  fecha de consentimiento al registrarse. Si cambian de fondo, sube
+  `VERSION_TEXTOS_LEGALES`.
+- **Los correos de aviso no llevan el contenido de los mensajes** (se ven en la
+  pantalla de bloqueo). Las funciones de `supabase/functions/` no se despliegan
+  con el merge: `supabase functions deploy <nombre>` a mano, y comprobarlo.
 - **`supabase/functions/_shared/email.ts` lo importan los tests de Node**
   (`tests/pure.test.ts` usa `escapeHtml`). `tsconfig` excluye
   `supabase/functions`, pero eso no vale para un fichero que alguien importa:
