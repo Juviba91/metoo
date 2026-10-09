@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { SiteHeaderPublic } from '@/components/site-header-public'
+import { TEXTOS_ACTUALIZADOS } from '@/lib/legal'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Términos' }
@@ -17,8 +18,6 @@ const TITULAR = {
   email: 'juan@bay-apps.com',
 }
 
-const ACTUALIZADA = 'septiembre de 2026'
-
 export default function TerminosPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -27,7 +26,7 @@ export default function TerminosPage() {
       <main className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="mb-2 text-3xl font-bold">Términos de uso</h1>
         <p className="mb-10 text-sm text-muted-foreground">
-          Última actualización: {ACTUALIZADA}
+          Última actualización: {TEXTOS_ACTUALIZADOS}
         </p>
 
         <div className="space-y-8 leading-relaxed text-muted-foreground">
@@ -181,6 +180,15 @@ export default function TerminosPage() {
               Conservas todos los derechos sobre lo que escribes. Solo nos autorizas a alojarlo y
               mostrarlo dentro de metoo para que el servicio funcione.
             </p>
+            <p className="mt-3">
+              Las <strong className="text-foreground">guías por hospital</strong> son la excepción:
+              son públicas, se leen sin cuenta y los buscadores pueden indexarlas. Al enviar una
+              respuesta nos autorizas a publicarla ahí, con tu alias, y a mantenerla mientras no
+              la retires: puedes pedirnos que la borremos en cualquier momento. Si te das de baja
+              se queda sin tu alias. Las guías no las escriben los hospitales ni los representan, y
+              pueden estar desfasadas. No nombres en ellas a profesionales ni a otras personas
+              concretas; lo que lo haga se oculta.
+            </p>
           </section>
 
           <section>
@@ -214,7 +222,7 @@ export default function TerminosPage() {
             </p>
             <p className="mt-3">
               Puedes darte de baja tú, en cualquier momento y sin dar explicaciones, desde{' '}
-              <strong className="text-foreground">Mi perfil → Eliminar cuenta</strong>. Es
+              <strong className="text-foreground">Ajustes → Eliminar cuenta</strong>. Es
               inmediato y no se puede deshacer. Se va todo menos las conversaciones que tuviste,
               que le quedan a la otra persona; te lo contamos antes de borrar y con detalle en la{' '}
               <Link href="/privacidad" className="text-foreground underline underline-offset-2">

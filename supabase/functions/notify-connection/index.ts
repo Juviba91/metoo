@@ -13,7 +13,7 @@ const PIE = `
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
   <p style="font-size:0.75rem;color:#9ca3af;">
     metoo — apoyo de quien ya pasó por lo mismo.<br />
-    Si no quieres recibir estos avisos, desactívalos en tu perfil.
+    Si no quieres recibir estos avisos, desactívalos en Ajustes.
   </p>
 `
 
@@ -108,7 +108,7 @@ async function avisarSolicitud(supabase: any, conexion: any) {
 async function avisarAceptacion(supabase: any, conexion: any) {
   // Si el voluntario acepta respondiendo, `sendMessage` inserta el mensaje
   // antes de marcar la conexión como aceptada. Cuando eso ha pasado, el correo
-  // de mensaje nuevo ya cuenta lo mismo y además trae el texto: dos avisos
+  // de mensaje nuevo ya cuenta lo mismo: dos avisos
   // seguidos por lo mismo sobrarían.
   const { data: yaEscribio } = await supabase
     .from('messages')
