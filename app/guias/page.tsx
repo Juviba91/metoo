@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: 'Guías por hospital',
   description:
     'Lo que otras familias aprendieron en cada hospital: dónde dormir, horarios, trámites y lo que nadie te cuenta.',
+  alternates: { canonical: '/guias' },
 }
 
 /**
