@@ -38,6 +38,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title: `${primera.tema} · ${primera.hospital}`,
     description: `Lo que otras familias aprendieron sobre ${primera.tema.toLowerCase()} en ${primera.hospital}: dónde dormir, horarios, trámites y lo práctico que nadie te cuenta.`,
+    // Los enlaces que se reparten llevan ?utm_… para medir de dónde vienen:
+    // sin canónica, cada variante contaría como una página distinta.
+    alternates: { canonical: `/guias/${hospital}/${tema}` },
   }
 }
 

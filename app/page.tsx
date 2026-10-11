@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Hand, Heart, Shield, Users } from 'lucide-react'
+import { ArrowRight, BookOpen, Hand, Heart, Shield, Users } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
 import { SiteHeaderPublic } from '@/components/site-header-public'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { alternates: { canonical: '/' } }
 
 const categories = [
   { emoji: '🏥', label: 'UCIN y prematuridad', sub: 'Bebés en cuidados intensivos neonatales' },
@@ -111,6 +114,16 @@ export default function Page() {
             <Heart className="size-4" />
           </Link>
         </div>
+
+        {/* Para quien llega con prisa y sin ganas de registrarse: es lo único
+            de metoo que sirve en el minuto uno. */}
+        <Link
+          href="/guias"
+          className="mt-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          <BookOpen className="size-4" />
+          ¿Acabas de llegar a un hospital? Lee las guías, sin cuenta
+        </Link>
       </section>
 
       {/* How it works */}
@@ -126,6 +139,23 @@ export default function Page() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Guías por hospital. Antes nada en la portada llevaba a ellas, y por
+          eso tampoco las encontraba Google. */}
+      <section className="mx-auto max-w-5xl px-6 pt-14 sm:pt-20">
+        <div className="rounded-xl border border-border p-6 text-center sm:p-10">
+          <BookOpen className="mx-auto mb-4 size-6" />
+          <h2 className="mb-3 text-2xl font-bold sm:text-3xl">Lo que nadie te cuenta, hospital por hospital</h2>
+          <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
+            Dónde dormir, cómo son los horarios de verdad, qué papeles pedir, qué llevarte.
+            Lo escriben familias que ya pasaron por ese hospital. Se lee sin cuenta.
+          </p>
+          <Link href="/guias" className={cn(buttonVariants({ variant: 'outline' }), 'gap-2')}>
+            Ver las guías
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
       </section>
 

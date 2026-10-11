@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import { ScrollReset } from '@/components/scroll-reset'
 import { AppSplash } from '@/components/app-splash'
+import { URL_SITIO } from '@/lib/sitio'
 import './globals.css'
 
 // Geist Mono se descargaba en cada carga (29 KB) y no se usaba en ninguna
@@ -10,7 +11,7 @@ import './globals.css'
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://metoonetwork.xyz'),
+  metadataBase: new URL(URL_SITIO),
   title: {
     default: 'metoo — Alguien ya estuvo donde estás tú',
     template: '%s · metoo',

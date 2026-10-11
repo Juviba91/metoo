@@ -17,6 +17,9 @@ export function SiteFooter({ className }: { className?: string }) {
           </a>
         </span>
         <div className="flex gap-6">
+          <Link href="/guias" className="transition-colors hover:text-foreground">
+            Guías
+          </Link>
           <Link href="/privacidad" className="transition-colors hover:text-foreground">
             Privacidad
           </Link>
