@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { destinoSeguro } from '@/lib/destino'
 
 /**
  * Node.js en vez del edge, a propósito.
@@ -50,6 +51,9 @@ export async function middleware(request: NextRequest) {
   if (!user && (PROTECTED.some((p) => path.startsWith(p)))) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
+    // Se recuerda a dónde ibas, con sus parámetros, para volver tras entrar.
+    url.search = ''
+    url.searchParams.set('next', path + request.nextUrl.search)
     return NextResponse.redirect(url)
   }
 
@@ -61,7 +65,17 @@ export async function middleware(request: NextRequest) {
 
   if (user && path === '/auth/login') {
     const url = request.nextUrl.clone()
-    url.pathname = user.email_confirmed_at ? '/dashboard' : '/auth/verificar'
+    const destino = destinoSeguro(request.nextUrl.searchParams.get('next'))
+    url.search = ''
+    if (user.email_confirmed_at) {
+      // `destino` puede traer su propia query (?tema=…): se separa para no
+      // meter un «?» dentro del pathname.
+      const [ruta, query] = destino.split('?')
+      url.pathname = ruta
+      url.search = query ? `?${query}` : ''
+    } else {
+      url.pathname = '/auth/verificar'
+    }
     return NextResponse.redirect(url)
   }
 
