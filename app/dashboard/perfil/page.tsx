@@ -11,6 +11,7 @@ import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { HowItWorks } from '@/components/how-it-works'
+import { esDoble, ladosDe } from '@/lib/lados'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Perfil' }
@@ -31,7 +32,7 @@ export default async function PerfilPage() {
   const [{ data: profile }, pendingCount, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     contarSolicitudesPendientes(),
@@ -41,8 +42,11 @@ export default async function PerfilPage() {
   if (!profile) redirect('/onboarding')
 
   const hashtags = ((profile.profile_hashtags ?? []) as any[])
-    .map((ph) => ph.hashtags)
-    .filter(Boolean)
+    .filter((ph) => ph.hashtags)
+    .map((ph) => ({ ...ph.hashtags, role: ph.role }))
+
+  const lados = ladosDe(profile.role, profile.profile_hashtags ?? [])
+  const doble = esDoble(lados)
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -51,11 +55,17 @@ export default async function PerfilPage() {
       <main className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         <div>
           <p className="mb-3 text-sm text-muted-foreground">
-            Así te ve {profile.role === 'volunteer' ? 'quien busca apoyo' : 'quien ofrece ayuda'}.
+            {doble
+              ? 'Así te ven los demás. A cada persona solo le salen los temas en los que os podéis ayudar.'
+              : `Así te ve ${lados.acompana ? 'quien busca apoyo' : 'quien ofrece ayuda'}.`}
           </p>
 
-          <ProfileCard perfil={{ ...profile, hashtags }}>
-            {profile.role === 'volunteer' && !profile.is_active && (
+          <ProfileCard
+            perfil={{ ...profile, hashtags }}
+            etiqueta={doble ? '💛 Acompañando · 🤝 Buscando apoyo' : undefined}
+            marcarLado={doble}
+          >
+            {lados.acompana && !profile.is_active && (
               <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
                 Ahora mismo no estás disponible: no apareces en las búsquedas y nadie puede escribirte.
               </p>
@@ -77,7 +87,7 @@ export default async function PerfilPage() {
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />
       <BottomNav
-        pendingCount={profile.role === 'volunteer' ? pendingCount : 0}
+        pendingCount={pendingCount}
         chatUnread={(unreadData as number) ?? 0}
       />
     </div>

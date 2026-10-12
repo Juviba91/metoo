@@ -1,4 +1,8 @@
-export type ParteConexion = { alias?: string | null; deleted_at?: string | null } | null
+export type ParteConexion = {
+  alias?: string | null
+  city?: string | null
+  deleted_at?: string | null
+} | null
 
 export type ConexionListada = {
   id: string

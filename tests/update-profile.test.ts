@@ -111,3 +111,66 @@ describe('updateProfile: límites de los campos de texto', () => {
     })
   })
 })
+
+describe('updateProfile: el papel de cada tema', () => {
+  const CON_ROL = [
+    { ...TAGS[0], role: 'volunteer' },
+    { ...TAGS[1], role: 'seeker' },
+  ]
+
+  it('guarda el papel de cada tema, actualizando los que ya existían', async () => {
+    const mock = setup()
+
+    await updateProfile({ alias: 'Ana', city: 'Madrid', bio: '', hashtags: CON_ROL })
+
+    expect(mock.payloadOf('profile_hashtags', 'upsert')).toEqual([
+      { profile_id: 'user-1', hashtag_id: 'ht-1', role: 'volunteer' },
+      { profile_id: 'user-1', hashtag_id: 'ht-2', role: 'seeker' },
+    ])
+    // Sin `ignoreDuplicates`: si el tema ya estaba, hay que escribirle el papel.
+    const llamada = mock.calls.find((c) => c.table === 'profile_hashtags' && c.op === 'upsert')
+    expect(llamada).toBeTruthy()
+  })
+
+  it('un tema sin papel solo se añade, y no pisa el que ya tuviera', async () => {
+    const mock = setup()
+
+    await updateProfile({ alias: 'Ana', city: 'Madrid', bio: '', hashtags: [CON_ROL[0], TAGS[1]] })
+
+    const upserts = mock.calls.filter((c) => c.table === 'profile_hashtags' && c.op === 'upsert')
+    expect(upserts).toHaveLength(2)
+    expect(upserts[0].payload).toEqual([{ profile_id: 'user-1', hashtag_id: 'ht-1', role: 'volunteer' }])
+    // El segundo no lleva `role`: así una pestaña abierta con el código anterior
+    // no machaca el papel elegido.
+    expect(upserts[1].payload).toEqual([{ profile_id: 'user-1', hashtag_id: 'ht-2' }])
+  })
+
+  it('descarta un papel inventado en vez de mandarlo a la base', async () => {
+    const mock = setup()
+
+    await updateProfile({
+      alias: 'Ana',
+      city: 'Madrid',
+      bio: '',
+      hashtags: [{ ...TAGS[0], role: 'admin' }],
+    })
+
+    const payload = mock.payloadOf('profile_hashtags', 'upsert') as Record<string, unknown>[]
+    expect(payload).toEqual([{ profile_id: 'user-1', hashtag_id: 'ht-1' }])
+  })
+
+  it('con el papel repetido gana el último', async () => {
+    const mock = setup()
+
+    await updateProfile({
+      alias: 'Ana',
+      city: 'Madrid',
+      bio: '',
+      hashtags: [{ ...TAGS[0], role: 'volunteer' }, { ...TAGS[0], role: 'seeker' }],
+    })
+
+    expect(mock.payloadOf('profile_hashtags', 'upsert')).toEqual([
+      { profile_id: 'user-1', hashtag_id: 'ht-1', role: 'seeker' },
+    ])
+  })
+})

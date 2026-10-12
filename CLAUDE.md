@@ -162,6 +162,15 @@ SELECT p.alias, u.email, u.last_sign_in_at
   `tests/baja-datos.test.ts` lo vigila sobre la última definición de la
   función en las migraciones. El texto legal (`/privacidad`) promete cosas
   concretas sobre la baja: si cambias una, cambia la otra.
+- **El papel va por tema, no por cuenta** (`profile_hashtags.role`, ver
+  `lib/lados.ts`). `profiles.role` es solo el lado con el que te registraste;
+  quién busca y quién acompaña lo decide `ladosDe(...)`. No compares
+  `profile.role` para decidir a quién se escribe o quién sale en una lista. Dos
+  trampas: `profile_hashtags` no tenía política de UPDATE (un UPDATE no daba
+  error y no cambiaba nada: se añadió con la migración), y pedir
+  `profile_hashtags(role)` antes de aplicar la migración tumba la consulta
+  entera y manda a /onboarding. Las funciones de la base que aún miran
+  `profiles.role` son `voluntarios_a_avisar` y `temas_con_actividad`.
 - **Los textos legales tienen versión** (`lib/legal.ts`). Se guarda con la
   fecha de consentimiento al registrarse. Si cambian de fondo, sube
   `VERSION_TEXTOS_LEGALES`.

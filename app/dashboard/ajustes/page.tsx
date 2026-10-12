@@ -76,7 +76,7 @@ export default async function AjustesPage() {
 
       <SiteFooter className="hidden sm:block" />
       <BottomNav
-        pendingCount={profile.role === 'volunteer' ? pendingCount : 0}
+        pendingCount={pendingCount}
         chatUnread={(unreadData as number) ?? 0}
       />
     </div>

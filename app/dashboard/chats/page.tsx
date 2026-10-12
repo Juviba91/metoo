@@ -1,7 +1,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
-import { conversacionesVisibles, otraParteDeBaja, type Rol } from '@/lib/connections'
+import { conversacionesVisiblesDe, ladosDe, otraPersonaDe } from '@/lib/lados'
 import { MapPin, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
@@ -25,24 +25,28 @@ export default async function ChatsPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, role')
+    .select('id, role, profile_hashtags(role)')
     .eq('id', user.id)
     .single()
 
   if (!profile) redirect('/onboarding')
 
-  const connectionsQuery =
-    profile.role === 'seeker'
-      ? supabase
-          .from('connections')
-          .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city, deleted_at)')
-          .eq('seeker_id', user.id)
-          .order('created_at', { ascending: false })
-      : supabase
-          .from('connections')
-          .select('id, status, seeker_id, seeker:seeker_id(alias, city, deleted_at)')
-          .eq('volunteer_id', user.id)
-          .order('created_at', { ascending: false })
+  const lados = ladosDe(profile.role, profile.profile_hashtags ?? [])
+  const mensajeVacio =
+    lados.busca && lados.acompana
+      ? 'Contacta con alguien desde Inicio, o espera a que te escriban.'
+      : lados.busca
+        ? 'Contacta a un voluntario desde Inicio.'
+        : 'Las personas que te contacten aparecerán aquí.'
+
+  // Las de las dos puntas: con una cuenta a los dos lados hay de las dos.
+  const connectionsQuery = supabase
+    .from('connections')
+    .select(
+      'id, status, seeker_id, volunteer_id, seeker:seeker_id(alias, city, deleted_at), volunteer:volunteer_id(alias, city, deleted_at)',
+    )
+    .or(`seeker_id.eq.${user.id},volunteer_id.eq.${user.id}`)
+    .order('created_at', { ascending: false })
 
   const [{ data: allConnections }, { data: unreadData }, hiddenIds] = await Promise.all([
     connectionsQuery,
@@ -53,10 +57,11 @@ export default async function ChatsPage() {
   // Mismo criterio que en Inicio: fuera las de gente bloqueada, y a quien
   // busca apoyo no se le enseñan las rechazadas. Estaba solo en Inicio, así que
   // la tarjeta roja de "Cerrada" seguía apareciendo aquí.
-  const rol = profile.role as Rol
-  const connections = conversacionesVisibles((allConnections ?? []) as any[], rol, hiddenIds)
+  const connections = conversacionesVisiblesDe((allConnections ?? []) as any[], user.id, hiddenIds)
 
-  const pendingCount = rol === 'volunteer' ? await contarSolicitudesPendientes() : 0
+  // Sin condicionar al papel: quien está a los dos lados recibe solicitudes
+  // aunque se registrara buscando, y para quien no las recibe devuelve 0.
+  const pendingCount = await contarSolicitudesPendientes()
 
   // Último mensaje de cada conversación. Antes se lanzaba una consulta por
   // conversación (N+1): con la lista abierta eso son N idas y vueltas, y esta
@@ -96,18 +101,16 @@ export default async function ChatsPage() {
             <p className="mb-2 text-3xl">💬</p>
             <p>Todavía no tienes conversaciones.</p>
             <p className="mt-1 text-sm">
-              {profile.role === 'seeker'
-                ? 'Contacta a un voluntario desde Inicio.'
-                : 'Las personas que te contacten aparecerán aquí.'}
+              {mensajeVacio}
             </p>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {(connections as any[]).map((conn) => {
-              const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
+              const { ficha: other } = otraPersonaDe(conn, user.id)
               const last = lastMessages[conn.id]
               const lastIsMe = last?.sender_id === user.id
-              const seFue = otraParteDeBaja(conn, rol)
+              const seFue = Boolean(other?.deleted_at)
               return (
                 <Link
                   key={conn.id}

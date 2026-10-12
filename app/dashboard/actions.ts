@@ -4,6 +4,7 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit, canInteractWith } from '@/app/safety/actions'
 import { sanitizeModes, sanitizeStage, validarTextos } from '@/lib/profile-fields'
+import { ladosDe, puedeIniciar, type Rol } from '@/lib/lados'
 
 export async function acceptConnection(connectionId: string): Promise<void> {
   const supabase = await createClient()
@@ -56,25 +57,46 @@ export async function requestConnection(volunteerId: string) {
     return { error: 'No puedes contactar con este usuario' }
   }
 
-  // Quien se da de baja deja su ficha como lápida para no romper las
-  // conversaciones que ya tenía, pero no se le puede empezar una nueva. En los
-  // listados no sale (queda `is_active = false`); esto cubre la llamada directa.
-  const { data: destino } = await supabase
+  // Una sola consulta para las dos fichas. De quien se da de baja la ficha se
+  // conserva como lápida para no romperle la conversación a nadie, pero no se le
+  // puede empezar una nueva: en los listados no sale (queda `is_active = false`)
+  // y esto cubre la llamada directa.
+  //
+  // Los lados también se comprueban aquí. Hasta ahora «quien busca inicia, quien
+  // acompaña acepta» lo imponía solo la interfaz, y a una server action se la
+  // puede llamar directa: cualquiera podía escribir a cualquiera. Con cuentas a
+  // los dos lados la regla se decide por los temas de cada una, no por su papel
+  // de registro.
+  const { data: fichas } = await supabase
     .from('profiles')
-    .select('deleted_at')
-    .eq('id', volunteerId)
-    .maybeSingle()
+    .select('id, role, deleted_at, profile_hashtags(role)')
+    .in('id', [user.id, volunteerId])
+
+  const destino = fichas?.find((f) => f.id === volunteerId)
+  const yo = fichas?.find((f) => f.id === user.id)
 
   if (!destino || destino.deleted_at) {
     return { error: 'Esta persona ya no está en metoo.' }
   }
+  if (
+    !yo ||
+    !puedeIniciar(ladosDe(yo.role, yo.profile_hashtags), ladosDe(destino.role, destino.profile_hashtags))
+  ) {
+    return { error: 'No puedes contactar con este usuario' }
+  }
 
-  // Solo puede haber una conexión por par (lo garantiza connections_unique_pair).
+  // Solo puede haber una conversación por pareja, en el sentido que sea. La
+  // restricción de la base (connections_unique_pair) es direccional: sin mirar
+  // los dos sentidos, A podía pedirle a B mientras B ya le había pedido a A, y
+  // acababan con dos conversaciones abiertas entre los mismos. Como las dos
+  // columnas no pueden ser la misma persona (connections_check), filtrar con
+  // `in` en las dos devuelve exactamente las de esta pareja.
   const { data: existing } = await supabase
     .from('connections')
     .select('id, status')
-    .eq('seeker_id', user.id)
-    .eq('volunteer_id', volunteerId)
+    .in('seeker_id', [user.id, volunteerId])
+    .in('volunteer_id', [user.id, volunteerId])
+    .limit(1)
     .maybeSingle()
 
   if (existing) {
@@ -126,7 +148,8 @@ export async function updateProfile({
   alias: string
   city: string
   bio: string
-  hashtags: { id: string; slug: string; label: string }[]
+  /** `role`: de qué lado estás en ese tema. Sin él se deja el que ya tuviera. */
+  hashtags: { id: string; slug: string; label: string; role?: string }[]
   isActive?: boolean
   stage?: string | null
   supportModes?: string[]
@@ -161,21 +184,50 @@ export async function updateProfile({
   // nuevos: si el insert fallaba, el usuario se quedaba sin ninguno. Ahora se
   // añaden primero y se borra solo lo que sobra, así el peor caso es no
   // guardar el cambio en vez de perder lo que ya había.
-  const resolvedIds: string[] = [
-    ...new Set(hashtags.filter((tag) => !tag.id.startsWith('new:')).map((tag) => tag.id)),
-  ]
+  // Por id, con el último papel indicado si un tema llega repetido. Lo que no es
+  // exactamente 'seeker' o 'volunteer' se descarta aquí y no se manda a la base:
+  // el CHECK lo rechazaría, pero con un error de base de datos en vez de un
+  // guardado limpio.
+  const rolDeCada = new Map<string, Rol | undefined>()
+  for (const tag of hashtags) {
+    if (tag.id.startsWith('new:')) continue
+    rolDeCada.set(tag.id, tag.role === 'seeker' || tag.role === 'volunteer' ? tag.role : undefined)
+  }
+  const resolvedIds: string[] = [...rolDeCada.keys()]
 
   if (resolvedIds.length > 0) {
-    const { error: insertError } = await supabase
-      .from('profile_hashtags')
-      .upsert(
-        resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })),
-        { onConflict: 'profile_id,hashtag_id', ignoreDuplicates: true },
+    // Los que traen papel se escriben con él, actualizando si ya existían. Los
+    // que no, solo se añaden y NO se tocan si ya estaban: una pestaña abierta
+    // con el código de antes no manda el papel, y si se escribiera igualmente
+    // pisaría el que se hubiera elegido. Dos llamadas, pero una sola en el caso
+    // normal.
+    const conRol = resolvedIds.filter((id) => rolDeCada.get(id))
+    const sinRol = resolvedIds.filter((id) => !rolDeCada.get(id))
+
+    if (conRol.length > 0) {
+      const { error: insertError } = await supabase.from('profile_hashtags').upsert(
+        conRol.map((id) => ({ profile_id: user.id, hashtag_id: id, role: rolDeCada.get(id) as Rol })),
+        { onConflict: 'profile_id,hashtag_id' },
       )
 
-    if (insertError) {
-      console.error('Error inserting hashtags:', insertError)
-      return { error: 'Error al guardar hashtags' }
+      if (insertError) {
+        console.error('Error inserting hashtags:', insertError)
+        return { error: 'Error al guardar hashtags' }
+      }
+    }
+
+    if (sinRol.length > 0) {
+      const { error: insertError } = await supabase
+        .from('profile_hashtags')
+        .upsert(
+          sinRol.map((id) => ({ profile_id: user.id, hashtag_id: id })),
+          { onConflict: 'profile_id,hashtag_id', ignoreDuplicates: true },
+        )
+
+      if (insertError) {
+        console.error('Error inserting hashtags:', insertError)
+        return { error: 'Error al guardar hashtags' }
+      }
     }
   }
 
