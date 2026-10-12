@@ -24,15 +24,27 @@ vi.mock('@/app/safety/actions', () => ({
 
 const { requestConnection } = await import('@/app/dashboard/actions')
 
+/** Las fichas que devuelve la consulta de `requestConnection`: la mía y la de a quien escribo. */
+const ficha = (id: string, role: 'seeker' | 'volunteer', temas: ('seeker' | 'volunteer')[] = [role], deleted_at: string | null = null) => ({
+  id,
+  role,
+  deleted_at,
+  profile_hashtags: temas.map((t) => ({ role: t })),
+})
+
+const YO_BUSCO = ficha('seeker-1', 'seeker')
+const ELLA_ACOMPANA = ficha('vol-1', 'volunteer')
+
 function setup(spec: MockSpec) {
   state.mock = createSupabaseMock({
     user: { id: 'seeker-1' },
     ...spec,
     responses: {
-      // Por defecto el voluntario existe y está de alta. `requestConnection`
-      // lo comprueba porque la ficha de quien se da de baja se conserva (para
-      // no romperle la conversación a nadie) pero no admite contacto nuevo.
-      'profiles.select': { data: { deleted_at: null } },
+      // Por defecto quien llama busca apoyo y la otra persona acompaña, y las
+      // dos están de alta. `requestConnection` lo comprueba porque la ficha de
+      // quien se da de baja se conserva (para no romperle la conversación a
+      // nadie) pero no admite contacto nuevo.
+      'profiles.select': { data: [YO_BUSCO, ELLA_ACOMPANA] },
       ...spec.responses,
     },
   })
@@ -149,7 +161,9 @@ describe('requestConnection: cuentas dadas de baja', () => {
     // desaparezcan, así que no basta con que no salga en los listados.
     const mock = setup({
       responses: {
-        'profiles.select': { data: { deleted_at: '2026-09-15T10:00:00Z' } },
+        'profiles.select': {
+          data: [YO_BUSCO, ficha('vol-1', 'volunteer', ['volunteer'], '2026-09-15T10:00:00Z')],
+        },
         'connections.select': { data: null },
       },
     })
@@ -163,7 +177,7 @@ describe('requestConnection: cuentas dadas de baja', () => {
   it('tampoco con un id que no existe', async () => {
     const mock = setup({
       responses: {
-        'profiles.select': { data: null },
+        'profiles.select': { data: [YO_BUSCO] },
         'connections.select': { data: null },
       },
     })
@@ -172,5 +186,97 @@ describe('requestConnection: cuentas dadas de baja', () => {
 
     expect(res.error).toBeTruthy()
     expect(mock.didCall('connections', 'insert')).toBe(false)
+  })
+})
+
+describe('requestConnection: cada cual solo escribe del lado que le toca', () => {
+  it('quien acompaña no puede iniciar con quien también acompaña', async () => {
+    const mock = setup({
+      responses: {
+        'profiles.select': { data: [ficha('seeker-1', 'volunteer'), ficha('vol-1', 'volunteer')] },
+        'connections.select': { data: null },
+      },
+    })
+
+    const res = await requestConnection('vol-1')
+
+    // Hasta ahora esto lo impedía solo la interfaz: llamando a la acción directa
+    // se podía escribir a cualquiera.
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('connections', 'insert')).toBe(false)
+  })
+
+  it('quien busca no puede iniciar con quien también busca', async () => {
+    const mock = setup({
+      responses: {
+        'profiles.select': { data: [YO_BUSCO, ficha('vol-1', 'seeker')] },
+        'connections.select': { data: null },
+      },
+    })
+
+    const res = await requestConnection('vol-1')
+
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('connections', 'insert')).toBe(false)
+  })
+
+  it('quien acompaña pero también busca apoyo sí puede iniciar', async () => {
+    const mock = setup({
+      responses: {
+        // Voluntaria de registro con un tema que está viviendo.
+        'profiles.select': { data: [ficha('seeker-1', 'volunteer', ['volunteer', 'seeker']), ELLA_ACOMPANA] },
+        'connections.select': { data: null },
+        'connections.insert': { data: { id: 'conn-nueva' } },
+      },
+    })
+
+    const res = await requestConnection('vol-1')
+
+    expect(res).toEqual({ success: true, connectionId: 'conn-nueva' })
+    expect(mock.didCall('connections', 'insert')).toBe(true)
+  })
+
+  it('se puede escribir a alguien que acompaña en un tema aunque se registrara buscando', async () => {
+    const mock = setup({
+      responses: {
+        'profiles.select': { data: [YO_BUSCO, ficha('vol-1', 'seeker', ['seeker', 'volunteer'])] },
+        'connections.select': { data: null },
+        'connections.insert': { data: { id: 'conn-nueva' } },
+      },
+    })
+
+    const res = await requestConnection('vol-1')
+
+    expect(res.success).toBe(true)
+    expect(mock.didCall('connections', 'insert')).toBe(true)
+  })
+
+  it('no inicia sin ficha propia', async () => {
+    const mock = setup({
+      responses: { 'profiles.select': { data: [ELLA_ACOMPANA] }, 'connections.select': { data: null } },
+    })
+
+    const res = await requestConnection('vol-1')
+
+    expect(res.error).toBeTruthy()
+    expect(mock.didCall('connections', 'insert')).toBe(false)
+  })
+})
+
+describe('requestConnection: una sola conversación por pareja, en el sentido que sea', () => {
+  it('busca la conexión existente en los dos sentidos', async () => {
+    const mock = setup({
+      responses: { 'connections.select': { data: { id: 'conn-de-ella', status: 'pending' } } },
+    })
+
+    const res = await requestConnection('vol-1')
+
+    // Si ella ya te había escrito a ti, no se abre otra conversación al revés.
+    expect(res).toEqual({ success: true, connectionId: 'conn-de-ella' })
+    expect(mock.didCall('connections', 'insert')).toBe(false)
+
+    const filtros = mock.filtros.filter((f) => f.table === 'connections' && f.metodo === 'in')
+    expect(filtros.map((f) => f.args[0])).toEqual(['seeker_id', 'volunteer_id'])
+    for (const f of filtros) expect(f.args[1]).toEqual(['seeker-1', 'vol-1'])
   })
 })

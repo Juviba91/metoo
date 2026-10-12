@@ -506,14 +506,19 @@ export type Database = {
         Row: {
           hashtag_id: string
           profile_id: string
+          // De qué lado está esa persona en ESE tema. Ver lib/lados.ts. Un
+          // trigger lo rellena con el papel de la cuenta si no se manda.
+          role: 'seeker' | 'volunteer'
         }
         Insert: {
           hashtag_id: string
           profile_id: string
+          role?: 'seeker' | 'volunteer'
         }
         Update: {
           hashtag_id?: string
           profile_id?: string
+          role?: 'seeker' | 'volunteer'
         }
         Relationships: [
           {

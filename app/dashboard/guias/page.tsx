@@ -30,8 +30,6 @@ export default async function EscribirGuiaPage({
 
   if (!profile) redirect('/onboarding')
 
-  const esVoluntario = profile.role === 'volunteer'
-
   // Los temas del perfil se siguen leyendo, pero ya no limitan: se usan para
   // ponerlos primero en el desplegable. Escribir de lo que has vivido es lo
   // normal, y lo normal se pone a mano, no se impone.
@@ -65,7 +63,7 @@ export default async function EscribirGuiaPage({
             .eq('hospital_slug', hospitalSlug)
             .eq('tema_slug', temaSlug)
         : Promise.resolve({ data: [] }),
-      esVoluntario ? contarSolicitudesPendientes() : Promise.resolve(0),
+      contarSolicitudesPendientes(),
       supabase.rpc('get_unread_count', { user_uuid: user.id }),
     ])
 

@@ -22,7 +22,7 @@ export default async function EditarPerfilPage() {
   const [{ data: profile }, { data: allHashtags }, pendingCount, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     supabase.from('hashtags').select('id, slug, label').order('label'),
@@ -35,6 +35,13 @@ export default async function EditarPerfilPage() {
   const profileHashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
     .filter(Boolean) ?? []
+
+  // De qué lado está en cada tema (id del tema -> papel).
+  const rolesDeTemas = Object.fromEntries(
+    ((profile.profile_hashtags ?? []) as { hashtag_id: string; role: 'seeker' | 'volunteer' }[]).map(
+      (ph) => [ph.hashtag_id, ph.role],
+    ),
+  )
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -56,6 +63,7 @@ export default async function EditarPerfilPage() {
             city: profile.city,
             bio: profile.bio,
             hashtags: profileHashtags,
+            roles: rolesDeTemas,
             isActive: profile.is_active ?? true,
             stage: profile.stage ?? null,
             supportModes: profile.support_modes ?? [],
@@ -68,7 +76,7 @@ export default async function EditarPerfilPage() {
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />
       <BottomNav
-        pendingCount={profile.role === 'volunteer' ? pendingCount : 0}
+        pendingCount={pendingCount}
         chatUnread={(unreadData as number) ?? 0}
       />
     </div>

@@ -10,6 +10,8 @@ import Link from 'next/link'
 type Hashtag = { id: string; slug: string; label: string }
 type Match = {
   id: string
+  /** Con qué papel se registró. De él dependen el vocabulario de etapa y de cómo acompaña. */
+  role: string
   alias: string
   city: string | null
   bio: string | null
@@ -156,7 +158,11 @@ export function DashboardMatches({
                 .map((ph) => ph.hashtags)
                 .filter(Boolean)
                 .slice(0, 4)
-              const modes = modeLabels(otherRole, match.support_modes)
+              // La etapa y «cómo acompaña» se escribieron con el vocabulario del
+              // papel con el que se registró. Si esta persona sale aquí por un
+              // tema del otro lado, esos campos hablan de otra cosa: no se enseñan.
+              const mismoLado = match.role === otherRole
+              const modes = mismoLado ? modeLabels(otherRole, match.support_modes) : []
               return (
                 <div key={match.id} className="flex flex-col rounded-xl border border-border p-5">
                   <div className="mb-2 flex items-start justify-between">
@@ -181,7 +187,7 @@ export function DashboardMatches({
                           <MapPin className="size-3" /> {match.city}
                         </p>
                       )}
-                      {stageLabel(otherRole, match.stage) && (
+                      {mismoLado && stageLabel(otherRole, match.stage) && (
                         <p className="mt-0.5 text-xs text-muted-foreground">
                           🕰️ {stageLabel(otherRole, match.stage)}
                         </p>

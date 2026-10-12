@@ -6,8 +6,15 @@ import { BookOpen, MapPin, MessageCircle, UserRound } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
-import { conversacionesVisibles, otraParte, otraParteDeBaja, type Rol } from '@/lib/connections'
-import type { UserRole } from '@/types/database'
+import {
+  candidatosPara,
+  contrario,
+  conversacionesVisiblesDe,
+  esDoble,
+  ladosDe,
+  otraPersonaDe,
+  temasDelLado,
+} from '@/lib/lados'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
@@ -41,7 +48,7 @@ export default async function DashboardPage({
       // revocada, para que PostgREST rechace la consulta entera y devuelva
       // `null` — que es lo mismo que devuelve un usuario sin perfil, así que
       // el inicio te manda al onboarding en vez de cargar.
-      .select('role, alias, city, bio, is_active, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
+      .select('role, alias, city, bio, is_active, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     getHiddenUserIds(),
@@ -49,20 +56,22 @@ export default async function DashboardPage({
 
   if (!profile) redirect('/onboarding')
 
-  const oppositeRole = profile.role === 'seeker' ? 'volunteer' : 'seeker'
+  // De qué lados estoy: acompaño en unos temas y busco apoyo en otros, o solo en
+  // uno de los dos. Todo lo de abajo depende de esto, no de `profile.role`.
+  const lados = ladosDe(profile.role, profile.profile_hashtags ?? [])
 
+  // Ya no se filtra por el papel contrario en la consulta: quien está a los dos
+  // lados sale en las dos listas, y el lado de cada tema vive en
+  // `profile_hashtags`. Se traen los activos y se reparten aquí (candidatosPara).
   let matchesQuery = supabase
     .from('profiles')
-    .select('id, alias, city, bio, stage, support_modes, profile_hashtags(hashtag_id, hashtags(id, slug, label))')
-    .eq('role', oppositeRole)
+    .select('id, role, alias, city, bio, stage, support_modes, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
     .eq('is_active', true)
     .neq('id', user.id)
 
   if (hiddenIds.length > 0) {
     matchesQuery = matchesQuery.not('id', 'in', `(${hiddenIds.join(',')})`)
   }
-
-  const rol = profile.role as Rol
 
   const [
     { data: matches },
@@ -72,19 +81,18 @@ export default async function DashboardPage({
     { data: guias },
     pendingCount,
   ] = await Promise.all([
-    matchesQuery.limit(50),
+    matchesQuery.limit(200),
 
-    profile.role === 'seeker'
-      ? supabase
-          .from('connections')
-          .select('id, status, volunteer_id, volunteer:volunteer_id(alias, city, deleted_at)')
-          .eq('seeker_id', user.id)
-          .order('created_at', { ascending: false })
-      : supabase
-          .from('connections')
-          .select('id, status, seeker_id, seeker:seeker_id(alias, city, deleted_at, bio, profile_hashtags(hashtag_id, hashtags(id, slug, label)))')
-          .eq('volunteer_id', user.id)
-          .order('created_at', { ascending: false }),
+    // Las de las dos puntas: las que pedí yo (soy quien busca) y las que me
+    // pidieron a mí (soy quien acompaña). Con una cuenta a los dos lados puede
+    // haber de las dos.
+    supabase
+      .from('connections')
+      .select(
+        'id, status, seeker_id, volunteer_id, seeker:seeker_id(alias, city, deleted_at, bio, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))), volunteer:volunteer_id(alias, city, deleted_at)',
+      )
+      .or(`seeker_id.eq.${user.id},volunteer_id.eq.${user.id}`)
+      .order('created_at', { ascending: false }),
 
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
 
@@ -99,11 +107,13 @@ export default async function DashboardPage({
 
     // Dentro del Promise.all, no después: colgando de un `await` propio añadía
     // una ida y vuelta más antes de poder pintar la pestaña.
-    rol === 'volunteer' ? contarSolicitudesPendientes() : Promise.resolve(0),
+    // Sin condicionar al papel: para quien no recibe solicitudes devuelve 0, y
+    // quien está a los dos lados tiene que verlas aunque se registrara buscando.
+    contarSolicitudesPendientes(),
   ])
-  const visibleConnections = conversacionesVisibles(
+  const visibleConnections = conversacionesVisiblesDe(
     (connections ?? []) as any[],
-    rol,
+    user.id,
     hiddenIds,
   )
 
@@ -111,11 +121,13 @@ export default async function DashboardPage({
   const connectedTo = Object.fromEntries(
     visibleConnections
       .filter((c: any) => c.status !== 'rejected')
-      .map((c: any) => [otraParte(c, rol), c.id] as const)
+      .map((c: any) => [otraPersonaDe(c, user.id).id, c.id] as const)
       .filter(([otherId]) => Boolean(otherId)),
   ) as Record<string, string>
 
   const chatUnread = (unreadData as number) ?? 0
+
+  const candidatos = candidatosPara(lados, (matches ?? []) as any[])
 
   const ownHashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
@@ -162,7 +174,11 @@ export default async function DashboardPage({
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <p className="mb-2 text-sm text-muted-foreground">
-                  {profile.role === 'seeker' ? '🤝 Buscando apoyo' : '💛 Ofreciendo ayuda'}
+                  {esDoble(lados)
+                    ? '💛 Acompañando · 🤝 Buscando apoyo'
+                    : lados.busca
+                      ? '🤝 Buscando apoyo'
+                      : '💛 Ofreciendo ayuda'}
                 </p>
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   {profile.city && (
@@ -202,7 +218,7 @@ export default async function DashboardPage({
               </Link>
             </div>
 
-            {profile.role === 'volunteer' && (
+            {lados.acompana && (
               <form action={toggleAvailability.bind(null, !profile.is_active)} className="mt-4 self-start">
                 <button
                   type="submit"
@@ -281,12 +297,13 @@ export default async function DashboardPage({
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {(visibleConnections as any[]).map((conn) => {
-                const other = profile.role === 'seeker' ? conn.volunteer : conn.seeker
-                const seFue = otraParteDeBaja(conn, rol)
+                // Mi lado en ESTA conversación, que no es el de mi cuenta.
+                const { ficha: other, rol: miRol } = otraPersonaDe(conn, user.id)
+                const seFue = Boolean(other?.deleted_at)
                 // Una solicitud de quien ya no está no se puede aceptar: se
                 // enseña la conversación, pero sin botones que no hacen nada.
                 const isPendingVolunteer =
-                  conn.status === 'pending' && profile.role === 'volunteer' && !seFue
+                  conn.status === 'pending' && miRol === 'volunteer' && !seFue
 
                 if (isPendingVolunteer) {
                   const seekerTags = ((other as any)?.profile_hashtags ?? [])
@@ -392,13 +409,27 @@ export default async function DashboardPage({
         )}
 
         {/* Matches with search */}
-        <DashboardMatches
-          matches={(matches ?? []) as any}
-          role={profile.role as UserRole}
-          connectedTo={connectedTo}
-          allHashtags={(allHashtags ?? []) as any}
-          initialHashtag={temaInicial ?? null}
-        />
+        {/* Una lista por cada lado en el que estoy. Quien solo está de uno ve
+            la de siempre; quien está de los dos, las dos. En cada una, de cada
+            persona solo salen los temas en los que os podéis ayudar. */}
+        {(['seeker', 'volunteer'] as const)
+          .filter((lado) => (lado === 'seeker' ? lados.busca : lados.acompana))
+          .map((lado) => {
+            const lista = lado === 'seeker' ? candidatos.voluntarios : candidatos.buscadores
+            return (
+              <DashboardMatches
+                key={lado}
+                matches={lista.map((m: any) => ({
+                  ...m,
+                  profile_hashtags: temasDelLado(contrario(lado), m.profile_hashtags ?? []),
+                })) as any}
+                role={lado}
+                connectedTo={connectedTo}
+                allHashtags={(allHashtags ?? []) as any}
+                initialHashtag={temaInicial ?? null}
+              />
+            )
+          })}
 
       </main>
 

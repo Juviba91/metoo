@@ -8,7 +8,7 @@ export type FichaPerfil = {
   role: string
   stage: string | null
   support_modes: string[] | null
-  hashtags: { id: string; label: string }[]
+  hashtags: { id: string; label: string; role?: string | null }[]
 }
 
 /**
@@ -18,16 +18,39 @@ export type FichaPerfil = {
  * en «Perfil» es lo que ve de verdad quien te encuentra. Los botones de cada
  * caso (contactar, bloquear, editar) entran por `children`.
  */
-export function ProfileCard({ perfil, children }: { perfil: FichaPerfil; children?: React.ReactNode }) {
+export function ProfileCard({
+  perfil,
+  children,
+  etiqueta,
+  marcarLado = false,
+  mostrarEtapaYModos = true,
+}: {
+  perfil: FichaPerfil
+  children?: React.ReactNode
+  /**
+   * Lo que pone encima del alias. Por defecto sale del papel de la cuenta;
+   * quien mira desde otro lado, o una cuenta a los dos, necesita decirlo
+   * distinto: de cada persona solo se cuenta el lado en el que os podéis ayudar.
+   */
+  etiqueta?: string
+  /** Delante de cada tema, de qué lado es (💛 lo viví, 🤝 lo vive). Solo para quien se ve a sí misma. */
+  marcarLado?: boolean
+  /**
+   * Etapa y «cómo acompaña» se escribieron con el vocabulario del papel con el
+   * que se registró la cuenta. Si quien mira ve a esa persona por el otro lado,
+   * hablan de otra cosa y no se enseñan.
+   */
+  mostrarEtapaYModos?: boolean
+}) {
   const role = perfil.role as Role
-  const modos = modeLabels(role, perfil.support_modes)
-  const etapa = stageLabel(role, perfil.stage)
+  const modos = mostrarEtapaYModos ? modeLabels(role, perfil.support_modes) : []
+  const etapa = mostrarEtapaYModos ? stageLabel(role, perfil.stage) : null
 
   return (
     <div className="rounded-xl border border-border p-5 sm:p-6">
       <div className="mb-4">
         <p className="mb-1 text-sm text-muted-foreground">
-          {role === 'volunteer' ? '💛 Ofreciendo ayuda' : '🤝 Buscando apoyo'}
+          {etiqueta ?? (role === 'volunteer' ? '💛 Ofreciendo ayuda' : '🤝 Buscando apoyo')}
         </p>
         <h1 className="text-2xl font-bold">{perfil.alias}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
@@ -47,7 +70,7 @@ export function ProfileCard({ perfil, children }: { perfil: FichaPerfil; childre
               key={tag.id}
               className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
             >
-              #{tag.label}
+              {marcarLado && tag.role && (tag.role === 'volunteer' ? '💛 ' : '🤝 ')}#{tag.label}
             </span>
           ))}
         </div>

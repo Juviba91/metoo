@@ -7,6 +7,8 @@ import { updateProfile } from '@/app/dashboard/actions'
 import { HashtagPicker, HashtagOption } from '@/components/hashtag-picker'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
 import { LIMITES } from '@/lib/profile-fields'
+import { ladosDe, type Rol } from '@/lib/lados'
+import { PapelPorTema } from '@/components/papel-por-tema'
 import { Check } from 'lucide-react'
 
 export function EditForm({
@@ -19,6 +21,8 @@ export function EditForm({
     city: string | null
     bio: string | null
     hashtags: HashtagOption[]
+    /** Papel en cada tema (id del tema -> papel). */
+    roles: Record<string, Rol>
     isActive: boolean
     stage: string | null
     supportModes: string[]
@@ -31,6 +35,10 @@ export function EditForm({
   const [city, setCity] = useState(initial.city ?? '')
   const [bio, setBio] = useState(initial.bio ?? '')
   const [hashtags, setHashtags] = useState<HashtagOption[]>(initial.hashtags)
+  const [roles, setRoles] = useState<Record<string, Rol>>(initial.roles)
+  // Un tema sin papel elegido es del lado con el que te registraste.
+  const rolDe = (id: string): Rol => roles[id] ?? role
+  const lados = ladosDe(role, hashtags.map((h) => ({ role: rolDe(h.id) })))
   const [isActive, setIsActive] = useState(initial.isActive)
   const [stage, setStage] = useState<string | null>(initial.stage)
   const [supportModes, setSupportModes] = useState<string[]>(initial.supportModes)
@@ -51,7 +59,8 @@ export function EditForm({
     supportModes.length !== initial.supportModes.length ||
     supportModes.some((m) => !initial.supportModes.includes(m)) ||
     hashtags.length !== initial.hashtags.length ||
-    hashtags.some((h) => !initial.hashtags.some((i) => i.id === h.id))
+    hashtags.some((h) => !initial.hashtags.some((i) => i.id === h.id)) ||
+    hashtags.some((h) => rolDe(h.id) !== (initial.roles[h.id] ?? role))
 
   // Aviso del navegador si se cierra o recarga con cambios pendientes
   useEffect(() => {
@@ -70,7 +79,16 @@ export function EditForm({
     setError(null)
     setSaved(false)
 
-    const result = await updateProfile({ alias, city, bio, hashtags, isActive, stage, supportModes })
+    const result = await updateProfile({
+      alias,
+      city,
+      bio,
+      // Siempre con papel explícito: así lo que se ve en pantalla es lo que se guarda.
+      hashtags: hashtags.map((h) => ({ ...h, role: rolDe(h.id) })),
+      isActive,
+      stage,
+      supportModes,
+    })
 
     if (result.error) {
       setError(result.error)
@@ -143,6 +161,13 @@ export function EditForm({
           selected={hashtags}
           onChange={setHashtags}
         />
+        {hashtags.length > 0 && (
+          <PapelPorTema
+            temas={hashtags}
+            rolDe={rolDe}
+            onChange={(id, nuevo) => setRoles((r) => ({ ...r, [id]: nuevo }))}
+          />
+        )}
       </div>
 
       <div className="border-t border-border/60 pt-5">
@@ -156,7 +181,7 @@ export function EditForm({
         />
       </div>
 
-      {role === 'volunteer' && (
+      {lados.acompana && (
         <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
           <div>
             <p className="text-sm font-medium">Disponible para recibir solicitudes</p>

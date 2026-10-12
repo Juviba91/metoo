@@ -31,7 +31,7 @@ export default async function TemasPage() {
   const [{ data: temasData }, { data: unreadData }, pendingCount] = await Promise.all([
     supabase.rpc('temas_con_actividad'),
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
-    rol === 'volunteer' ? contarSolicitudesPendientes() : Promise.resolve(0),
+    contarSolicitudesPendientes(),
   ])
 
   const t = textosTema(rol)
