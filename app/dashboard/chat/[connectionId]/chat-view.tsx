@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendMessage, markConnectionRead } from '@/app/dashboard/actions'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Send } from 'lucide-react'
+import { ArrowLeft, Send, X } from 'lucide-react'
 import Link from 'next/link'
 import { ReportButton } from '@/components/report-button'
+import { PautasChat } from '@/components/pautas-chat'
 
 type Message = {
   id: string
@@ -40,6 +41,7 @@ export function ChatView({
   const [sending, setSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
   const [status, setStatus] = useState(initialStatus)
+  const [verPautas, setVerPautas] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const isVolunteer = currentUserId === volunteerId
@@ -234,8 +236,34 @@ export function ChatView({
           <p className="truncate font-semibold group-hover:underline">{otherAlias}</p>
           <p className="text-xs text-muted-foreground">Ver perfil</p>
         </Link>
+        {/* Con mensajes ya no se ven en el hueco del chat vacío: desde aquí
+            se pueden volver a abrir sin salir de la conversación. */}
+        {grouped.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setVerPautas((v) => !v)}
+            aria-expanded={verPautas}
+            className="rounded-lg px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Pautas
+          </button>
+        )}
         <ReportButton reportedId={reportedId} connectionId={connectionId} />
       </header>
+
+      {verPautas && grouped.length > 0 && (
+        <div className="relative shrink-0 border-b border-border/60 bg-background px-4 py-3">
+          <PautasChat rol={isVolunteer ? 'volunteer' : 'seeker'} />
+          <button
+            type="button"
+            onClick={() => setVerPautas(false)}
+            aria-label="Cerrar pautas"
+            className="absolute right-6 top-5 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
 
       {/* Pending banner */}
       {status === 'pending' && (
@@ -248,11 +276,11 @@ export function ChatView({
 
       {/* Messages */}
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        {/* El chat vacío es justo cuando sirven: antes de la primera frase. */}
         {grouped.length === 0 && (
-          <div className="flex h-full items-center justify-center text-center text-muted-foreground">
-            <div>
-              <p className="mb-1 text-2xl">👋</p>
-              <p className="text-sm">Sé el primero en escribir.</p>
+          <div className="flex h-full items-center justify-center">
+            <div className="w-full max-w-sm">
+              <PautasChat rol={isVolunteer ? 'volunteer' : 'seeker'} />
             </div>
           </div>
         )}

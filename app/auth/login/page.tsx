@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
+import { destinoSeguro } from '@/lib/destino'
 
 type Mode = 'login' | 'register' | 'forgot'
 
@@ -52,7 +53,9 @@ function LoginForm() {
       return
     }
 
-    router.push('/dashboard')
+    // Tras crear la cuenta toca el registro, no el enlace; al entrar, sí se
+    // vuelve a donde ibas (p. ej. el enlace de un correo).
+    router.push(mode === 'login' ? destinoSeguro(params.get('next')) : '/dashboard')
     router.refresh()
   }
 
