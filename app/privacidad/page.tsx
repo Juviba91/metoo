@@ -348,9 +348,7 @@ export default function PrivacidadPage() {
               Espacio Económico Europeo. La transferencia se ampara en las cláusulas
               contractuales tipo aprobadas por la Decisión de Ejecución (UE) 2021/914 de la
               Comisión (módulo de responsable a encargado), que forman parte del contrato con
-              Supabase. Puedes pedirnos copia escribiendo a {RESPONSABLE.email}. Estamos
-              trasladando la base de datos a la Unión Europea; cuando esté hecho, lo
-              cambiaremos aquí.
+              Supabase. Puedes pedirnos copia escribiendo a {RESPONSABLE.email}.
             </p>
             <p className="mt-3">
               Vercel y Resend son empresas estadounidenses. En la medida en que sus equipos
