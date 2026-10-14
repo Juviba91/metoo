@@ -154,3 +154,29 @@ describe('completeOnboarding: edad', () => {
     expect(segundo.error).toMatch(/16 años/)
   })
 })
+
+describe('completeOnboarding: papel por tema', () => {
+  it('guarda el papel elegido en cada tema, y sin papel deja que la base ponga el de la cuenta', async () => {
+    const mock = setup()
+
+    await completeOnboarding({
+      ...base,
+      role: 'volunteer',
+      hashtags: [
+        { id: 'h-prem', slug: 'prematuros', label: 'Prematuros', role: 'volunteer' },
+        { id: 'h-duelo', slug: 'duelo', label: 'Duelo', role: 'seeker' },
+        { id: 'h-otro', slug: 'otro', label: 'Otro' },
+        { id: 'h-raro', slug: 'raro', label: 'Raro', role: 'admin' },
+      ],
+      aceptaTextos: true,
+      consentimientoSalud: true,
+    })
+
+    expect(mock.payloadOf('profile_hashtags', 'insert')).toEqual([
+      { profile_id: 'user-1', hashtag_id: 'h-prem', role: 'volunteer' },
+      { profile_id: 'user-1', hashtag_id: 'h-duelo', role: 'seeker' },
+      { profile_id: 'user-1', hashtag_id: 'h-otro' },
+      { profile_id: 'user-1', hashtag_id: 'h-raro' },
+    ])
+  })
+})

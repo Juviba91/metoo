@@ -6,7 +6,11 @@ import { cookies } from 'next/headers'
 import { VERSION_TEXTOS_LEGALES } from '@/lib/legal'
 import { BLOQUEO_MENOR_SEGUNDOS, COOKIE_MENOR, comprobarEdad } from '@/lib/edad'
 
-export type HashtagInput = { id: string; slug: string; label: string }
+/**
+ * `role`: de qué lado está esta persona en ESE tema. Si no viene, el trigger
+ * de la base pone el de la cuenta (`profile_hashtags_rol_por_defecto`).
+ */
+export type HashtagInput = { id: string; slug: string; label: string; role?: string }
 
 /**
  * La edad, comprobada en el primer paso y no al final: a quien no llega no se
@@ -105,7 +109,14 @@ export async function completeOnboarding({
   if (resolvedIds.length > 0) {
     const { error: hashtagError } = await supabase
       .from('profile_hashtags')
-      .insert(resolvedIds.map((id) => ({ profile_id: user.id, hashtag_id: id })))
+      .insert(
+        resolvedIds.map((id) => {
+          const rol = hashtags.find((t) => t.id === id)?.role
+          return rol === 'seeker' || rol === 'volunteer'
+            ? { profile_id: user.id, hashtag_id: id, role: rol }
+            : { profile_id: user.id, hashtag_id: id }
+        }),
+      )
 
     if (hashtagError) {
       console.error('Error saving hashtags:', hashtagError)
