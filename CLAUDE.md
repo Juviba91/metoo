@@ -169,8 +169,9 @@ SELECT p.alias, u.email, u.last_sign_in_at
   trampas: `profile_hashtags` no tenía política de UPDATE (un UPDATE no daba
   error y no cambiaba nada: se añadió con la migración), y pedir
   `profile_hashtags(role)` antes de aplicar la migración tumba la consulta
-  entera y manda a /onboarding. Las funciones de la base que aún miran
-  `profiles.role` son `voluntarios_a_avisar` y `temas_con_actividad`.
+  entera y manda a /onboarding. `voluntarios_a_avisar` y `temas_con_actividad`
+  copian en SQL la regla de `ladosDe` (migración 20261015): si cambia una,
+  cambia la otra.
 - **Los textos legales tienen versión** (`lib/legal.ts`). Se guarda con la
   fecha de consentimiento al registrarse. Si cambian de fondo, sube
   `VERSION_TEXTOS_LEGALES` — y ojo: subirla manda a **todas** las cuentas a

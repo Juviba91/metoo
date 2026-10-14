@@ -37,7 +37,7 @@ export function PapelPorTema({
             <div
               role="group"
               aria-label={`Qué es ${tema.label} para ti`}
-              className="inline-flex shrink-0 rounded-full border border-border p-0.5 text-xs"
+              className="inline-flex shrink-0 self-start rounded-full border border-border p-0.5 text-xs sm:self-auto"
             >
               {OPCIONES.map(({ rol, texto }) => {
                 const activo = rolDe(tema.id) === rol

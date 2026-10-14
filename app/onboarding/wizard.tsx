@@ -8,6 +8,8 @@ import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
 import { completeOnboarding, comprobarEdadAlta } from './actions'
 import { ConsentimientoCampos } from '@/components/consentimiento-campos'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
+import { PapelPorTema } from '@/components/papel-por-tema'
+import type { Rol } from '@/lib/lados'
 import { LIMITES } from '@/lib/profile-fields'
 import Link from 'next/link'
 import { track } from '@vercel/analytics/react'
@@ -24,6 +26,10 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
   const [role, setRole] = useState<'seeker' | 'volunteer' | null>(null)
   const [roleConfirmed, setRoleConfirmed] = useState(false)
   const [hashtags, setHashtags] = useState<HashtagOption[]>([])
+  // Solo los temas que alguien cambia al otro lado; el resto va con el papel
+  // con el que te registras.
+  const [roles, setRoles] = useState<Record<string, Rol>>({})
+  const rolDe = (id: string): Rol => roles[id] ?? role ?? 'seeker'
   const [alias, setAlias] = useState('')
   const [city, setCity] = useState('')
   const [bio, setBio] = useState('')
@@ -39,7 +45,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
 
     const result = await completeOnboarding({
       role,
-      hashtags,
+      hashtags: hashtags.map((h) => ({ ...h, role: rolDe(h.id) })),
       alias,
       city,
       bio,
@@ -279,6 +285,16 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             Elige hashtags o crea los tuyos — el hospital también puede ser uno
           </p>
           <HashtagPicker suggestions={suggestions} selected={hashtags} onChange={setHashtags} />
+          {/* Con dos o más temas puede que alguno sea del otro lado: viviste
+              unos prematuros y ahora estás en un duelo. Con uno solo, la
+              pregunta sobra: es el papel que acabas de elegir. */}
+          {hashtags.length > 1 && (
+            <PapelPorTema
+              temas={hashtags}
+              rolDe={rolDe}
+              onChange={(id, rol) => setRoles((r) => ({ ...r, [id]: rol }))}
+            />
+          )}
           <div className="mt-6 flex gap-3">
             <Button
               variant="outline"
