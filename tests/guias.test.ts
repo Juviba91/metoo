@@ -127,26 +127,14 @@ describe('agruparPorPregunta: el rol viaja con la respuesta', () => {
   })
 })
 
-describe('el alias y el enlace al perfil', () => {
-  it('viajan con cada aportación', () => {
-    // El alias se enseña siempre y es pulsable, así que hace falta tanto el
-    // nombre como el id para poder enlazar al perfil.
+describe('sin firma', () => {
+  it('de cada aportación solo pasa el contenido, la fecha y si lo vivió o lo vive', () => {
+    // Aunque la consulta trajera de más, la página no recibe nada que
+    // identifique a quien escribe.
     const bloques = agruparPorPregunta([
-      { ...fila('p1', 1, 'la mía'), autor_alias: 'luna_azul', autor_id: 'u-1' },
+      { ...fila('p1', 1, 'la mía'), autor_rol: 'volunteer', autor_alias: 'luna_azul', autor_id: 'u-1' } as never,
     ])
 
-    expect(bloques[0].respuestas[0]).toMatchObject({
-      autor_alias: 'luna_azul',
-      autor_id: 'u-1',
-    })
-  })
-
-  it('una cuenta dada de baja no deja ni nombre ni enlace', () => {
-    // `autor_id` queda a NULL al darse de baja, y entonces no hay perfil al
-    // que enlazar: la aportación se sigue viendo, sin firma.
-    const bloques = agruparPorPregunta([fila('p1', 1, 'de alguien que se fue')])
-
-    expect(bloques[0].respuestas[0].autor_alias).toBeNull()
-    expect(bloques[0].respuestas[0].autor_id).toBeNull()
+    expect(Object.keys(bloques[0].respuestas[0]).sort()).toEqual(['autor_rol', 'contenido', 'revisada_en'])
   })
 })

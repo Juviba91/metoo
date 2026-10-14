@@ -545,6 +545,9 @@ export type Database = {
           city: string | null
           consentimiento_en: string | null
           consentimiento_version: string | null
+          consentimiento_salud_en: string | null
+          consentimiento_salud_version: string | null
+          edad_comprobada_en: string | null
           country: string
           created_at: string
           display_name: string | null
@@ -567,6 +570,9 @@ export type Database = {
           city?: string | null
           consentimiento_en?: string | null
           consentimiento_version?: string | null
+          consentimiento_salud_en?: string | null
+          consentimiento_salud_version?: string | null
+          edad_comprobada_en?: string | null
           country?: string
           created_at?: string
           display_name?: string | null
@@ -589,6 +595,9 @@ export type Database = {
           city?: string | null
           consentimiento_en?: string | null
           consentimiento_version?: string | null
+          consentimiento_salud_en?: string | null
+          consentimiento_salud_version?: string | null
+          edad_comprobada_en?: string | null
           country?: string
           created_at?: string
           display_name?: string | null
@@ -704,8 +713,6 @@ export type Database = {
           contenido: string
           revisada_en: string
           autor_rol: string | null
-          autor_alias: string | null
-          autor_id: string | null
         }
         Relationships: []
       }
@@ -749,6 +756,10 @@ export type Database = {
         Returns: string
       }
       quitar_mi_firma_en_guias: { Args: Record<string, never>; Returns: number }
+      renovar_consentimiento: {
+        Args: { p_version: string; p_nacimiento: string }
+        Returns: undefined
+      }
       temas_con_actividad: {
         Args: Record<string, never>
         Returns: {

@@ -1,22 +1,16 @@
 import Link from 'next/link'
 import { SiteHeaderPublic } from '@/components/site-header-public'
 import { TEXTOS_ACTUALIZADOS } from '@/lib/legal'
+import { TITULAR } from '@/lib/titular'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Términos' }
 
-/**
- * Datos del titular del servicio.
- *
- * La LSSI (Ley 34/2002, art. 10) obliga a identificar a quien presta el
- * servicio por medios que permitan un acceso directo y gratuito. Es el mismo
- * dato que la política de privacidad; si algún día actúas como autónomo o
- * entidad, aquí harían falta también el NIF y el domicilio.
+/*
+ * Revisados en octubre de 2026 con la nota legal de Mas Calvet. La LSSI (art.
+ * 10) obliga a identificar a quien presta el servicio; los datos salen de
+ * lib/titular.ts, los mismos que en la política de privacidad.
  */
-const TITULAR = {
-  nombre: 'Juan de Villanueva Baygual',
-  email: 'juan@bay-apps.com',
-}
 
 export default function TerminosPage() {
   return (
@@ -51,6 +45,14 @@ export default function TerminosPage() {
                 <strong className="text-foreground">717 003 717</strong> — Teléfono de la
                 Esperanza.
               </li>
+              <li>
+                <strong className="text-foreground">016</strong> — Atención a víctimas de
+                violencia de género. No deja rastro en la factura.
+              </li>
+              <li>
+                <strong className="text-foreground">900 20 20 10</strong> — Fundación ANAR, para
+                menores y para adultos preocupados por un menor.
+              </li>
             </ul>
             <p className="mt-3 text-sm">
               Escribir aquí no avisa a nadie. Puede que la persona al otro lado esté durmiendo,
@@ -61,15 +63,20 @@ export default function TerminosPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">1. Quién presta el servicio</h2>
             <p>
-              metoo lo mantiene {TITULAR.nombre} como proyecto sin ánimo de lucro. Es gratuito, no
-              tiene publicidad y no se vende nada. Para cualquier cosa relacionada con el servicio:{' '}
+              metoo es un proyecto sin ánimo de lucro de la {TITULAR.nombre}, con NIF{' '}
+              {TITULAR.nif}, domicilio en {TITULAR.domicilio} e inscrita en el{' '}
+              {TITULAR.registro}. Es gratuito, no tiene publicidad y no se vende nada.
+            </p>
+            <p className="mt-3">
+              Para cualquier cosa relacionada con el servicio —también si eres una autoridad y
+              necesitas contactarnos—:{' '}
               <a
                 href={`mailto:${TITULAR.email}`}
                 className="text-foreground underline underline-offset-2"
               >
                 {TITULAR.email}
               </a>
-              .
+              . Atendemos en español.
             </p>
           </section>
 
@@ -79,6 +86,16 @@ export default function TerminosPage() {
               Una plataforma de apoyo entre pares. Pone en contacto a personas que atraviesan una
               situación difícil con voluntarios que han vivido algo parecido, para que hablen entre
               ellos. Eso es todo lo que hace metoo: poner en contacto.
+            </p>
+            <p className="mt-3">
+              No hay nadie detrás eligiendo por ti, ni seleccionamos ni recomendamos a nadie: te
+              enseñamos a las personas disponibles en tus temas, según lo que cada una ha
+              indicado en su perfil, y decides tú.
+            </p>
+            <p className="mt-3">
+              Además, hay <strong className="text-foreground">guías por hospital</strong>: lo
+              práctico que otras familias aprendieron allí, escrito por ellas y publicado sin
+              firma (punto 6).
             </p>
           </section>
 
@@ -116,16 +133,39 @@ export default function TerminosPage() {
                 <strong className="text-foreground">No es un canal de emergencia.</strong> Ver el
                 aviso del principio.
               </li>
+              <li>
+                <strong className="text-foreground">
+                  No hay garantía de que la persona al otro lado haya vivido lo que dice.
+                </strong>{' '}
+                Puede no ser cierto. Si algo no te cuadra, bloquea y repórtalo: no te cuesta nada
+                y a nosotros nos ayuda.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  No es un servicio de acompañamiento continuado.
+                </strong>{' '}
+                Nadie se compromete a seguir hablando contigo, ni hoy ni mañana. Si necesitas un
+                acompañamiento estable, búscalo donde sí puedan dártelo.
+              </li>
             </ul>
           </section>
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">4. Quién puede usar metoo</h2>
             <ul className="ml-4 list-disc space-y-1">
-              <li>Debes tener al menos 16 años.</li>
+              <li>
+                Debes tener al menos 16 años. Te pedimos la fecha de nacimiento al registrarte y,
+                si no llegas, no se crea la cuenta. Si detectamos que alguien ha mentido en esto,
+                eliminamos la cuenta.
+              </li>
               <li>Debes dar un correo válido y usarlo tú.</li>
               <li>
                 Solo puedes tener una cuenta. Las cuentas múltiples o falsas se pueden eliminar.
+              </li>
+              <li>
+                Si eres profesional sanitario, puedes participar como cualquier otra persona,
+                contando tu experiencia personal. Lo que no puedes es ejercer aquí: ni
+                diagnosticar, ni recomendar tratamientos, ni captar pacientes.
               </li>
             </ul>
           </section>
@@ -145,12 +185,23 @@ export default function TerminosPage() {
                 No sacar de aquí lo que otra persona te cuente. Lo que se comparte en metoo es
                 suyo, no tuyo.
               </li>
+              <li>
+                No pedir ni dar datos de contacto fuera de metoo en las primeras conversaciones.
+                Si después decidís seguir hablando por otro sitio, es cosa vuestra, y fuera de
+                aquí no podemos hacer nada.
+              </li>
+              <li>
+                No hacerte pasar por otra persona, ni por un profesional, un hospital o una
+                asociación.
+              </li>
             </ul>
             <p className="mt-3">
               Las <Link href="/guidelines" className="text-foreground underline underline-offset-2">
                 normas de la comunidad
               </Link>{' '}
-              desarrollan esto y forman parte de estos términos.
+              desarrollan esto y forman parte de estos términos. Están fechadas igual que este
+              documento, y si cambian de forma importante te avisamos igual que de cualquier otro
+              cambio (punto 9).
             </p>
           </section>
 
@@ -164,29 +215,38 @@ export default function TerminosPage() {
               alguien tome a partir de él.
             </p>
             <p className="mt-3">
-              Actuamos como prestador de servicios de alojamiento en el sentido de la Ley 34/2002
-              (LSSI): en cuanto tenemos conocimiento efectivo de un contenido ilícito o que
-              incumple estas normas, lo retiramos o bloqueamos la cuenta con diligencia. Para
-              avisarnos tienes el botón de reportar en cada conversación y en cada publicación, o{' '}
+              En la medida en que nuestro papel respecto de ese contenido es meramente técnico y
+              pasivo, nos acogemos al régimen de responsabilidad de los prestadores de servicios
+              de alojamiento (art. 16 de la Ley 34/2002 y art. 6 del Reglamento (UE) 2022/2065):
+              en cuanto tenemos conocimiento efectivo de un contenido ilícito o contrario a estas
+              normas, lo retiramos o bloqueamos la cuenta con diligencia.
+            </p>
+            <p className="mt-3">
+              Para avisarnos tienes el botón de reportar en cada conversación y en cada
+              publicación, o{' '}
               <a
                 href={`mailto:${TITULAR.email}`}
                 className="text-foreground underline underline-offset-2"
               >
                 {TITULAR.email}
               </a>
-              .
+              . Cuéntanos por qué y dónde está exactamente; cuando decidamos, si nos has dejado
+              forma de contestarte, te diremos qué hemos hecho.
             </p>
             <p className="mt-3">
-              Conservas todos los derechos sobre lo que escribes. Solo nos autorizas a alojarlo y
-              mostrarlo dentro de metoo para que el servicio funcione.
+              Conservas todos los derechos sobre lo que escribes. Solo nos autorizas, de forma no
+              exclusiva, gratuita y sin derecho a cederlo a terceros —salvo a los proveedores
+              técnicos que necesitamos para que esto funcione—, a alojarlo y mostrarlo dentro de
+              metoo mientras siga publicado. Si lo borras o te das de baja, esa autorización se
+              acaba, con la excepción de las guías que se explica abajo.
             </p>
             <p className="mt-3">
-              Las <strong className="text-foreground">guías por hospital</strong> son la excepción:
-              son públicas, se leen sin cuenta y los buscadores pueden indexarlas. Al enviar una
-              respuesta nos autorizas a publicarla ahí, con tu alias, y a mantenerla mientras no
-              la retires: puedes pedirnos que la borremos en cualquier momento. Si te das de baja
-              se queda sin tu alias. Las guías no las escriben los hospitales ni los representan, y
-              pueden estar desfasadas. No nombres en ellas a profesionales ni a otras personas
+              Las <strong className="text-foreground">guías por hospital</strong> se leen sin
+              cuenta, aunque pedimos a los buscadores que no las indexen. Al enviar una respuesta
+              nos autorizas a publicarla ahí, sin tu alias ni enlace a tu perfil, y a mantenerla
+              mientras no la retires: puedes pedirnos que la borremos en cualquier momento. Si te
+              das de baja, se queda. Las guías no las escriben los hospitales ni los representan,
+              y pueden estar desfasadas. No nombres en ellas a profesionales ni a otras personas
               concretas; lo que lo haga se oculta.
             </p>
           </section>
@@ -201,16 +261,17 @@ export default function TerminosPage() {
               la conversación te siente bien.
             </p>
             <p className="mt-3">
-              En la medida en que lo permita la ley, {TITULAR.nombre} no responde de lo que ocurra
-              entre usuarios: ni del contenido de los mensajes, ni del comportamiento de las
-              personas que conozcas aquí, ni de las decisiones que tomes tras hablar con ellas, ni
-              de los daños derivados de haber usado metoo en lugar de acudir a un profesional.
+              Lo que se dice en metoo lo dicen sus usuarios, no nosotros. No controlamos lo que
+              escriben ni cómo se comportan, y no respondemos de ello más allá de lo que nos
+              obligue la ley. Tampoco respondemos de las decisiones que tomes sobre tu salud:
+              metoo no es un servicio sanitario y así te lo decimos desde el principio (punto 3).
             </p>
             <p className="mt-3 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm">
-              Esta limitación tiene los límites que impone la ley y no pretende ir más allá: no se
-              excluye la responsabilidad por dolo ni por negligencia grave, ni por daños a la vida
-              o a la integridad física, ni los derechos que te correspondan como consumidor, que
-              siguen intactos.
+              Esta limitación tiene los límites que impone la ley y no pretende ir más allá. No se
+              excluye en ningún caso la responsabilidad por dolo ni por negligencia grave, ni por
+              los daños a la vida, la integridad física o la salud, ni ninguno de los derechos que
+              te correspondan como consumidor, que siguen intactos. Si algún tribunal considerase
+              nula alguna parte de esta cláusula, el resto seguirá siendo válido.
             </p>
           </section>
 
@@ -218,13 +279,21 @@ export default function TerminosPage() {
             <h2 className="mb-3 text-lg font-semibold text-foreground">8. Cuentas y suspensión</h2>
             <p>
               Podemos suspender o eliminar una cuenta que incumpla estas normas. Si es algo grave
-              —acoso, amenazas, poner a alguien en peligro— puede ser de inmediato y sin aviso.
+              —acoso, amenazas, poner a alguien en peligro— puede ser de inmediato y sin aviso
+              previo.
+            </p>
+            <p className="mt-3">
+              Si suspendemos o eliminamos tu cuenta te diremos por qué, salvo que hacerlo pueda
+              poner en peligro a alguien o estemos obligados a no decirlo. Puedes pedirnos que lo
+              revisemos durante los seis meses siguientes escribiendo a {TITULAR.email}; la
+              revisión la hace una persona, no un sistema automático.
             </p>
             <p className="mt-3">
               Puedes darte de baja tú, en cualquier momento y sin dar explicaciones, desde{' '}
               <strong className="text-foreground">Ajustes → Eliminar cuenta</strong>. Es
               inmediato y no se puede deshacer. Se va todo menos las conversaciones que tuviste,
-              que le quedan a la otra persona; te lo contamos antes de borrar y con detalle en la{' '}
+              que le quedan a la otra persona durante un año como máximo; te lo contamos antes de
+              borrar y con detalle en la{' '}
               <Link href="/privacidad" className="text-foreground underline underline-offset-2">
                 política de privacidad
               </Link>
@@ -235,17 +304,34 @@ export default function TerminosPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">9. Cambios</h2>
             <p>
-              Podemos actualizar estos términos. Si el cambio es importante te avisamos por correo.
-              Seguir usando metoo después implica aceptarlos; si no te convencen, puedes darte de
-              baja.
+              Podemos actualizar estos términos. Si el cambio es importante te avisaremos por
+              correo antes y te pediremos que lo aceptes la próxima vez que entres: hasta que no
+              lo hagas, no los aplicamos contigo. Si no te convencen, puedes darte de baja sin
+              ninguna consecuencia. Los cambios menores —corregir una errata, aclarar una frase—
+              los publicamos actualizando la fecha de arriba.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">10. Ley aplicable</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">10. Cómo moderamos</h2>
+            <p>
+              No leemos las conversaciones de forma rutinaria ni hay nadie vigilando en tiempo
+              real. Actuamos cuando alguien reporta algo o nos escribe. Según el caso, podemos
+              ocultar un contenido, avisar a la persona, o suspender o eliminar la cuenta. Las
+              decisiones las toma una persona, no un sistema automático.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">11. Ley aplicable</h2>
             <p>
               Se aplica la ley española. Si eres consumidor, puedes reclamar ante los juzgados de
               tu domicilio, y nada de lo anterior te quita esa opción.
+            </p>
+            <p className="mt-3">
+              Antes de ir a un juzgado, escríbenos: casi todo se arregla hablando. Si no lo
+              conseguimos, puedes acudir a los sistemas de resolución alternativa de conflictos de
+              consumo que te correspondan.
             </p>
           </section>
         </div>

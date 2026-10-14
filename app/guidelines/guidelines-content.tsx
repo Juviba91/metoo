@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { SiteFooter } from '@/components/site-footer'
+import { TEXTOS_ACTUALIZADOS } from '@/lib/legal'
 
 type Role = 'volunteer' | 'seeker'
 
@@ -419,7 +420,12 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
         <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
           Comunidad metoo
         </p>
-        <h1 className="mb-4 text-4xl font-bold leading-tight">Normas de la comunidad</h1>
+        <h1 className="mb-2 text-4xl font-bold leading-tight">Normas de la comunidad</h1>
+        {/* Forman parte de los términos: llevan la misma fecha y se versionan
+            con ellos (VERSION_TEXTOS_LEGALES). */}
+        <p className="mb-4 text-sm text-muted-foreground">
+          Última actualización: {TEXTOS_ACTUALIZADOS}
+        </p>
         <p className="mb-10 text-lg leading-relaxed text-muted-foreground">
           metoo es un espacio de apoyo entre iguales. Elige tu rol para leer las normas
           que te corresponden.

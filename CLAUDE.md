@@ -173,7 +173,16 @@ SELECT p.alias, u.email, u.last_sign_in_at
   `profiles.role` son `voluntarios_a_avisar` y `temas_con_actividad`.
 - **Los textos legales tienen versión** (`lib/legal.ts`). Se guarda con la
   fecha de consentimiento al registrarse. Si cambian de fondo, sube
-  `VERSION_TEXTOS_LEGALES`.
+  `VERSION_TEXTOS_LEGALES` — y ojo: subirla manda a **todas** las cuentas a
+  `/dashboard/consentimiento` (lo hace el middleware) hasta que acepten otra
+  vez, con fecha de nacimiento incluida. Es a propósito (la nota legal pide
+  aceptación expresa), pero no se sube por una errata.
+- **El titular es la Asociación Siette** (`lib/titular.ts`), no Juan como
+  persona física. Privacidad y términos leen de ahí.
+- **Las guías no llevan firma ni se indexan.** `guias_publicas` no tiene
+  alias ni `autor_id` (se quitaron de la vista, no solo del HTML: la vista se
+  lee con la clave pública) y las páginas llevan `noindex`. No volver a
+  añadirlos: es la medida U-3 de la nota legal.
 - **Los correos de aviso no llevan el contenido de los mensajes** (se ven en la
   pantalla de bloqueo). Las funciones de `supabase/functions/` no se despliegan
   con el merge: `supabase functions deploy <nombre>` a mano, y comprobarlo.

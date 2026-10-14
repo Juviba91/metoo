@@ -1,24 +1,14 @@
-import { describe, it, expect, vi } from 'vitest'
-import { createSupabaseMock } from './helpers/supabase-mock'
-
-const mock = createSupabaseMock({
-  responses: {
-    'guias_indice.select': {
-      data: [{ hospital_slug: 'la-paz', tema_slug: 'uci-neonatal', ultima: '2026-10-01T00:00:00Z' }],
-    },
-  },
-})
-
-vi.mock('@/lib/supabase/server', () => ({ createClient: async () => mock.client }))
+import { describe, it, expect } from 'vitest'
 
 const { default: sitemap } = await import('@/app/sitemap')
 const { default: robots } = await import('@/app/robots')
 
 describe('sitemap', () => {
-  it('incluye cada guía con algo escrito, en el dominio con www', async () => {
+  it('incluye el índice de guías pero no cada guía, en el dominio con www', async () => {
     const urls = (await sitemap()).map((e) => e.url)
 
-    expect(urls).toContain('https://www.metoonetwork.xyz/guias/la-paz/uci-neonatal')
+    // Medida U-3 de la nota legal: las guías de cada hospital no se indexan.
+    expect(urls.some((u) => /\/guias\/[^/]+\/[^/]+$/.test(u))).toBe(false)
     expect(urls).toContain('https://www.metoonetwork.xyz/guias')
     // El dominio sin www redirige: una URL así en el sitemap la penaliza Google.
     expect(urls.every((u) => u.startsWith('https://www.metoonetwork.xyz/'))).toBe(true)
