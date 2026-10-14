@@ -1,23 +1,18 @@
 import Link from 'next/link'
 import { SiteHeaderPublic } from '@/components/site-header-public'
 import { TEXTOS_ACTUALIZADOS } from '@/lib/legal'
+import { TITULAR as RESPONSABLE } from '@/lib/titular'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Privacidad' }
 
-/**
- * Datos del responsable del tratamiento.
- *
- * El RGPD (art. 13.1.a) exige identificar al responsable: "el equipo de metoo"
- * no vale, hace falta la persona física o la razón social.
- *
- * Si en algún momento actúas como autónomo o entidad, aquí harían falta
- * también el NIF y el domicilio.
+/*
+ * Revisada en octubre de 2026 con la nota legal de Mas Calvet. Cada promesa de
+ * aquí tiene que ser verdad en el código: si cambias una, cambia la otra (ver
+ * CLAUDE.md). Lo que la nota proponía y aún no existe —registro de accesos del
+ * administrador, acuse de recibo de reportes, retirar el permiso sin borrar la
+ * cuenta— NO se promete.
  */
-const RESPONSABLE = {
-  nombre: 'Juan de Villanueva Baygual',
-  email: 'juan@bay-apps.com',
-}
 
 export default function PrivacidadPage() {
   return (
@@ -37,8 +32,8 @@ export default function PrivacidadPage() {
               <li>Nadie ve tu nombre real. Eliges un alias y con eso basta.</li>
               <li>No vendemos ni cedemos tus datos. Nunca. No hay publicidad.</li>
               <li>
-                Lo que cuentas aquí habla de tu salud, así que solo lo tratamos si tú
-                nos das permiso al registrarte.
+                Lo que cuentas aquí habla de tu salud, así que solo lo tratamos si nos das
+                permiso aparte, con una casilla propia.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -49,12 +44,14 @@ export default function PrivacidadPage() {
               </li>
               <li>
                 Puedes darte de baja tú, cuando quieras, desde Ajustes. Lo único que sobrevive
-                son las conversaciones que tuviste, porque también son de la otra persona
-                (punto 7), y lo que escribiste en las guías, sin tu alias (punto 3).
+                es lo que escribiste en las guías, sin firma (punto 3), y tus conversaciones,
+                que le quedan a la otra persona durante un año como máximo; después se borran
+                solas (punto 7).
               </li>
               <li>
-                Las guías por hospital son públicas: lo que escribas en ellas lo puede leer
-                cualquiera, también sin cuenta, y sale con tu alias (punto 3).
+                Las guías por hospital se leen sin cuenta, pero lo que escribes en ellas sale
+                sin tu alias y sin enlace a tu perfil, y pedimos a los buscadores que no las
+                indexen (punto 3).
               </li>
             </ul>
           </section>
@@ -64,9 +61,10 @@ export default function PrivacidadPage() {
               1. Quién trata tus datos
             </h2>
             <p>
-              El responsable del tratamiento es {RESPONSABLE.nombre}, que mantiene metoo
-              como proyecto sin ánimo de lucro. Puedes escribir para cualquier cosa
-              relacionada con tus datos a{' '}
+              El responsable del tratamiento es la {RESPONSABLE.nombre}, con NIF{' '}
+              {RESPONSABLE.nif} y domicilio en {RESPONSABLE.domicilio}, inscrita en el{' '}
+              {RESPONSABLE.registro}. metoo es un proyecto sin ánimo de lucro de la
+              asociación. Puedes escribir para cualquier cosa relacionada con tus datos a{' '}
               <a
                 href={`mailto:${RESPONSABLE.email}`}
                 className="text-foreground underline underline-offset-2"
@@ -89,7 +87,13 @@ export default function PrivacidadPage() {
               </li>
               <li>
                 <strong className="text-foreground">Tu alias</strong>: el que tú elijas. No
-                pedimos tu nombre real, ni foto, ni fecha de nacimiento.
+                pedimos tu nombre real ni foto.
+              </li>
+              <li>
+                <strong className="text-foreground">Tu fecha de nacimiento, solo un momento</strong>:
+                te la pedimos al registrarte para comprobar que tienes al menos 16 años.{' '}
+                <strong className="text-foreground">No la guardamos</strong>: solo anotamos que la
+                comprobación se superó y cuándo.
               </li>
               <li>
                 <strong className="text-foreground">Tu ciudad</strong>: para poder conectarte
@@ -115,8 +119,9 @@ export default function PrivacidadPage() {
                 hospital y el tema al que se refieren (punto 3).
               </li>
               <li>
-                <strong className="text-foreground">Cuándo aceptaste estos textos</strong>, y qué
-                versión era, para poder demostrar que diste tu consentimiento.
+                <strong className="text-foreground">Cuándo aceptaste estos textos y cuándo nos
+                diste permiso para tratar datos de salud</strong>, y qué versión era en cada caso,
+                para poder demostrar que diste tu consentimiento.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -125,9 +130,10 @@ export default function PrivacidadPage() {
                 .
               </li>
               <li>
-                <strong className="text-foreground">Datos técnicos</strong>: nuestro proveedor
-                de alojamiento registra direcciones IP y datos de conexión en sus registros de
-                servidor, por seguridad y para detectar abusos.
+                <strong className="text-foreground">Datos técnicos</strong>: Vercel, nuestro
+                proveedor de alojamiento, y Supabase, el de la base de datos, registran
+                direcciones IP y datos de conexión en sus registros de servidor, por seguridad y
+                para detectar abusos (plazos en el punto 7).
               </li>
             </ul>
           </section>
@@ -143,22 +149,27 @@ export default function PrivacidadPage() {
             <ul className="ml-4 mt-3 list-disc space-y-1.5">
               <li>
                 <strong className="text-foreground">Qué se publica:</strong> tus respuestas a las
-                preguntas de la guía, el hospital y el tema al que se refieren, tu alias —que, para
-                quien tiene cuenta, lleva a tu perfil— y si ya pasaste por ello o lo estás
-                viviendo.
+                preguntas de la guía, el hospital y el tema al que se refieren, y si ya pasaste por
+                ello o lo estás viviendo.{' '}
+                <strong className="text-foreground">
+                  No se publica tu alias ni ningún enlace a tu perfil
+                </strong>
+                : las respuestas salen sin firma. Quién escribió cada una lo guardamos solo para
+                poder moderar.
               </li>
               <li>
                 <strong className="text-foreground">Quién lo ve:</strong> cualquiera, con o sin
-                cuenta, y los buscadores pueden indexarlo.
+                cuenta. Hemos pedido a los buscadores que no indexen estas páginas, aunque no
+                podemos garantizar al cien por cien que ninguno las recoja.
               </li>
               <li>
                 <strong className="text-foreground">Cuándo lo sabes:</strong> te lo recordamos en
-                la pantalla donde escribes, antes de enviar nada.
+                la pantalla donde escribes, y tienes que marcar una casilla antes de enviar nada.
               </li>
               <li>
                 <strong className="text-foreground">Si te das de baja:</strong> tus respuestas se
-                quedan, pero sin tu alias ni enlace a tu perfil. Si prefieres que se borren,
-                escríbenos y las borramos.
+                quedan, y ya ni siquiera nosotros sabemos de quién eran. Si prefieres que se
+                borren, escríbenos antes y las borramos.
               </li>
               <li>
                 <strong className="text-foreground">Moderación:</strong> no las revisamos antes de
@@ -166,9 +177,11 @@ export default function PrivacidadPage() {
               </li>
             </ul>
             <p className="mt-3">
-              Una guía puede revelar datos de salud tuyos o de tu familia. Por eso te pedimos que
-              no cuentes nada que te identifique, ni nombres de personas del hospital, y nada
-              sobre tratamientos.
+              <strong className="text-foreground">Ten en cuenta una cosa importante:</strong>{' '}
+              aunque no aparezca tu alias, la combinación del hospital, el tema y el momento en
+              que lo cuentas puede bastar para que alguien de tu entorno te reconozca, sobre todo
+              si el hospital es pequeño. Escribe pensando en eso: nada que te identifique, ni
+              nombres de personas del hospital, y nada sobre tratamientos.
             </p>
           </section>
 
@@ -189,20 +202,24 @@ export default function PrivacidadPage() {
             <p className="mt-3">
               La tratamos únicamente con tu{' '}
               <strong className="text-foreground">consentimiento explícito</strong>, que nos das
-              al crear la cuenta y aceptar esta política. Puedes retirarlo cuando quieras
-              eliminando tu cuenta, y no tienes que dar explicaciones. Retirarlo no afecta a lo
-              que se hizo antes con tu permiso.
+              marcando una casilla propia al crear la cuenta, separada de la aceptación de esta
+              política. Guardamos cuándo lo diste y con qué versión de los textos. Sin ese
+              permiso no se puede usar metoo, porque todo lo que hace —encontrar a alguien que
+              vivió lo mismo— parte de lo que cuentas. Puedes retirarlo cuando quieras
+              eliminando tu cuenta o escribiéndonos, sin dar explicaciones. Retirarlo no afecta a
+              lo que se hizo antes con tu permiso.
             </p>
             <p className="mt-3">
               Con una excepción que te decimos por delante: los mensajes que ya enviaste se
-              quedan con la persona que los recibió, porque la conversación también es suya
-              (punto 7). Si hay algo concreto que necesitas que desaparezca, escríbenos y lo
-              miramos uno por uno.
+              quedan con la persona que los recibió durante un año desde tu baja, porque la
+              conversación también es suya (punto 7). Pasado ese plazo se borran
+              automáticamente. Si hay algo concreto que necesitas que desaparezca antes,
+              escríbenos y lo miramos uno por uno.
             </p>
             <p className="mt-3">
               Lo mismo vale para lo que publiques en las guías (punto 3), con una diferencia: ahí
-              lo lee cualquiera. Lo das al enviar cada respuesta, después de leer el aviso que lo
-              precede.
+              lo lee cualquiera, aunque sin tu firma. Antes de escribir te lo recordamos y tienes
+              que marcar que lo has entendido.
             </p>
             <p className="mt-3">
               Tú decides cuánto cuentas. Puedes usar metoo sin escribir nada en tu descripción
@@ -237,12 +254,13 @@ export default function PrivacidadPage() {
                     <td className="py-2 pr-4">
                       Tratar lo que revela tu salud (etiquetas, descripción, mensajes)
                     </td>
-                    <td className="py-2">Tu consentimiento explícito (art. 9.2.a)</td>
+                    <td className="py-2">Tu consentimiento explícito (arts. 6.1.a y 9.2.a)</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="py-2 pr-4">Avisarte por correo de mensajes y solicitudes</td>
                     <td className="py-2">
-                      Ejecución del servicio (art. 6.1.b). Puedes desactivarlos en Ajustes
+                      Interés legítimo en que te enteres de que alguien te ha escrito (art.
+                      6.1.f). Puedes desactivarlos en Ajustes
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -250,7 +268,15 @@ export default function PrivacidadPage() {
                       Publicar tus respuestas en las guías por hospital
                     </td>
                     <td className="py-2">
-                      Tu consentimiento (arts. 6.1.a y 9.2.a), que das al enviar cada respuesta
+                      Tu consentimiento (arts. 6.1.a y 9.2.a), que das al marcar el aviso y
+                      enviar cada respuesta
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">Comprobar que tienes al menos 16 años</td>
+                    <td className="py-2">
+                      Cumplir una obligación legal (art. 6.1.c, en relación con el art. 8 RGPD y
+                      el art. 7 de la LOPDGDD)
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -286,6 +312,12 @@ export default function PrivacidadPage() {
                 decisiones automatizadas sobre ti.
               </strong>
             </p>
+            <p className="mt-4">
+              <strong className="text-foreground">Cómo te proponemos a alguien.</strong> No hay
+              algoritmo ni puntuación: te enseñamos a las personas disponibles del otro lado en
+              tus temas, y eres tú quien filtra por tema o ciudad y decide. Nadie te empareja con
+              nadie.
+            </p>
           </section>
 
           <section>
@@ -314,9 +346,16 @@ export default function PrivacidadPage() {
               base de datos está alojada en Estados Unidos (región{' '}
               <code className="text-xs">us-east-1</code>). Eso significa que tus datos salen del
               Espacio Económico Europeo. La transferencia se ampara en las cláusulas
-              contractuales tipo aprobadas por la Comisión Europea, que forman parte del contrato
-              con el proveedor. Te lo decimos porque tienes derecho a saberlo antes de
-              registrarte.
+              contractuales tipo aprobadas por la Decisión de Ejecución (UE) 2021/914 de la
+              Comisión (módulo de responsable a encargado), que forman parte del contrato con
+              Supabase. Puedes pedirnos copia escribiendo a {RESPONSABLE.email}. Estamos
+              trasladando la base de datos a la Unión Europea; cuando esté hecho, lo
+              cambiaremos aquí.
+            </p>
+            <p className="mt-3">
+              Vercel y Resend son empresas estadounidenses. En la medida en que sus equipos
+              puedan acceder a los datos desde Estados Unidos, esos accesos están cubiertos por
+              las mismas cláusulas contractuales tipo.
             </p>
           </section>
 
@@ -330,17 +369,21 @@ export default function PrivacidadPage() {
                 acceso, tu perfil, tus publicaciones y tus contactos.
               </li>
               <li>
-                <strong className="text-foreground">Tus conversaciones no se borran</strong>, y es
-                importante que lo sepas antes de darte de baja. A la persona con la que hablabas le
-                queda el hilo entero, con tu alias, marcado como cuenta eliminada. Una conversación
-                es de dos: borrarla por un lado le dejaría a la otra persona un hueco sin
-                explicación, y en esta app eso duele. Del resto de tu ficha solo sobrevive el alias
-                —ni tu descripción, ni tu ciudad, ni tus etiquetas— y nadie puede escribirte ya.
+                <strong className="text-foreground">Tus conversaciones no se borran de
+                inmediato</strong>, y es importante que lo sepas antes de darte de baja. A la
+                persona con la que hablabas le queda el hilo entero, con tu alias, marcado como
+                cuenta eliminada,{' '}
+                <strong className="text-foreground">durante un año desde tu baja</strong>; pasado
+                ese plazo se borra entero, automáticamente. Una conversación es de dos: borrarla
+                por un lado le dejaría a la otra persona un hueco sin explicación, y en esta app
+                eso duele. Pero tampoco tiene sentido guardarla para siempre, así que le ponemos
+                fecha. Del resto de tu ficha solo sobrevive el alias —ni tu descripción, ni tu
+                ciudad, ni tus etiquetas— y nadie puede escribirte ya.
               </li>
               <li>
                 <strong className="text-foreground">Tus respuestas en las guías</strong> se
-                quedan, sin tu alias ni enlace a ti (punto 3). Si quieres que se borren,
-                escríbenos.
+                quedan, sin firma y sin que quede guardado de quién eran (punto 3). Si quieres que
+                se borren, escríbenos antes de darte de baja.
               </li>
               <li>
                 Los reportes de moderación, lo que nos escribes por la burbuja de feedback y tus
@@ -350,12 +393,15 @@ export default function PrivacidadPage() {
                 no personas.
               </li>
               <li>
-                La fecha en que aceptaste estos textos y la versión se conservan junto al alias de
-                la ficha que queda, para poder demostrar tu consentimiento.
+                Las fechas en que aceptaste estos textos y diste el permiso de salud, y sus
+                versiones, se conservan en la ficha que queda tras la baja, para poder demostrar
+                tu consentimiento si alguien lo discute.
               </li>
               <li>
-                Los registros técnicos de nuestros proveedores se conservan según sus propios
-                plazos, normalmente unas semanas.
+                Los registros técnicos los conservan nuestros proveedores según sus propios
+                plazos, que no fijamos nosotros. Con el plan que tenemos contratado, los de Vercel
+                se guardan una hora y los de Supabase un día. No los copiamos ni los guardamos
+                aparte.
               </li>
             </ul>
           </section>
@@ -385,17 +431,19 @@ export default function PrivacidadPage() {
               vemos caso por caso.
             </p>
             <p className="mt-3">
-              También tienes derecho a acceder a tus datos, corregirlos, limitar u oponerte a su
-              tratamiento, y a recibirlos en un formato que puedas llevarte. Para cualquiera de
-              esas cosas escribe a{' '}
+              También puedes pedirnos que borremos datos concretos sin cerrar la cuenta —una
+              etiqueta, una publicación, una respuesta en una guía—, y retirar tu consentimiento
+              en cualquier momento. Y tienes derecho a acceder a tus datos, corregirlos, limitar
+              u oponerte a su tratamiento, y a recibirlos en un formato que puedas llevarte. Para
+              cualquiera de esas cosas escribe a{' '}
               <a
                 href={`mailto:${RESPONSABLE.email}`}
                 className="text-foreground underline underline-offset-2"
               >
                 {RESPONSABLE.email}
               </a>
-              . Lo mismo si quieres que borremos tus respuestas de las guías. Respondemos como
-              mucho en un mes.
+              . Respondemos como mucho en un mes; si el caso es complicado, ese plazo se puede
+              alargar dos meses más, y te lo diríamos dentro del primero.
             </p>
             <p className="mt-3">
               Si crees que no hemos hecho bien nuestro trabajo, puedes reclamar ante la{' '}
@@ -407,8 +455,8 @@ export default function PrivacidadPage() {
               >
                 Agencia Española de Protección de Datos
               </a>
-              . Preferimos que nos escribas antes y lo arreglemos, pero es tu derecho y ahí
-              está.
+              {' '}(C/ Jorge Juan 6, 28001 Madrid; www.aepd.es). Preferimos que nos escribas
+              antes y lo arreglemos, pero es tu derecho y ahí está.
             </p>
           </section>
 
@@ -429,15 +477,23 @@ export default function PrivacidadPage() {
               no se hace de forma rutinaria, pero es posible, y creemos que mereces saberlo
               antes de contar algo íntimo.
             </p>
+            <p className="mt-3">
+              Si alguna vez hubiera una brecha de seguridad que pueda afectarte, te avisaremos
+              sin demora y se lo comunicaremos a la Agencia Española de Protección de Datos en
+              el plazo de 72 horas.
+            </p>
           </section>
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">11. Menores</h2>
             <p>
-              metoo es para mayores de 16 años. Si detectamos una cuenta de alguien menor de esa
-              edad, la eliminamos. Si eres madre, padre o tutor y crees que tu hijo o hija se ha
-              registrado, escríbenos y lo resolvemos enseguida. Te pedimos que confirmes la edad al
-              registrarte, pero no tenemos forma de comprobarla.
+              metoo es para mayores de 16 años. Al registrarte te pedimos tu fecha de nacimiento
+              y, si no llegas a esa edad, no puedes crear la cuenta (y ese navegador se queda
+              bloqueado un día, para que no baste con cambiar el año). Nadie puede comprobar del
+              todo la edad de quien escribe desde el otro lado, así que además revisamos los
+              avisos que nos llegan: si detectamos una cuenta de alguien menor de 16 años, la
+              eliminamos. Si eres madre, padre o tutor y crees que tu hijo o hija se ha
+              registrado, escríbenos y lo resolvemos enseguida.
             </p>
           </section>
 
@@ -445,7 +501,12 @@ export default function PrivacidadPage() {
             <h2 className="mb-3 text-lg font-semibold text-foreground">12. Cambios</h2>
             <p>
               Si cambiamos algo importante de esta política te avisaremos por correo antes de
-              que entre en vigor, para que puedas irte si no te convence. Los cambios menores se
+              que entre en vigor, para que puedas irte si no te convence, y{' '}
+              <strong className="text-foreground">
+                te pediremos que la aceptes de nuevo la próxima vez que entres
+              </strong>
+              : seguir usando la app sin más no vale como aceptación, y menos para el permiso
+              sobre tus datos de salud. Los cambios menores —una errata, una frase más clara— se
               reflejan en la fecha de arriba.
             </p>
           </section>

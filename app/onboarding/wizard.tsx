@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart } from 'lucide-react'
 import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
-import { completeOnboarding } from './actions'
+import { completeOnboarding, comprobarEdadAlta } from './actions'
+import { ConsentimientoCampos } from '@/components/consentimiento-campos'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
 import { LIMITES } from '@/lib/profile-fields'
 import Link from 'next/link'
@@ -17,6 +18,9 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
   const [step, setStep] = useState(1)
   const [accepted, setAccepted] = useState(false)
   const [consentSalud, setConsentSalud] = useState(false)
+  const [nacimiento, setNacimiento] = useState('')
+  const [errorEdad, setErrorEdad] = useState<string | null>(null)
+  const [comprobandoEdad, setComprobandoEdad] = useState(false)
   const [role, setRole] = useState<'seeker' | 'volunteer' | null>(null)
   const [roleConfirmed, setRoleConfirmed] = useState(false)
   const [hashtags, setHashtags] = useState<HashtagOption[]>([])
@@ -43,6 +47,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
       supportModes,
       aceptaTextos: accepted,
       consentimientoSalud: consentSalud,
+      nacimiento,
     })
 
     if (result.error) {
@@ -55,6 +60,18 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
     setStep(6)
     setLoading(false)
     setTimeout(() => router.push('/dashboard'), 3000)
+  }
+
+  async function continuarTrasNormas() {
+    setComprobandoEdad(true)
+    setErrorEdad(null)
+    const res = await comprobarEdadAlta(nacimiento)
+    setComprobandoEdad(false)
+    if (res.error) {
+      setErrorEdad(res.error)
+      return
+    }
+    setStep(2)
   }
 
   const totalSteps = 5
@@ -135,63 +152,28 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             </div>
           </div>
 
-          <label className="mb-4 flex cursor-pointer items-start gap-3">
-            <input
-              type="checkbox"
-              checked={accepted}
-              onChange={(e) => setAccepted(e.target.checked)}
-              className="mt-0.5 size-4 shrink-0 accent-foreground"
+          <div className="mb-6">
+            <ConsentimientoCampos
+              nacimiento={nacimiento}
+              onNacimiento={setNacimiento}
+              aceptaTextos={accepted}
+              onAceptaTextos={setAccepted}
+              salud={consentSalud}
+              onSalud={setConsentSalud}
             />
-            <span className="text-sm text-muted-foreground">
-              He leído y acepto las{' '}
-              <Link
-                href="/guidelines"
-                target="_blank"
-                className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
-              >
-                normas de la comunidad
-              </Link>
-              {', los '}
-              <Link
-                href="/terminos"
-                target="_blank"
-                className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
-              >
-                términos de uso
-              </Link>
-              {' y la '}
-              <Link
-                href="/privacidad"
-                target="_blank"
-                className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
-              >
-                política de privacidad
-              </Link>
-              , y tengo al menos 16 años.
-            </span>
-          </label>
+          </div>
 
-          {/* El consentimiento del art. 9 RGPD (datos de salud) va en su propia
-              casilla: tiene que ser explícito y no puede ir mezclado con la
-              aceptación de unos textos. La política de privacidad dice que se
-              da aquí. */}
-          <label className="mb-6 flex cursor-pointer items-start gap-3">
-            <input
-              type="checkbox"
-              checked={consentSalud}
-              onChange={(e) => setConsentSalud(e.target.checked)}
-              className="mt-0.5 size-4 shrink-0 accent-foreground"
-            />
-            <span className="text-sm text-muted-foreground">
-              Entiendo que lo que cuente aquí —mi descripción, mis etiquetas, mis mensajes y lo
-              que publique en las guías— puede revelar información sobre mi salud, y doy mi
-              consentimiento explícito para que se trate para conectarme con otras personas. Puedo
-              retirarlo cuando quiera eliminando mi cuenta; qué pasa con mis conversaciones lo
-              explica la política de privacidad.
-            </span>
-          </label>
+          {errorEdad && (
+            <p role="alert" className="mb-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {errorEdad}
+            </p>
+          )}
 
-          <Button onClick={() => setStep(2)} disabled={!accepted || !consentSalud} className="w-full gap-2">
+          <Button
+            onClick={continuarTrasNormas}
+            disabled={!nacimiento || !accepted || !consentSalud || comprobandoEdad}
+            className="w-full gap-2"
+          >
             Continuar <ArrowRight className="size-4" />
           </Button>
         </div>

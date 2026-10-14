@@ -21,7 +21,7 @@ const cargar = cache(async (hospital: string, tema: string) => {
 
   const { data } = await supabase
     .from('guias_publicas')
-    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, autor_id, hospital, ciudad, tema')
+    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, hospital, ciudad, tema')
     .eq('hospital_slug', hospital)
     .eq('tema_slug', tema)
 
@@ -41,16 +41,24 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     // Los enlaces que se reparten llevan ?utm_… para medir de dónde vienen:
     // sin canónica, cada variante contaría como una página distinta.
     alternates: { canonical: `/guias/${hospital}/${tema}` },
+    // Se lee sin cuenta, pero no se ofrece a los buscadores. Un hospital, un
+    // diagnóstico y el momento en que alguien lo cuenta pueden bastar para
+    // reconocer a una persona en un sitio pequeño, aunque no lleve firma; y lo
+    // que indexa Google ya no se puede retirar del todo. Ver la nota legal de
+    // octubre de 2026 (medida U-3).
+    robots: { index: false, follow: false },
   }
 }
 
 /**
- * Una guía: un hospital y un tema. Pública, sin cuenta.
+ * Una guía: un hospital y un tema. Se lee sin cuenta, pero no se indexa.
  *
  * Las aportaciones NO llevan firma. El autor se guarda en la base para poder
- * moderar, pero no sale por la vista: es lo que permite tener páginas por
- * hospital sin atar un alias a un hospital y un diagnóstico, que en una ciudad
- * pequeña es un nombre y un apellido.
+ * moderar, pero no sale por la vista (`guias_publicas` ni siquiera tiene la
+ * columna): un alias atado a un hospital y un diagnóstico, en una ciudad
+ * pequeña, es un nombre y un apellido. Lo que sí sale es si quien escribe lo
+ * vivió o lo está viviendo, que son dos valores para toda la app y no
+ * identifican a nadie.
  */
 export default async function GuiaPage({ params }: { params: Params }) {
   const { hospital: hospitalSlug, tema: temaSlug } = await params
@@ -109,23 +117,6 @@ export default async function GuiaPage({ params }: { params: Params }) {
                   >
                     <p className="whitespace-pre-line">{r.contenido}</p>
                     <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                      {/* El alias se enseña siempre y se puede pulsar para ver
-                          el perfil de quien escribió. Decisión de producto: el
-                          alias es un seudónimo y poder mirar quién lo dice es
-                          parte de que la información se pueda valorar.
-                          El perfil pide sesión, así que a quien llegue de Google
-                          le saldrá el acceso — eso es lo que hay. */}
-                      {r.autor_alias &&
-                        (r.autor_id ? (
-                          <Link
-                            href={`/dashboard/perfil/${r.autor_id}`}
-                            className="font-medium text-foreground underline-offset-2 hover:underline"
-                          >
-                            {r.autor_alias}
-                          </Link>
-                        ) : (
-                          <span className="font-medium text-foreground">{r.autor_alias}</span>
-                        ))}
                       {etiquetaAutor(r.autor_rol) && (
                         <span className="rounded-full border border-border px-2 py-0.5">
                           {etiquetaAutor(r.autor_rol)}

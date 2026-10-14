@@ -1,34 +1,20 @@
 import type { MetadataRoute } from 'next'
-import { createClient } from '@/lib/supabase/server'
 import { URL_SITIO } from '@/lib/sitio'
 
-// Se genera en cada petición y no al compilar: una guía nueva tiene que
-// aparecer sin esperar a un despliegue, y la base no está disponible al
-// construir.
-export const dynamic = 'force-dynamic'
-
 /**
- * Sin esto, las guías no las encontraba nadie desde fuera: ni la portada ni el
- * pie las enlazaban, y Google no tenía por dónde llegar. Solo salen las que
- * tienen algo escrito (`guias_indice`), igual que en /guias.
+ * Lo que se ofrece a los buscadores.
+ *
+ * Las guías de cada hospital estuvieron aquí y ya no: la nota legal de octubre
+ * de 2026 (medida U-3) pide que no se indexen, porque un hospital, un tema de
+ * salud y el momento en que alguien lo cuenta pueden bastar para reconocer a
+ * una persona. Siguen siendo públicas —se enlazan desde /guias— pero llevan
+ * `noindex`. El índice de /guias sí está: solo dice qué hospitales y temas
+ * tienen algo escrito.
  */
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('guias_indice')
-    .select('hospital_slug, tema_slug, ultima')
-
-  const guias = (data ?? []).map((g) => ({
-    url: `${URL_SITIO}/guias/${g.hospital_slug}/${g.tema_slug}`,
-    lastModified: g.ultima,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
-
+export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${URL_SITIO}/`, changeFrequency: 'monthly', priority: 1 },
     { url: `${URL_SITIO}/guias`, changeFrequency: 'weekly', priority: 0.9 },
-    ...guias,
     { url: `${URL_SITIO}/guidelines`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${URL_SITIO}/privacidad`, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${URL_SITIO}/terminos`, changeFrequency: 'yearly', priority: 0.2 },

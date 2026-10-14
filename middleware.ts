@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { destinoSeguro } from '@/lib/destino'
+import {
+  COOKIE_CONSENTIMIENTO,
+  consentimientoAlDia,
+  valorCookieConsentimiento,
+} from '@/lib/legal'
 
 /**
  * Node.js en vez del edge, a propósito.
@@ -19,6 +24,11 @@ export const runtime = 'nodejs'
 // Rutas que exigen sesión con el email ya confirmado. /feed estaba fuera, así
 // que se podía publicar en el feed con un correo sin verificar.
 const PROTECTED = ['/dashboard', '/onboarding', '/feed']
+
+// Donde hace falta el consentimiento al día (ver más abajo). Ajustes queda
+// fuera para que quien no quiera aceptar pueda darse de baja.
+const CON_CONSENTIMIENTO = ['/dashboard', '/feed']
+const SIN_CONSENTIMIENTO = ['/dashboard/consentimiento', '/dashboard/ajustes']
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -61,6 +71,46 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/verificar'
     return NextResponse.redirect(url)
+  }
+
+  // Consentimiento al día. Las cuentas de antes de la casilla de salud y de la
+  // fecha de nacimiento, y todas cuando cambian los textos de fondo
+  // (VERSION_TEXTOS_LEGALES), pasan por /dashboard/consentimiento antes de
+  // seguir. El consentimiento no es retroactivo ni tácito: hay que darlo.
+  //
+  // La consulta solo se hace mientras no esté la cookie, que se pone en cuanto
+  // la base dice que está todo: una vez por cuenta y versión, no por navegación.
+  // Si la consulta falla (p. ej. columnas aún sin migrar) se deja pasar: mejor
+  // eso que encerrar a todo el mundo en un bucle.
+  if (
+    user?.email_confirmed_at &&
+    CON_CONSENTIMIENTO.some((p) => path.startsWith(p)) &&
+    !SIN_CONSENTIMIENTO.some((p) => path.startsWith(p)) &&
+    request.cookies.get(COOKIE_CONSENTIMIENTO)?.value !== valorCookieConsentimiento(user.id)
+  ) {
+    const { data: registro } = await supabase
+      .from('profiles')
+      .select('consentimiento_version, consentimiento_salud_en, edad_comprobada_en')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (registro && !consentimientoAlDia(registro)) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard/consentimiento'
+      url.search = ''
+      url.searchParams.set('next', path + request.nextUrl.search)
+      return NextResponse.redirect(url)
+    }
+
+    if (registro) {
+      supabaseResponse.cookies.set(COOKIE_CONSENTIMIENTO, valorCookieConsentimiento(user.id), {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: true,
+        maxAge: 60 * 60 * 24 * 365,
+      })
+    }
   }
 
   if (user && path === '/auth/login') {

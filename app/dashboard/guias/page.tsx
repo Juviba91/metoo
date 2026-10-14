@@ -7,6 +7,7 @@ import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { CajaPregunta, Selectores } from './guia-form'
+import { AvisoPublicacion } from './aviso-publicacion'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Escribir una guía' }
@@ -24,7 +25,7 @@ export default async function EscribirGuiaPage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, alias, profile_hashtags(hashtags(slug, label))')
+    .select('role, profile_hashtags(hashtags(slug, label))')
     .eq('id', user.id)
     .single()
 
@@ -117,69 +118,60 @@ export default async function EscribirGuiaPage({
           </div>
         ) : (
           <>
-            {/* Se dice ANTES de escribir, no después: lo que se escriba queda
-                público en internet, aunque sin tu alias. */}
-            <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
-              <p className="font-semibold">Esto se publica, y con tu alias</p>
-              <p className="mt-1 text-muted-foreground">
-                Lo que escribas lo podrá leer cualquiera en internet, también sin tener
-                cuenta, y aparecerá firmado como{' '}
-                <strong className="text-foreground">{profile.alias}</strong>. No cuentes
-                nada que te pueda identificar —ni fechas exactas, ni nombres de personas
-                del hospital— y nada sobre tratamientos o medicación.
-              </p>
-            </div>
+            {/* Se dice ANTES de escribir, y hay que marcarlo: lo que se
+                escriba queda público, aunque sin firma. */}
+            <AvisoPublicacion>
+              <Selectores
+                hospitales={hospitales ?? []}
+                temas={temas}
+                hospitalSlug={hospitalSlug}
+                temaSlug={temaSlug}
+              />
 
-            <Selectores
-              hospitales={hospitales ?? []}
-              temas={temas}
-              hospitalSlug={hospitalSlug}
-              temaSlug={temaSlug}
-            />
-
-            {hospitalSlug && temaSlug ? (
-              <div className="space-y-3">
-                {preguntasDelTema.map((p) => (
-                  <CajaPregunta
-                    key={p.id}
-                    hospitalSlug={hospitalSlug}
-                    temaSlug={temaSlug}
-                    preguntaId={p.id}
-                    enunciado={p.enunciado}
-                    ayuda={p.ayuda}
-                    yaRespondida={cuantasPorPregunta[p.id] ?? 0}
-                  />
-                ))}
-                <p className="pt-2 text-center text-xs text-muted-foreground">
-                  Contesta solo lo que sepas. Cada respuesta se guarda por su cuenta, y
-                  puedes volver otro día a por el resto.
+              {hospitalSlug && temaSlug ? (
+                <div className="space-y-3">
+                  {preguntasDelTema.map((p) => (
+                    <CajaPregunta
+                      key={p.id}
+                      hospitalSlug={hospitalSlug}
+                      temaSlug={temaSlug}
+                      preguntaId={p.id}
+                      enunciado={p.enunciado}
+                      ayuda={p.ayuda}
+                      yaRespondida={cuantasPorPregunta[p.id] ?? 0}
+                    />
+                  ))}
+                  <p className="pt-2 text-center text-xs text-muted-foreground">
+                    Contesta solo lo que sepas. Cada respuesta se guarda por su cuenta, y
+                    puedes volver otro día a por el resto.
+                  </p>
+                  {/* Solo si la guía ya tiene algo escrito. La página pública
+                      hace notFound() cuando está vacía —para que no haya páginas
+                      fantasma con el nombre de un hospital— así que este enlace
+                      daba un 404 justo al abrir el formulario, que es cuando más
+                      apetece pulsarlo. */}
+                  {Object.keys(cuantasPorPregunta).length > 0 ? (
+                    <p className="text-center text-xs">
+                      <Link
+                        href={`/guias/${hospitalSlug}/${temaSlug}`}
+                        className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                      >
+                        Ver cómo queda la página →
+                      </Link>
+                    </p>
+                  ) : (
+                    <p className="text-center text-xs text-muted-foreground">
+                      Esta guía todavía está vacía. En cuanto escribas algo tendrá su
+                      propia página.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                  Elige un hospital y un tema para ver las preguntas.
                 </p>
-                {/* Solo si la guía ya tiene algo escrito. La página pública
-                    hace notFound() cuando está vacía —para que no haya páginas
-                    fantasma con el nombre de un hospital— así que este enlace
-                    daba un 404 justo al abrir el formulario, que es cuando más
-                    apetece pulsarlo. */}
-                {Object.keys(cuantasPorPregunta).length > 0 ? (
-                  <p className="text-center text-xs">
-                    <Link
-                      href={`/guias/${hospitalSlug}/${temaSlug}`}
-                      className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
-                    >
-                      Ver cómo queda la página →
-                    </Link>
-                  </p>
-                ) : (
-                  <p className="text-center text-xs text-muted-foreground">
-                    Esta guía todavía está vacía. En cuanto escribas algo tendrá su
-                    propia página.
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                Elige un hospital y un tema para ver las preguntas.
-              </p>
-            )}
+              )}
+            </AvisoPublicacion>
           </>
         )}
       </main>
