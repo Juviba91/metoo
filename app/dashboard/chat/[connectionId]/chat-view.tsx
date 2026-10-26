@@ -8,6 +8,9 @@ import { ArrowLeft, Send, X } from 'lucide-react'
 import Link from 'next/link'
 import { ReportButton } from '@/components/report-button'
 import { PautasChat } from '@/components/pautas-chat'
+import { AvisoRiesgo } from '@/components/aviso-riesgo'
+import { FRASES_APERTURA, FRASES_RESPUESTA } from '@/lib/frases-chat'
+import { hayRiesgo } from '@/lib/riesgo'
 
 type Message = {
   id: string
@@ -45,6 +48,23 @@ export function ChatView({
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const isVolunteer = currentUserId === volunteerId
+
+  // Frases para empezar mientras no hayas escrito nada en esta conversación.
+  const yaEscribi = messages.some((m) => m.sender_id === currentUserId)
+  const frases = isVolunteer ? FRASES_RESPUESTA : FRASES_APERTURA
+
+  // Solo los últimos mensajes: lo de hace semanas ya no es el momento. Se
+  // puede cerrar, y vuelve a salir si llega otro mensaje con riesgo o si lo
+  // estás escribiendo tú.
+  const [riesgoVistoHasta, setRiesgoVistoHasta] = useState(-1)
+  const ultimoConRiesgo = messages.findLastIndex(
+    (m, i) => i >= messages.length - 10 && hayRiesgo(m.content),
+  )
+  const riesgoEnMensajes = ultimoConRiesgo > riesgoVistoHasta
+  const riesgoMio =
+    hayRiesgo(content) ||
+    (riesgoEnMensajes && messages[ultimoConRiesgo].sender_id === currentUserId)
+  const riesgoAjeno = riesgoEnMensajes && messages[ultimoConRiesgo].sender_id !== currentUserId
 
   /**
    * Marcar como leído al abrir, y también cuando llega algo nuevo del otro
@@ -361,6 +381,36 @@ export function ChatView({
           className="pb-safe flex shrink-0 flex-col gap-2 border-t border-border bg-background px-4 pt-3"
         >
           {sendError && <p className="text-xs text-destructive">{sendError}</p>}
+          {/* Se calcula aquí, en el navegador: el texto no va a ningún sitio
+              para esto. Si lo has escrito tú manda el tuyo; si no, el ajeno. */}
+          {(riesgoMio || riesgoAjeno) && (
+            <AvisoRiesgo
+              quien={riesgoMio ? 'yo' : 'otra'}
+              onCerrar={() => setRiesgoVistoHasta(ultimoConRiesgo)}
+            />
+          )}
+          {!yaEscribi && !content && (
+            <div>
+              <p className="mb-1.5 text-xs text-muted-foreground">
+                {isVolunteer ? 'Para contestar, si te ayuda:' : 'Para empezar, si te ayuda:'}
+              </p>
+              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+                {frases.map((frase) => (
+                  <button
+                    key={frase}
+                    type="button"
+                    onClick={() => {
+                      setContent(frase)
+                      inputRef.current?.focus()
+                    }}
+                    className="w-60 shrink-0 rounded-xl border border-border px-3 py-2 text-left text-xs leading-snug text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    {frase}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <input
