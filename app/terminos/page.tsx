@@ -230,8 +230,9 @@ export default function TerminosPage() {
               >
                 {TITULAR.email}
               </a>
-              . Cuéntanos por qué y dónde está exactamente; cuando decidamos, si nos has dejado
-              forma de contestarte, te diremos qué hemos hecho.
+              . Cuéntanos por qué; el sitio exacto lo sabemos porque reportas desde la propia
+              conversación. Te llegará un correo de acuse de recibo y otro cuando lo hayamos
+              revisado.
             </p>
             <p className="mt-3">
               Conservas todos los derechos sobre lo que escribes. Solo nos autorizas, de forma no

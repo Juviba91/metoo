@@ -414,3 +414,59 @@ export async function sendMessage(connectionId: string, content: string) {
 
   return { success: true, message: data }
 }
+
+/**
+ * «Avísame cuando haya alguien» en un tema sin voluntarios. El correo lo
+ * encola la base cuando alguien marca ese tema como «lo viví»
+ * (`avisar_tema_con_voluntario`); aquí solo se apunta o se borra la petición.
+ */
+export async function pedirAvisoTema(hashtagId: string): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase
+    .from('avisos_tema')
+    .upsert({ profile_id: user.id, hashtag_id: hashtagId }, { onConflict: 'profile_id,hashtag_id', ignoreDuplicates: true })
+
+  if (error) {
+    console.error('pedirAvisoTema failed:', error)
+    return { error: 'No se pudo guardar. Inténtalo de nuevo.' }
+  }
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function quitarAvisoTema(hashtagId: string): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase
+    .from('avisos_tema')
+    .delete()
+    .eq('profile_id', user.id)
+    .eq('hashtag_id', hashtagId)
+
+  if (error) {
+    console.error('quitarAvisoTema failed:', error)
+    return { error: 'No se pudo quitar. Inténtalo de nuevo.' }
+  }
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+/** «Lo he leído» de la guía para quien acompaña. Queda anotado con fecha. */
+export async function marcarGuiaVoluntarioLeida(): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase.rpc('marcar_guia_voluntario_leida')
+  if (error) {
+    console.error('marcar_guia_voluntario_leida failed:', error)
+    return { error: 'No se pudo guardar. Inténtalo de nuevo.' }
+  }
+  revalidatePath('/dashboard')
+  return { success: true }
+}
