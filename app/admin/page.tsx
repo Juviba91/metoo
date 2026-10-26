@@ -1,5 +1,6 @@
 import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { calcularEmbudo } from '@/lib/embudo'
 import { redirect } from 'next/navigation'
 import {
   DeleteUserBtn,
@@ -43,6 +44,9 @@ export default async function AdminPage() {
     { data: feedback },
     { data: suggestions },
     { data: aportaciones },
+    { data: conexionesEmbudo },
+    { data: mensajesEmbudo },
+    { data: perfilesEmbudo },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -81,6 +85,11 @@ export default async function AdminPage() {
       )
       .order('creada_en', { ascending: false })
       .limit(100),
+    // Para el embudo. Con el tamaño de hoy cabe todo; si un día no, esto pasa
+    // a una función de la base que devuelva los recuentos.
+    admin.from('connections').select('id, seeker_id, volunteer_id').limit(5000),
+    admin.from('messages').select('connection_id, sender_id').limit(20000),
+    admin.from('profiles').select('id, deleted_at').limit(5000),
   ])
 
   const emailMap = Object.fromEntries(
@@ -89,6 +98,18 @@ export default async function AdminPage() {
   const confirmedMap = Object.fromEntries(
     (authResult?.users ?? []).map((u) => [u.id, !!u.email_confirmed_at]),
   )
+
+  const embudo = calcularEmbudo({
+    usuarios: (authResult?.users ?? []).map((u) => ({
+      id: u.id,
+      email: u.email ?? null,
+      email_confirmed_at: u.email_confirmed_at ?? null,
+    })),
+    perfiles: (perfilesEmbudo ?? []) as { id: string; deleted_at: string | null }[],
+    conexiones: (conexionesEmbudo ?? []) as { id: string; seeker_id: string; volunteer_id: string }[],
+    mensajes: (mensajesEmbudo ?? []) as { connection_id: string; sender_id: string }[],
+  })
+  const tope = Math.max(1, embudo[0]?.personas ?? 1)
 
   const totalUsers = profiles?.length ?? 0
   const volunteers = profiles?.filter((p) => p.role === 'volunteer').length ?? 0
@@ -134,6 +155,35 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
         <h1 className="text-3xl font-bold">Admin</h1>
+
+        {/* El embudo, arriba de todo: es la pregunta de cada día. */}
+        <section>
+          <h2 className="mb-1 text-lg font-semibold">Embudo</h2>
+          <p className="mb-4 text-xs text-muted-foreground">
+            Personas reales (sin cuentas @test.local), desde el principio.
+          </p>
+          <ol className="space-y-2">
+            {embudo.map((p, i) => {
+              const anterior = i > 0 ? embudo[i - 1].personas : null
+              return (
+                <li key={p.paso} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[16rem_1fr_auto]">
+                  <span className="col-start-1 row-start-1 text-sm">{p.paso}</span>
+                  <div className="col-span-2 row-start-2 h-2.5 overflow-hidden rounded-full bg-muted sm:col-span-1 sm:col-start-2 sm:row-start-1">
+                    <div className="h-full rounded-full bg-foreground" style={{ width: `${(p.personas / tope) * 100}%` }} />
+                  </div>
+                  <span className="col-start-2 row-start-1 whitespace-nowrap text-right text-sm tabular-nums sm:col-start-3">
+                    {p.personas}
+                    {anterior ? (
+                      <span className="ml-1.5 text-xs text-muted-foreground">
+                        ({Math.round((p.personas / anterior) * 100)} %)
+                      </span>
+                    ) : null}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+        </section>
 
         {/* Reports */}
         {pendingReports > 0 && (
