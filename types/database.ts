@@ -14,6 +14,23 @@ export type Database = {
   }
   public: {
     Tables: {
+      avisos_tema: {
+        Row: {
+          profile_id: string
+          hashtag_id: string
+          creado_en: string
+          avisado_en: string | null
+        }
+        Insert: {
+          profile_id: string
+          hashtag_id: string
+        }
+        Update: {
+          profile_id?: string
+          hashtag_id?: string
+        }
+        Relationships: []
+      }
       blocks: {
         Row: {
           blocked_id: string
@@ -548,6 +565,7 @@ export type Database = {
           consentimiento_salud_en: string | null
           consentimiento_salud_version: string | null
           edad_comprobada_en: string | null
+          guia_voluntario_leida_en: string | null
           country: string
           created_at: string
           display_name: string | null
@@ -756,6 +774,7 @@ export type Database = {
         Returns: string
       }
       quitar_mi_firma_en_guias: { Args: Record<string, never>; Returns: number }
+      marcar_guia_voluntario_leida: { Args: Record<string, never>; Returns: undefined }
       renovar_consentimiento: {
         Args: { p_version: string; p_nacimiento: string }
         Returns: undefined

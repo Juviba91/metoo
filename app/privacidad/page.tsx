@@ -130,6 +130,17 @@ export default function PrivacidadPage() {
                 .
               </li>
               <li>
+                <strong className="text-foreground">Los temas en los que pides aviso</strong> cuando
+                todavía no hay nadie que acompañe, para escribirte cuando llegue alguien. Se borran
+                si quitas el aviso o te das de baja.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Si acompañas, cuándo leíste la guía de cómo acompañar
+                </strong>
+                , para poder demostrar que la tuviste delante.
+              </li>
+              <li>
                 <strong className="text-foreground">Datos técnicos</strong>: Vercel, nuestro
                 proveedor de alojamiento, y Supabase, el de la base de datos, registran
                 direcciones IP y datos de conexión en sus registros de servidor, por seguridad y
@@ -261,6 +272,21 @@ export default function PrivacidadPage() {
                     <td className="py-2">
                       Interés legítimo en que te enteres de que alguien te ha escrito (art.
                       6.1.f). Puedes desactivarlos en Ajustes
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">
+                      Avisarte cuando llegue alguien que acompañe en un tema que lo pediste
+                    </td>
+                    <td className="py-2">Tu consentimiento, al pulsar «Avísame» (art. 6.1.a)</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">
+                      Confirmarte que recibimos un reporte y que lo hemos revisado
+                    </td>
+                    <td className="py-2">
+                      Cumplir una obligación legal (art. 6.1.c, en relación con el art. 16 del
+                      Reglamento de Servicios Digitales)
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">

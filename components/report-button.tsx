@@ -4,7 +4,10 @@ import { useState } from 'react'
 import { Flag, X } from 'lucide-react'
 import { reportUser } from '@/app/dashboard/actions'
 
+const RIESGO = 'Puede estar en riesgo (su vida o la de otra persona)'
+
 const REASONS = [
+  RIESGO,
   'Contenido inapropiado',
   'Acoso o amenazas',
   'Información falsa o engañosa',
@@ -47,7 +50,7 @@ export function ReportButton({
       return
     }
     setDone(true)
-    setTimeout(handleClose, 2000)
+    setTimeout(handleClose, 3500)
   }
 
   return (
@@ -79,7 +82,8 @@ export function ReportButton({
 
             {done ? (
               <p className="py-6 text-center text-sm text-green-600">
-                ✓ Reporte enviado. Gracias por ayudarnos a mantener la comunidad segura.
+                ✓ Reporte enviado. Te llegará un correo de confirmación, y otro cuando lo hayamos
+                revisado.
               </p>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -103,11 +107,20 @@ export function ReportButton({
                   ))}
                 </div>
 
-                {reason === 'Otro' && (
+                {reason === RIESGO && (
+                  <p className="rounded-lg bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
+                    Si crees que hay peligro inmediato, no esperes a que lo leamos: llama al{' '}
+                    <a href="tel:112" className="font-semibold underline">112</a>.
+                  </p>
+                )}
+
+                {/* El DSA (art. 16) pide poder explicar el motivo. Opcional salvo
+                    en «Otro», donde sin explicación no se sabe qué pasó. */}
+                {reason && (
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe el motivo..."
+                    placeholder={reason === 'Otro' ? 'Describe el motivo...' : 'Si quieres, cuéntanos qué ha pasado (opcional)'}
                     maxLength={500}
                     rows={3}
                     className="w-full resize-none rounded-lg border border-border bg-muted/30 p-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"

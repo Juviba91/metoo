@@ -2,6 +2,8 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { DashboardMatches } from '@/components/dashboard-matches'
+import { AvisameTemas } from '@/components/avisame-temas'
+import { temasSinAcompanante } from '@/lib/avisos'
 import { BookOpen, MapPin, MessageCircle, UserRound } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
@@ -80,6 +82,8 @@ export default async function DashboardPage({
     { data: allHashtags },
     { data: guias },
     pendingCount,
+    { data: misAvisos },
+    { data: guiaLeida },
   ] = await Promise.all([
     matchesQuery.limit(200),
 
@@ -110,6 +114,12 @@ export default async function DashboardPage({
     // Sin condicionar al papel: para quien no recibe solicitudes devuelve 0, y
     // quien está a los dos lados tiene que verlas aunque se registrara buscando.
     contarSolicitudesPendientes(),
+
+    // Aparte del perfil a propósito: son columnas y tablas nuevas, y si la
+    // migración aún no está aplicada solo falla esto (se trata como vacío), no
+    // la consulta del perfil, que mandaría al onboarding.
+    supabase.from('avisos_tema').select('hashtag_id').eq('profile_id', user.id),
+    supabase.from('profiles').select('guia_voluntario_leida_en').eq('id', user.id).maybeSingle(),
   ])
   const visibleConnections = conversacionesVisiblesDe(
     (connections ?? []) as any[],
@@ -128,6 +138,18 @@ export default async function DashboardPage({
   const chatUnread = (unreadData as number) ?? 0
 
   const candidatos = candidatosPara(lados, (matches ?? []) as any[])
+
+  // Mis temas de «lo estoy viviendo» sin nadie que acompañe: se ofrece aviso.
+  const sinNadie = lados.busca
+    ? temasSinAcompanante((profile.profile_hashtags ?? []) as any[], candidatos.voluntarios as any[])
+        .map((t: any) => t.hashtags)
+        .filter(Boolean)
+    : []
+  const avisosPedidos = ((misAvisos ?? []) as { hashtag_id: string }[]).map((a) => a.hashtag_id)
+
+  // La guía de cómo acompañar, mientras no se haya leído. Si la columna aún no
+  // existe, `guiaLeida` es null y no se enseña: mejor eso que insistir.
+  const mostrarGuiaVoluntario = lados.acompana && guiaLeida !== null && !guiaLeida?.guia_voluntario_leida_en
 
   const ownHashtags = (profile.profile_hashtags as any[])
     ?.map((ph: any) => ph.hashtags)
@@ -417,17 +439,31 @@ export default async function DashboardPage({
           .map((lado) => {
             const lista = lado === 'seeker' ? candidatos.voluntarios : candidatos.buscadores
             return (
-              <DashboardMatches
-                key={lado}
-                matches={lista.map((m: any) => ({
-                  ...m,
-                  profile_hashtags: temasDelLado(contrario(lado), m.profile_hashtags ?? []),
-                })) as any}
-                role={lado}
-                connectedTo={connectedTo}
-                allHashtags={(allHashtags ?? []) as any}
-                initialHashtag={temaInicial ?? null}
-              />
+              <div key={lado} className="space-y-4">
+                {lado === 'seeker' && <AvisameTemas temas={sinNadie} pedidos={avisosPedidos} />}
+                {lado === 'volunteer' && mostrarGuiaVoluntario && (
+                  <Link
+                    href="/dashboard/acompanar"
+                    className="block rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 transition-colors hover:bg-amber-50 dark:border-amber-800/60 dark:bg-amber-950/20"
+                  >
+                    <p className="text-sm font-semibold">Antes de acompañar: cinco claves</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      Dos minutos. Qué hacer si alguien está en riesgo, qué no decir y cómo cuidarte
+                      tú. →
+                    </p>
+                  </Link>
+                )}
+                <DashboardMatches
+                  matches={lista.map((m: any) => ({
+                    ...m,
+                    profile_hashtags: temasDelLado(contrario(lado), m.profile_hashtags ?? []),
+                  })) as any}
+                  role={lado}
+                  connectedTo={connectedTo}
+                  allHashtags={(allHashtags ?? []) as any}
+                  initialHashtag={temaInicial ?? null}
+                />
+              </div>
             )
           })}
 
