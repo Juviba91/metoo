@@ -148,6 +148,18 @@ export default async function GuiaPage({ params }: { params: Params }) {
             Añadir lo que sepas
           </Link>
         </div>
+
+        {/* Sin Google (noindex), estas páginas llegan en papel: a la sala de
+            familias del hospital. */}
+        <p className="text-center text-xs text-muted-foreground">
+          ¿Quieres dejarla en la sala de familias?{' '}
+          <Link
+            href={`/guias/${hospitalSlug}/${temaSlug}/cartel`}
+            className="underline underline-offset-2 hover:text-foreground"
+          >
+            Imprime un cartel con QR
+          </Link>
+        </p>
       </main>
     </GuiasShell>
   )
