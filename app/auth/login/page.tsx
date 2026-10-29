@@ -3,24 +3,33 @@
 import Link from 'next/link'
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn, signUp, requestPasswordReset } from '@/app/auth/actions'
+import { signIn, signUp, requestPasswordReset, enviarEnlace, verificarCodigo } from '@/app/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
 import { destinoSeguro } from '@/lib/destino'
 
-type Mode = 'login' | 'register' | 'forgot'
+type Mode = 'enlace' | 'codigo' | 'login' | 'register' | 'forgot'
 
 function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
-  const [mode, setMode] = useState<Mode>(params.get('tab') === 'register' ? 'register' : 'login')
+  // Por defecto, sin contraseña: un enlace por correo vale para entrar y para
+  // crear la cuenta. Quien prefiera contraseña tiene las pestañas de siempre.
+  const [mode, setMode] = useState<Mode>(
+    params.get('tab') === 'register' ? 'register' : params.get('tab') === 'login' ? 'login' : 'enlace',
+  )
+  const [codigo, setCodigo] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    params.get('error') === 'enlace' || params.get('error') === 'auth'
+      ? 'El enlace no ha funcionado o ha caducado. Pide otro, o escribe el código del correo.'
+      : null,
+  )
   const [info, setInfo] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -28,6 +37,29 @@ function LoginForm() {
     setLoading(true)
     setError(null)
     setInfo(null)
+
+    if (mode === 'enlace') {
+      const result = await enviarEnlace(email, params.get('next'))
+      setLoading(false)
+      if (result.error) {
+        setError(result.error)
+        return
+      }
+      setMode('codigo')
+      return
+    }
+
+    if (mode === 'codigo') {
+      const result = await verificarCodigo(email, codigo)
+      if (result.error) {
+        setError(result.error)
+        setLoading(false)
+        return
+      }
+      router.push(destinoSeguro(params.get('next')))
+      router.refresh()
+      return
+    }
 
     if (mode === 'forgot') {
       const result = await requestPasswordReset(email)
@@ -71,7 +103,79 @@ function LoginForm() {
         <Logo showWordmark={false} size={56} />
       </Link>
 
-      {mode !== 'forgot' ? (
+      {mode === 'enlace' || mode === 'codigo' ? (
+        <>
+          <h1 className="mb-2 text-center text-xl font-semibold">
+            {mode === 'enlace' ? 'Entra o crea tu cuenta' : 'Mira tu correo'}
+          </h1>
+          <p className="mb-8 text-center text-sm leading-relaxed text-muted-foreground">
+            {mode === 'enlace' ? (
+              'Sin contraseña: te mandamos un enlace a tu correo. Si aún no tienes cuenta, se crea al entrar.'
+            ) : (
+              <>
+                Te hemos escrito a <strong className="text-foreground">{email}</strong>. Pulsa el
+                enlace del correo o escribe aquí el código. Si no lo ves, mira en spam.
+              </>
+            )}
+          </p>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === 'enlace' ? (
+              <div>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium">Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="tu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+                />
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="codigo" className="mb-1.5 block text-sm font-medium">Código del correo</label>
+                <input
+                  id="codigo"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  maxLength={10}
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3 text-center text-lg tracking-[0.4em] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+                />
+              </div>
+            )}
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? '...' : mode === 'enlace' ? 'Envíame el enlace' : 'Entrar con el código'}
+            </Button>
+          </form>
+
+          <div className="mt-5 space-y-2 text-center text-sm">
+            {mode === 'codigo' && (
+              <button
+                type="button"
+                onClick={() => switchMode('enlace')}
+                className="block w-full text-muted-foreground hover:text-foreground"
+              >
+                ← Usar otro correo o pedir uno nuevo
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => switchMode('login')}
+              className="block w-full text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+            >
+              Prefiero usar contraseña
+            </button>
+          </div>
+        </>
+      ) : mode !== 'forgot' ? (
         <>
           {/* Tabs */}
           <div className="mb-8 flex rounded-xl border border-border p-1">
@@ -148,6 +252,13 @@ function LoginForm() {
               {loading ? '...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
             </Button>
           </form>
+          <button
+            type="button"
+            onClick={() => switchMode('enlace')}
+            className="mt-4 w-full text-center text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            Entrar sin contraseña, con un enlace al correo
+          </button>
         </>
       ) : (
         <>

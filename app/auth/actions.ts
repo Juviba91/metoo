@@ -3,6 +3,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
+import { destinoSeguro } from '@/lib/destino'
 
 export async function signOut() {
   const supabase = await createClient()
@@ -61,6 +62,70 @@ export async function signUp(
 
   // Sin sesión significa que Supabase exige confirmar el correo antes de entrar
   if (!data.session) return { needsVerification: true }
+  return { success: true }
+}
+
+/** El origen de la petición, armado en el servidor (ver requestPasswordReset). */
+async function origenDeLaPeticion(): Promise<string> {
+  const h = await headers()
+  const host = h.get('host')
+  const proto = h.get('x-forwarded-proto') ?? 'https'
+  return host ? `${proto}://${host}` : ''
+}
+
+/**
+ * Entrar o crear la cuenta con un enlace (y un código) por correo, sin
+ * contraseña.
+ *
+ * Antes eran dos pasos con fricción: correo + contraseña, y luego confirmar el
+ * correo. Con el enlace es uno solo —pulsarlo ya confirma el correo— y nadie
+ * tiene que inventar ni recordar una contraseña. Si la cuenta no existe se
+ * crea (`shouldCreateUser`). La contraseña sigue disponible para quien la
+ * prefiera.
+ */
+export async function enviarEnlace(
+  email: string,
+  next?: string | null,
+): Promise<{ success?: boolean; error?: string }> {
+  const limpio = email.trim().toLowerCase()
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(limpio)) return { error: 'Revisa el email.' }
+
+  const supabase = await createClient()
+  const origen = await origenDeLaPeticion()
+  const destino = destinoSeguro(next)
+  const { error } = await supabase.auth.signInWithOtp({
+    email: limpio,
+    options: {
+      shouldCreateUser: true,
+      emailRedirectTo: `${origen}/auth/callback?next=${encodeURIComponent(destino)}`,
+    },
+  })
+
+  if (error) {
+    console.error('signInWithOtp failed:', error)
+    if (error.status === 429 || /rate limit/i.test(error.message)) {
+      return { error: 'Hemos enviado demasiados correos seguidos. Espera un minuto y vuelve a probar.' }
+    }
+    return { error: 'No se pudo enviar el correo. Inténtalo de nuevo.' }
+  }
+  return { success: true }
+}
+
+/**
+ * El código de 6 cifras del mismo correo. Sirve cuando el enlace se abre en
+ * otro navegador (p. ej. dentro de la app de Gmail), donde el enlace no puede
+ * completar el inicio de sesión.
+ */
+export async function verificarCodigo(
+  email: string,
+  codigo: string,
+): Promise<{ success?: boolean; error?: string }> {
+  const token = codigo.replace(/\D/g, '')
+  if (token.length < 6) return { error: 'El código tiene 6 cifras.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.verifyOtp({ email: email.trim().toLowerCase(), token, type: 'email' })
+  if (error) return { error: 'Ese código no vale o ha caducado. Pide otro correo.' }
   return { success: true }
 }
 

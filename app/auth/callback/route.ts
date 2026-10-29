@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse, type NextRequest } from 'next/server'
+import { destinoSeguro } from '@/lib/destino'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -27,7 +28,11 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      const next = searchParams.get('next') ?? '/dashboard'
+      // Solo rutas internas: `next` viene en el enlace del correo.
+      // La única ruta de /auth a la que se vuelve es la de poner contraseña
+      // nueva (enlace de recuperar contraseña); destinoSeguro rechaza /auth.
+      const pedido = searchParams.get('next')
+      const next = pedido === '/auth/reset' ? pedido : destinoSeguro(pedido)
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

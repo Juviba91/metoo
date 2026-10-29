@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { TemasConVoluntarios } from '@/components/temas-con-voluntarios'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, BookOpen, Hand, Heart, Shield, Users } from 'lucide-react'
@@ -73,6 +74,9 @@ const reasons = [
   },
 ]
 
+// Los recuentos de temas se regeneran cada hora; el resto es estático.
+export const revalidate = 3600
+
 export default function Page() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -100,14 +104,14 @@ export default function Page() {
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/auth/login?tab=register"
+            href="/auth/login"
             className={cn(buttonVariants(), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
           >
             Busco apoyo
             <ArrowRight className="size-4" />
           </Link>
           <Link
-            href="/auth/login?tab=register"
+            href="/auth/login"
             className={cn(buttonVariants({ variant: 'outline' }), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
           >
             Quiero ayudar
@@ -125,6 +129,8 @@ export default function Page() {
           ¿Acabas de llegar a un hospital? Lee las guías, sin cuenta
         </Link>
       </section>
+
+      <TemasConVoluntarios />
 
       {/* How it works */}
       <section className="bg-muted/40 py-14 sm:py-20">
@@ -244,7 +250,7 @@ export default function Page() {
           Sea para pedir ayuda o para ofrecerla, empieza hoy.
         </p>
         <Link
-          href="/auth/login?tab=register"
+          href="/auth/login"
           className={cn(buttonVariants(), 'gap-2 px-10 py-5 text-base')}
         >
           Unirme a metoo
