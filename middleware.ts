@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { destinoSeguro } from '@/lib/destino'
+import { usuarioDeLaSesion } from '@/lib/supabase/sesion'
 import {
   COOKIE_CONSENTIMIENTO,
   consentimientoAlDia,
@@ -52,9 +53,9 @@ export async function middleware(request: NextRequest) {
     },
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Comprueba la firma del token aquí, sin ir a Supabase (claves
+  // asimétricas); de paso renueva la sesión si ha caducado. Ver lib/supabase/sesion.ts.
+  const user = await usuarioDeLaSesion(supabase)
 
   const path = request.nextUrl.pathname
 

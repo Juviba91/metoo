@@ -2,9 +2,25 @@ import { describe, it, expect, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { destinoSeguro } from '@/lib/destino'
 
-const sesion: { user: unknown } = { user: null }
+const sesion: { user: { id: string; email?: string; email_confirmed_at?: string | null } | null } = { user: null }
 vi.mock('@supabase/ssr', () => ({
-  createServerClient: () => ({ auth: { getUser: async () => ({ data: { user: sesion.user } }) } }),
+  createServerClient: () => ({
+    auth: {
+      getUser: async () => ({ data: { user: sesion.user } }),
+      getClaims: async () => ({
+        data: sesion.user
+          ? {
+              claims: {
+                sub: sesion.user.id,
+                email: sesion.user.email,
+                user_metadata: { email_verified: Boolean(sesion.user.email_confirmed_at) },
+              },
+            }
+          : null,
+        error: null,
+      }),
+    },
+  }),
 }))
 
 const { middleware } = await import('@/middleware')
