@@ -8,6 +8,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { AccountSection } from '@/app/dashboard/perfil/account-section'
 import { DeleteAccount } from '@/app/dashboard/perfil/delete-account'
 import { AppAbout } from '@/components/app-about'
+import { AvisosMovil } from '@/components/avisos-movil'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { ladosDe } from '@/lib/lados'
 import type { Metadata } from 'next'
@@ -66,6 +67,9 @@ export default async function AjustesPage() {
             // tema también lo recibe (ver voluntarios_a_avisar).
             esVoluntario={ladosDe(profile.role, profile.profile_hashtags ?? []).acompana}
           />
+          <div className="mt-3">
+            <AvisosMovil />
+          </div>
         </div>
 
         <div className="border-t border-border/60 pt-8">

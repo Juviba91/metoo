@@ -2,6 +2,7 @@
 
 import { createClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { avisarMensaje, avisarSolicitud, enSegundoPlano } from '@/lib/push'
 import { checkRateLimit, canInteractWith } from '@/app/safety/actions'
 import { sanitizeModes, sanitizeStage, validarTextos } from '@/lib/profile-fields'
 import { ladosDe, puedeIniciar, type Rol } from '@/lib/lados'
@@ -131,6 +132,9 @@ export async function requestConnection(volunteerId: string) {
   }
 
   if (error || !data) return { error: error?.message || 'Error al enviar solicitud' }
+
+  // Aviso push a quien acompaña, después de responder: nunca retrasa esto.
+  enSegundoPlano(() => avisarSolicitud(data.id as string, user.id, volunteerId))
 
   revalidatePath('/dashboard')
   return { success: true, connectionId: data.id as string }
@@ -393,6 +397,8 @@ export async function sendMessage(connectionId: string, content: string) {
     .single()
 
   if (error || !data) return { error: error?.message || 'Error al enviar el mensaje' }
+
+  enSegundoPlano(() => avisarMensaje(connectionId, user.id, otherUserId))
 
   // Se acepta DESPUÉS de insertar el mensaje, no antes. El webhook de
   // `connections` avisa por correo de que han aceptado, y comprueba si el

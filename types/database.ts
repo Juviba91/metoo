@@ -23,6 +23,12 @@ export type Database = {
           { foreignKeyName: 'guia_votos_hashtag_id_fkey'; columns: ['hashtag_id']; isOneToOne: false; referencedRelation: 'hashtags'; referencedColumns: ['id'] },
         ]
       }
+      push_suscripciones: {
+        Row: { id: string; profile_id: string; endpoint: string; p256dh: string; auth: string; creado_en: string }
+        Insert: { profile_id: string; endpoint: string; p256dh: string; auth: string }
+        Update: { endpoint?: string }
+        Relationships: []
+      }
       avisos_tema: {
         Row: {
           profile_id: string
