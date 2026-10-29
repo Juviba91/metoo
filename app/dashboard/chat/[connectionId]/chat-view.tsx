@@ -46,7 +46,7 @@ export function ChatView({
   const [status, setStatus] = useState(initialStatus)
   const [verPautas, setVerPautas] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const isVolunteer = currentUserId === volunteerId
 
   // Frases para empezar mientras no hayas escrito nada en esta conversación.
@@ -168,8 +168,17 @@ export function ChatView({
     return () => { active = false; if (ch) supabase.removeChannel(ch) }
   }, [connectionId])
 
-  async function handleSend(e: React.FormEvent) {
-    e.preventDefault()
+  // El campo crece con el texto hasta unas seis líneas; luego hace scroll.
+  // Antes era una sola línea y las frases de apertura largas no se veían.
+  useEffect(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+  }, [content])
+
+  async function handleSend(e?: React.FormEvent) {
+    e?.preventDefault()
     const text = content.trim()
     if (!text || sending) return
 
@@ -411,20 +420,33 @@ export function ChatView({
               </div>
             </div>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-end gap-2">
             <div className="relative flex-1">
-              <input
+              <textarea
                 ref={inputRef}
-                type="text"
+                rows={1}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                onKeyDown={(e) => {
+                  // Con teclado de verdad, Enter envía y Mayús+Enter salta de
+                  // línea. En el móvil Enter es salto de línea: se envía con el botón.
+                  if (
+                    e.key === 'Enter' &&
+                    !e.shiftKey &&
+                    !e.nativeEvent.isComposing &&
+                    window.matchMedia('(pointer: fine)').matches
+                  ) {
+                    e.preventDefault()
+                    handleSend()
+                  }
+                }}
                 placeholder="Escribe un mensaje..."
                 maxLength={2000}
                 autoComplete="off"
-                className="w-full rounded-full border border-border bg-muted/40 px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+                className="block max-h-40 w-full resize-none rounded-3xl border border-border bg-muted/40 px-4 py-3 text-sm leading-snug outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
               />
               {content.length > 1500 && (
-                <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs tabular-nums ${content.length > 1900 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                <span className={`absolute bottom-1 right-4 text-[10px] tabular-nums ${content.length > 1900 ? 'text-destructive' : 'text-muted-foreground'}`}>
                   {2000 - content.length}
                 </span>
               )}

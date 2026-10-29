@@ -47,6 +47,7 @@ export default async function AdminPage() {
     { data: conexionesEmbudo },
     { data: mensajesEmbudo },
     { data: perfilesEmbudo },
+    { data: votos },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -90,7 +91,17 @@ export default async function AdminPage() {
     admin.from('connections').select('id, seeker_id, volunteer_id').limit(5000),
     admin.from('messages').select('connection_id, sender_id').limit(20000),
     admin.from('profiles').select('id, deleted_at').limit(5000),
+    admin.from('guia_votos').select('util, hospitals(slug), hashtags(slug)').limit(10000),
   ])
+
+  // «¿Te ha servido?» por guía, con la misma clave que los grupos de abajo.
+  const votosPorGuia = ((votos ?? []) as any[]).reduce<Record<string, { si: number; no: number }>>((acc, v) => {
+    const clave = `${v.hospitals?.slug ?? '?'}/${v.hashtags?.slug ?? '?'}`
+    acc[clave] ??= { si: 0, no: 0 }
+    if (v.util) acc[clave].si++
+    else acc[clave].no++
+    return acc
+  }, {})
 
   const emailMap = Object.fromEntries(
     (authResult?.users ?? []).map((u) => [u.id, u.email ?? '—']),
@@ -257,6 +268,11 @@ export default async function AdminPage() {
                       {g.ocultas > 0 && (
                         <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-destructive">
                           {g.ocultas} oculta{g.ocultas === 1 ? '' : 's'}
+                        </span>
+                      )}
+                      {votosPorGuia[g.clave] && (
+                        <span title="¿Te ha servido? sí / no">
+                          👍 {votosPorGuia[g.clave].si} · 👎 {votosPorGuia[g.clave].no}
                         </span>
                       )}
                       <span>{g.aportaciones.length}</span>
