@@ -281,6 +281,16 @@ export default function PrivacidadPage() {
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="py-2 pr-4">
+                      Si buscas apoyo, avisarte de vez en cuando (como mucho cada dos semanas) de
+                      que en tu tema hay alguien disponible con quien aún no has hablado
+                    </td>
+                    <td className="py-2">
+                      Interés legítimo en que encuentres apoyo (art. 6.1.f). Se desactiva con los
+                      avisos por correo de Ajustes
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">
                       Avisarte cuando llegue alguien que acompañe en un tema que lo pediste
                     </td>
                     <td className="py-2">Tu consentimiento, al pulsar «Avísame» (art. 6.1.a)</td>
