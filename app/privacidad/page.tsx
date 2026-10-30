@@ -130,6 +130,11 @@ export default function PrivacidadPage() {
                 .
               </li>
               <li>
+                <strong className="text-foreground">Si activas los avisos en el móvil</strong>, la
+                dirección que da tu navegador para mandártelos. Los avisos dicen quién te ha escrito,
+                nunca lo que te ha escrito. Se borra al desactivarlos o al darte de baja.
+              </li>
+              <li>
                 <strong className="text-foreground">Los temas en los que pides aviso</strong> cuando
                 todavía no hay nadie que acompañe, para escribirte cuando llegue alguien. Se borran
                 si quitas el aviso o te das de baja.
