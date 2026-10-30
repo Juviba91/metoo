@@ -9,22 +9,38 @@ export type UsuarioAdmin = {
   created_at: string
   email: string
   confirmado: boolean
+  /** Temas en los que acompaña («lo viví»). */
+  acompana: string[]
+  /** Temas en los que busca apoyo («lo estoy viviendo»). */
+  busca: string[]
 }
 
 const fecha = (iso: string) =>
   new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
 
-function Rol({ role }: { role: string }) {
+/**
+ * En qué acompaña y en qué busca apoyo cada cuenta. Va por tema, no por el
+ * papel con el que se registró: una misma cuenta puede tener de los dos.
+ */
+function Temas({ u }: { u: UsuarioAdmin }) {
+  if (u.acompana.length === 0 && u.busca.length === 0) {
+    return <span className="text-xs text-muted-foreground">Sin temas</span>
+  }
   return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-        role === 'volunteer'
-          ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-          : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
-      }`}
-    >
-      {role === 'volunteer' ? '💛 Vol.' : '🤝 Bus.'}
-    </span>
+    <div className="space-y-0.5 text-xs">
+      {u.acompana.length > 0 && (
+        <p>
+          <span className="text-amber-700 dark:text-amber-300">💛 Acompaña en</span>{' '}
+          {u.acompana.map((t) => `#${t}`).join(', ')}
+        </p>
+      )}
+      {u.busca.length > 0 && (
+        <p>
+          <span className="text-blue-700 dark:text-blue-300">🤝 Busca apoyo en</span>{' '}
+          {u.busca.map((t) => `#${t}`).join(', ')}
+        </p>
+      )}
+    </div>
   )
 }
 
@@ -70,8 +86,11 @@ export function UsersSection({ usuarios }: { usuarios: UsuarioAdmin[] }) {
               </span>
             </div>
 
+            <div className="mt-3">
+              <Temas u={u} />
+            </div>
+
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <Rol role={u.role} />
               <Estado activo={u.is_active ?? true} />
               {u.city && <span>{u.city}</span>}
               <span>· {fecha(u.created_at)}</span>
@@ -90,7 +109,7 @@ export function UsersSection({ usuarios }: { usuarios: UsuarioAdmin[] }) {
         <table className="w-full text-sm">
           <thead className="border-b border-border bg-muted/40">
             <tr>
-              {['Alias', 'Email', 'Rol', 'Ciudad', '✓', 'Estado', 'Alta', 'Acciones'].map((h) => (
+              {['Alias', 'Email', 'Temas', 'Ciudad', '✓', 'Estado', 'Alta', 'Acciones'].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground"
@@ -105,7 +124,7 @@ export function UsersSection({ usuarios }: { usuarios: UsuarioAdmin[] }) {
               <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/20">
                 <td className="px-4 py-3 font-medium">{u.alias}</td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">{u.email}</td>
-                <td className="px-4 py-3"><Rol role={u.role} /></td>
+                <td className="px-4 py-3"><Temas u={u} /></td>
                 <td className="px-4 py-3 text-muted-foreground">{u.city}</td>
                 <td className="px-4 py-3 text-center text-xs">
                   {u.confirmado ? '✓' : <span className="text-muted-foreground">—</span>}

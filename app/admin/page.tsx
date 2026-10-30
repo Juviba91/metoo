@@ -93,12 +93,9 @@ export default async function AdminPage() {
     admin.from('messages').select('connection_id, sender_id').limit(20000),
     admin.from('profiles').select('id, deleted_at').limit(5000),
     admin.from('guia_votos').select('util, hospitals(slug), hashtags(slug)').limit(10000),
-    // Quién acompaña en qué tema: el papel es el del TEMA, no el de la cuenta.
-    admin
-      .from('profile_hashtags')
-      .select('profile_id, hashtags(label), profiles(alias, is_active, deleted_at)')
-      .eq('role', 'volunteer')
-      .limit(5000),
+    // Los temas de cada cuenta con su papel EN ESE TEMA: se enseñan junto a
+    // cada usuario («acompaña en…», «busca apoyo en…»).
+    admin.from('profile_hashtags').select('profile_id, role, hashtags(label)').limit(10000),
   ])
 
   // «¿Te ha servido?» por guía, con la misma clave que los grupos de abajo.
@@ -129,20 +126,16 @@ export default async function AdminPage() {
   })
   const tope = Math.max(1, embudo[0]?.personas ?? 1)
 
-  // Agrupado por tema, sin cuentas de prueba ni bajas; los temas con más
-  // gente disponible primero.
-  const porTema = Object.entries(
-    ((temasVoluntarios ?? []) as any[]).reduce<Record<string, { alias: string; disponible: boolean }[]>>((acc, f) => {
-      const email = emailMap[f.profile_id] ?? ''
-      if (!f.profiles || f.profiles.deleted_at || email.endsWith('@test.local')) return acc
-      const tema = f.hashtags?.label ?? '—'
-      ;(acc[tema] ??= []).push({ alias: f.profiles.alias, disponible: f.profiles.is_active })
-      return acc
-    }, {}),
-  ).sort(
-    ([a, x], [b, y]) =>
-      y.filter((v) => v.disponible).length - x.filter((v) => v.disponible).length || a.localeCompare(b, 'es'),
-  )
+  // Por cuenta: en qué temas acompaña y en cuáles busca apoyo.
+  const temasDe = ((temasVoluntarios ?? []) as any[]).reduce<
+    Record<string, { acompana: string[]; busca: string[] }>
+  >((acc, f) => {
+    const label = f.hashtags?.label
+    if (!label) return acc
+    acc[f.profile_id] ??= { acompana: [], busca: [] }
+    ;(f.role === 'volunteer' ? acc[f.profile_id].acompana : acc[f.profile_id].busca).push(label)
+    return acc
+  }, {})
 
   const totalUsers = profiles?.length ?? 0
   const volunteers = profiles?.filter((p) => p.role === 'volunteer').length ?? 0
@@ -188,38 +181,6 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
         <h1 className="text-3xl font-bold">Admin</h1>
-
-        <section>
-          <h2 className="mb-1 text-lg font-semibold">Quién acompaña en cada tema</h2>
-          <p className="mb-4 text-xs text-muted-foreground">
-            Por el papel en cada tema («lo viví»), sin cuentas de prueba. En gris, quien no está
-            disponible ahora. También en Supabase: esquema «informes».
-          </p>
-          {porTema.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nadie acompaña todavía en ningún tema.</p>
-          ) : (
-            <ul className="divide-y divide-border/60 rounded-xl border border-border">
-              {porTema.map(([tema, gente]) => (
-                <li key={tema} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
-                  <span className="shrink-0 text-sm font-medium sm:w-56">
-                    #{tema}{' '}
-                    <span className="text-xs font-normal text-muted-foreground">
-                      ({gente.filter((g) => g.disponible).length}/{gente.length})
-                    </span>
-                  </span>
-                  <span className="text-sm">
-                    {gente.map((g, i) => (
-                      <span key={g.alias + i} className={g.disponible ? '' : 'text-muted-foreground'}>
-                        {g.alias}
-                        {i < gente.length - 1 ? ', ' : ''}
-                      </span>
-                    ))}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
 
         {/* El embudo, arriba de todo: es la pregunta de cada día. */}
         <section>
@@ -457,6 +418,8 @@ export default async function AdminPage() {
             created_at: u.created_at,
             email: emailMap[u.id] ?? '—',
             confirmado: !!confirmedMap[u.id],
+            acompana: temasDe[u.id]?.acompana ?? [],
+            busca: temasDe[u.id]?.busca ?? [],
           }))}
         />
 
