@@ -27,7 +27,7 @@ export function SiteHeaderPublic({ showAuth = true, ancho = 'max-w-4xl' }: SiteH
               Entrar
             </Link>
             <Link
-              href="/auth/login?tab=register"
+              href="/auth/login"
               className={cn(buttonVariants({ size: 'sm' }))}
             >
               Crear cuenta

@@ -32,7 +32,7 @@ export default async function GuiasPage() {
   // /auth/login rebota al panel: acabas en Inicio en vez de escribiendo.
   const user = await getUser()
   const haySesion = Boolean(user)
-  const aEscribir = haySesion ? '/dashboard/guias' : '/auth/login?tab=register'
+  const aEscribir = haySesion ? '/dashboard/guias' : '/auth/login'
 
   const { data } = await supabase
     .from('guias_indice')

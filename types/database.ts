@@ -787,6 +787,10 @@ export type Database = {
         Args: { p_hospital_slug: string; p_tema_slug: string; p_util: boolean }
         Returns: undefined
       }
+      voluntarios_por_tema: {
+        Args: Record<string, never>
+        Returns: { slug: string; label: string; voluntarios: number }[]
+      }
       marcar_guia_voluntario_leida: { Args: Record<string, never>; Returns: undefined }
       renovar_consentimiento: {
         Args: { p_version: string; p_nacimiento: string }

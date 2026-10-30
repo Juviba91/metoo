@@ -59,7 +59,7 @@ export default function ContactoPage() {
             onboarding.
           </p>
           <Link
-            href="/auth/login?tab=register"
+            href="/auth/login"
             className="mt-4 inline-block text-sm font-medium text-foreground underline underline-offset-2 hover:no-underline"
           >
             Crear cuenta como voluntario →
