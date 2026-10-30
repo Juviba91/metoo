@@ -39,9 +39,23 @@ export default async function DashboardPage({
   // Se llega aquí desde /temas con el tema ya elegido.
   const { tag: temaInicial } = await searchParams
 
-  // El perfil y los bloqueos no dependen entre sí: encadenarlos añadía una
-  // ida y vuelta a Supabase antes de poder empezar siquiera las demás.
-  const [{ data: profile }, hiddenIds] = await Promise.all([
+  // Todo en una sola tanda. Antes iban primero el perfil y los bloqueos, y solo
+  // después el resto, porque la lista de personas se filtraba por bloqueados en
+  // la consulta. Eran dos idas y vueltas a Supabase seguidas antes de pintar
+  // nada; ahora los bloqueados se quitan aquí, igual que ya se hacía con las
+  // conversaciones (conversacionesVisiblesDe).
+  const [
+    { data: profile },
+    hiddenIds,
+    { data: todos },
+    { data: connections },
+    { data: unreadData },
+    { data: allHashtags },
+    { data: guias },
+    pendingCount,
+    { data: misAvisos },
+    { data: guiaLeida },
+  ] = await Promise.all([
     supabase
       .from('profiles')
       // Las columnas que se usan, no `*`. Además de traer de menos por la
@@ -53,39 +67,18 @@ export default async function DashboardPage({
       .select('role, alias, city, bio, is_active, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
+
     getHiddenUserIds(),
-  ])
 
-  if (!profile) redirect('/onboarding')
-
-  // De qué lados estoy: acompaño en unos temas y busco apoyo en otros, o solo en
-  // uno de los dos. Todo lo de abajo depende de esto, no de `profile.role`.
-  const lados = ladosDe(profile.role, profile.profile_hashtags ?? [])
-
-  // Ya no se filtra por el papel contrario en la consulta: quien está a los dos
-  // lados sale en las dos listas, y el lado de cada tema vive en
-  // `profile_hashtags`. Se traen los activos y se reparten aquí (candidatosPara).
-  let matchesQuery = supabase
-    .from('profiles')
-    .select('id, role, alias, city, bio, stage, support_modes, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
-    .eq('is_active', true)
-    .neq('id', user.id)
-
-  if (hiddenIds.length > 0) {
-    matchesQuery = matchesQuery.not('id', 'in', `(${hiddenIds.join(',')})`)
-  }
-
-  const [
-    { data: matches },
-    { data: connections },
-    { data: unreadData },
-    { data: allHashtags },
-    { data: guias },
-    pendingCount,
-    { data: misAvisos },
-    { data: guiaLeida },
-  ] = await Promise.all([
-    matchesQuery.limit(200),
+    // Ya no se filtra por el papel contrario en la consulta: quien está a los dos
+    // lados sale en las dos listas, y el lado de cada tema vive en
+    // `profile_hashtags`. Se traen los activos y se reparten abajo (candidatosPara).
+    supabase
+      .from('profiles')
+      .select('id, role, alias, city, bio, stage, support_modes, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
+      .eq('is_active', true)
+      .neq('id', user.id)
+      .limit(200),
 
     // Las de las dos puntas: las que pedí yo (soy quien busca) y las que me
     // pidieron a mí (soy quien acompaña). Con una cuenta a los dos lados puede
@@ -121,6 +114,16 @@ export default async function DashboardPage({
     supabase.from('avisos_tema').select('hashtag_id').eq('profile_id', user.id),
     supabase.from('profiles').select('guia_voluntario_leida_en').eq('id', user.id).maybeSingle(),
   ])
+
+  if (!profile) redirect('/onboarding')
+
+  // De qué lados estoy: acompaño en unos temas y busco apoyo en otros, o solo en
+  // uno de los dos. Todo lo de abajo depende de esto, no de `profile.role`.
+  const lados = ladosDe(profile.role, profile.profile_hashtags ?? [])
+
+  const ocultos = new Set(hiddenIds)
+  const matches = (todos ?? []).filter((p: any) => !ocultos.has(p.id))
+
   const visibleConnections = conversacionesVisiblesDe(
     (connections ?? []) as any[],
     user.id,

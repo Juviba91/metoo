@@ -163,7 +163,13 @@ select {
    Se va sola con una animación: no depende de JavaScript, así que si la
    hidratación falla la app nunca se queda tapada. `forwards` mantiene el
    estado final, y `visibility` la saca del árbol para que no intercepte
-   pulsaciones. */
+   pulsaciones.
+
+   Empieza a irse en cuanto se pinta, sin pausa. Antes se quedaba quieta 500 ms
+   y tardaba 900 en irse, pero el logo llega en el mismo HTML que la página:
+   cuando se ve, el inicio ya está debajo. Medido al abrir /dashboard: contenido
+   listo a los ~400 ms y tapado hasta los ~1.200. Ese segundo de logo era lo que
+   hacía que la app pareciera lenta al abrir. */
 #app-splash {
   position: fixed;
   inset: 0;
@@ -172,27 +178,19 @@ select {
   align-items: center;
   justify-content: center;
   background: var(--background);
-  animation: metoo-splash-out 900ms ease-out forwards;
+  animation: metoo-splash-out 250ms ease-out forwards;
 }
 
 #app-splash img {
   border-radius: 22%;
-  animation: metoo-splash-logo 900ms ease-out forwards;
 }
 
 @keyframes metoo-splash-out {
-  0%, 55% { opacity: 1; visibility: visible; }
-  100%    { opacity: 0; visibility: hidden; }
+  0%   { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
 }
 
-@keyframes metoo-splash-logo {
-  0%   { opacity: 0; transform: scale(0.92); }
-  40%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-/* Quien haya pedido menos animación ve el logo sin movimiento y se va antes. */
+/* Con menos animación pedida, ni fundido. */
 @media (prefers-reduced-motion: reduce) {
-  #app-splash { animation-duration: 400ms; }
-  #app-splash img { animation: none; }
+  #app-splash { display: none; }
 }
