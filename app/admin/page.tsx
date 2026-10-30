@@ -1,6 +1,7 @@
 import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { calcularEmbudo } from '@/lib/embudo'
+import { dondeSeQuedan } from '@/lib/alta'
 import { redirect } from 'next/navigation'
 import {
   DeleteUserBtn,
@@ -49,6 +50,7 @@ export default async function AdminPage() {
     { data: perfilesEmbudo },
     { data: votos },
     { data: temasVoluntarios },
+    { data: pasosAlta },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -96,6 +98,9 @@ export default async function AdminPage() {
     // Los temas de cada cuenta con su papel EN ESE TEMA: se enseñan junto a
     // cada usuario («acompaña en…», «busca apoyo en…»).
     admin.from('profile_hashtags').select('profile_id, role, hashtags(label)').limit(10000),
+    // Solo tiene filas de quien aún no tiene perfil (migración 20261104). Si no
+    // está migrada, `data` es null y todo cae en «sin dato».
+    admin.from('alta_pasos').select('user_id, paso').limit(5000),
   ])
 
   // «¿Te ha servido?» por guía, con la misma clave que los grupos de abajo.
@@ -125,6 +130,13 @@ export default async function AdminPage() {
     mensajes: (mensajesEmbudo ?? []) as { connection_id: string; sender_id: string }[],
   })
   const tope = Math.max(1, embudo[0]?.personas ?? 1)
+
+  const seQuedan = dondeSeQuedan(
+    (authResult?.users ?? []).map((u) => ({ id: u.id, email: u.email ?? null })),
+    new Set(((perfilesEmbudo ?? []) as { id: string }[]).map((p) => p.id)),
+    (pasosAlta ?? []) as { user_id: string; paso: number }[],
+  )
+  const sinTerminar = seQuedan.reduce((n, p) => n + p.personas, 0)
 
   // Por cuenta: en qué temas acompaña y en cuáles busca apoyo.
   const temasDe = ((temasVoluntarios ?? []) as any[]).reduce<
@@ -209,6 +221,25 @@ export default async function AdminPage() {
               )
             })}
           </ol>
+
+          {sinTerminar > 0 && (
+            <div className="mt-6">
+              <h3 className="mb-1 text-sm font-semibold">Dónde se quedan en el alta</h3>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Cuentas con el correo dado y sin perfil: el último paso al que llegaron.
+              </p>
+              <ul className="space-y-1 text-sm">
+                {seQuedan
+                  .filter((p) => p.personas > 0)
+                  .map((p) => (
+                    <li key={p.paso} className="flex justify-between gap-3">
+                      <span className="text-muted-foreground">{p.paso}</span>
+                      <span className="tabular-nums">{p.personas}</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
         </section>
 
         {/* Reports */}
