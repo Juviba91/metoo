@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
 import { GuiasShell } from '@/components/guias-shell'
+import { TeHaServido } from './te-ha-servido'
 import type { Metadata } from 'next'
 
 type Params = Promise<{ hospital: string; tema: string }>
@@ -135,6 +136,8 @@ export default async function GuiaPage({ params }: { params: Params }) {
             </section>
           ))}
         </div>
+
+        <TeHaServido hospitalSlug={hospitalSlug} temaSlug={temaSlug} />
 
         <div className="rounded-xl border border-border p-4">
           <p className="font-semibold">¿Has pasado por aquí?</p>

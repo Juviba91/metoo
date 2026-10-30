@@ -14,6 +14,15 @@ export type Database = {
   }
   public: {
     Tables: {
+      guia_votos: {
+        Row: { id: number; hospital_id: string; hashtag_id: string; util: boolean; creado_en: string }
+        Insert: { hospital_id: string; hashtag_id: string; util: boolean }
+        Update: { util?: boolean }
+        Relationships: [
+          { foreignKeyName: 'guia_votos_hospital_id_fkey'; columns: ['hospital_id']; isOneToOne: false; referencedRelation: 'hospitals'; referencedColumns: ['id'] },
+          { foreignKeyName: 'guia_votos_hashtag_id_fkey'; columns: ['hashtag_id']; isOneToOne: false; referencedRelation: 'hashtags'; referencedColumns: ['id'] },
+        ]
+      }
       avisos_tema: {
         Row: {
           profile_id: string
@@ -774,6 +783,10 @@ export type Database = {
         Returns: string
       }
       quitar_mi_firma_en_guias: { Args: Record<string, never>; Returns: number }
+      votar_guia: {
+        Args: { p_hospital_slug: string; p_tema_slug: string; p_util: boolean }
+        Returns: undefined
+      }
       marcar_guia_voluntario_leida: { Args: Record<string, never>; Returns: undefined }
       renovar_consentimiento: {
         Args: { p_version: string; p_nacimiento: string }

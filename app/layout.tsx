@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/next'
+import { AvisoVersion } from '@/components/aviso-version'
 import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import { ScrollReset } from '@/components/scroll-reset'
@@ -59,6 +60,7 @@ export default function RootLayout({
         <AppSplash />
         <ScrollReset />
         {children}
+        <AvisoVersion />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
