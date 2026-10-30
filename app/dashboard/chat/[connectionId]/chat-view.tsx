@@ -246,7 +246,12 @@ export function ChatView({
     // La cabecera del sitio la pone la página (es un server component). Aquí
     // solo el chat, que ocupa el alto restante: `min-h-0` es lo que deja que
     // la lista de mensajes encoja y scrollee ella sola en vez de la página.
-    <div className="flex min-h-0 flex-1 flex-col bg-background">
+    //
+    // En el ordenador, en la misma columna que el resto de la app (la de la
+    // cabecera del sitio): a lo ancho de la pantalla, tus mensajes quedaban
+    // pegados al borde derecho, los de la otra persona al izquierdo, y la caja
+    // de escribir medía 1.400 px. En el móvil no cambia nada.
+    <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col bg-background md:border-x md:border-border/60">
       {/* Cabecera de la conversación */}
       <header className="flex shrink-0 items-center gap-3 border-b border-border/60 bg-background/80 px-4 py-2.5 backdrop-blur-sm">
         {/* El chat vive dentro de la sección Chats (así lo marca BottomNav),
