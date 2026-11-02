@@ -1,21 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart } from 'lucide-react'
 import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
-import { completeOnboarding, comprobarEdadAlta } from './actions'
+import { completeOnboarding, comprobarEdadAlta, marcarPasoAlta } from './actions'
 import { ConsentimientoCampos } from '@/components/consentimiento-campos'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
 import { PapelPorTema } from '@/components/papel-por-tema'
 import type { Rol } from '@/lib/lados'
+import { PASOS_ALTA } from '@/lib/alta'
 import { LIMITES } from '@/lib/profile-fields'
 import Link from 'next/link'
 import { track } from '@vercel/analytics/react'
 import { Logo } from '@/components/logo'
 
-export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[] }) {
+export function OnboardingWizard({
+  suggestions,
+  rolInicial = null,
+}: {
+  suggestions: HashtagOption[]
+  /** El botón que pulsó en la portada («Busco apoyo» / «Quiero ayudar»). */
+  rolInicial?: Rol | null
+}) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [accepted, setAccepted] = useState(false)
@@ -23,7 +31,7 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
   const [nacimiento, setNacimiento] = useState('')
   const [errorEdad, setErrorEdad] = useState<string | null>(null)
   const [comprobandoEdad, setComprobandoEdad] = useState(false)
-  const [role, setRole] = useState<'seeker' | 'volunteer' | null>(null)
+  const [role, setRole] = useState<'seeker' | 'volunteer' | null>(rolInicial)
   const [roleConfirmed, setRoleConfirmed] = useState(false)
   const [hashtags, setHashtags] = useState<HashtagOption[]>([])
   // Solo los temas que alguien cambia al otro lado; el resto va con el papel
@@ -68,7 +76,8 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
     setTimeout(() => router.push('/dashboard'), 3000)
   }
 
-  async function continuarTrasNormas() {
+  // Último paso: primero la edad (si no llega, no se crea nada) y luego el perfil.
+  async function terminar() {
     setComprobandoEdad(true)
     setErrorEdad(null)
     const res = await comprobarEdadAlta(nacimiento)
@@ -77,11 +86,17 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
       setErrorEdad(res.error)
       return
     }
-    setStep(2)
+    await handleFinish()
   }
 
-  const totalSteps = 5
-  const stepLabels = ['Normas', 'Tu rol', 'Hashtags', 'Tu momento', 'Perfil']
+  // Dónde se queda quien no termina (lib/alta.ts). Llamar a una server action
+  // desde el efecto es fire-and-forget: no toca el estado.
+  useEffect(() => {
+    if (step <= PASOS_ALTA.length) void marcarPasoAlta(step)
+  }, [step])
+
+  const totalSteps = PASOS_ALTA.length
+  const stepLabels = PASOS_ALTA
 
   return (
     <div className="w-full max-w-lg">
@@ -105,12 +120,256 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
         </div>
       )}
 
-      {/* Paso 1 — Normas */}
-      {step === 1 && (
+      {/* Paso 1 — Rol */}
+      {step === 1 && !roleConfirmed && (
         <div>
-          <h1 className="mb-2 text-center text-2xl font-bold">Antes de empezar</h1>
+          <h1 className="mb-2 text-center text-2xl font-bold">¿Cómo puedo ayudarte?</h1>
+          <p className="mb-8 text-center text-muted-foreground">Cuéntame qué te trae aquí</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <button
+              onClick={() => {
+                setRole('seeker')
+                setStep(2)
+              }}
+              className={`rounded-xl border-2 p-6 text-left transition-all hover:border-primary hover:bg-muted/30 ${role === 'seeker' ? 'border-primary bg-muted/30' : 'border-border'}`}
+            >
+              <div className="mb-3 text-3xl">🤝</div>
+              <h3 className="mb-1 font-semibold">Busco apoyo</h3>
+              <p className="text-sm text-muted-foreground">
+                Quiero conectar con alguien que ha vivido lo mismo
+              </p>
+            </button>
+            <button
+              onClick={() => setRole('volunteer')}
+              className={`rounded-xl border-2 p-6 text-left transition-all hover:border-primary hover:bg-muted/30 ${role === 'volunteer' ? 'border-primary bg-muted/30' : 'border-border'}`}
+            >
+              <div className="mb-3 text-3xl">💛</div>
+              <h3 className="mb-1 font-semibold">Quiero ayudar</h3>
+              <p className="text-sm text-muted-foreground">
+                He pasado por algo difícil y quiero acompañar a otros
+              </p>
+            </button>
+          </div>
+          {role === 'volunteer' && (
+            <Button onClick={() => setRoleConfirmed(true)} className="mt-4 w-full gap-2">
+              Continuar <ArrowRight className="size-4" />
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Paso 1b — Rol voluntario: qué se espera */}
+      {step === 1 && roleConfirmed && role === 'volunteer' && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">Tu rol como voluntario</h1>
           <p className="mb-6 text-center text-muted-foreground">
-            Lee y acepta las normas de la comunidad
+            Antes de continuar, es importante que esto quede claro
+          </p>
+          <div className="mb-6 space-y-4 rounded-xl border border-border bg-muted/20 p-5 text-sm leading-relaxed text-muted-foreground">
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Hablas desde tu experiencia</p>
+              <p>
+                Compartes cómo lo viviste tú — qué te ayudó, qué fue difícil, qué harías
+                diferente. Das recomendaciones prácticas si las tienes. Sin teorías, sin manuales.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">No quitas hierro</p>
+              <p>
+                Aunque a ti ya no te pese, el dolor de la otra persona es real en su momento.
+                Escucha sin minimizar ni comparar sufrimientos.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">No eres psicólogo</p>
+              <p>
+                No das diagnósticos ni actúas como terapeuta. Si sientes que alguien necesita ayuda
+                profesional, se lo dices con cariño y le mencionas que el{' '}
+                <strong className="text-foreground">024</strong> está disponible.
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-foreground">Cuídate también a ti</p>
+              <p>
+                Acompañar puede remover cosas. Si en algún momento sientes que no puedes más, está
+                bien parar. Tu bienestar importa.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setRoleConfirmed(false)} className="flex-1">
+              Atrás
+            </Button>
+            <Button onClick={() => setStep(2)} className="flex-1 gap-2">
+              Lo entiendo, continuar <ArrowRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Paso 2 — Temas */}
+      {step === 2 && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">
+            {role === 'seeker' ? '¿Qué estás viviendo?' : '¿En qué puedes acompañar?'}
+          </h1>
+          <p className="mb-6 text-center text-muted-foreground">
+            Elige hashtags o crea los tuyos — el hospital también puede ser uno
+          </p>
+          <HashtagPicker suggestions={suggestions} selected={hashtags} onChange={setHashtags} />
+          {/* Con dos o más temas puede que alguno sea del otro lado: viviste
+              unos prematuros y ahora estás en un duelo. Con uno solo, la
+              pregunta sobra: es el papel que acabas de elegir. */}
+          {hashtags.length > 1 && (
+            <PapelPorTema
+              temas={hashtags}
+              rolDe={rolDe}
+              onChange={(id, rol) => setRoles((r) => ({ ...r, [id]: rol }))}
+            />
+          )}
+          <div className="mt-6 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setStep(1)}
+              className="flex-1"
+            >
+              Atrás
+            </Button>
+            <Button
+              onClick={() => setStep(3)}
+              disabled={hashtags.length === 0}
+              className="flex-1 gap-2"
+            >
+              Continuar <ArrowRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Paso 3 — Momento y forma de acompañar */}
+      {step === 3 && role && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">Tu momento</h1>
+          <p className="mb-8 text-center text-muted-foreground">
+            Dos preguntas rápidas. Puedes cambiarlas cuando quieras.
+          </p>
+          <ProfileFieldsPicker
+            role={role}
+            stage={stage}
+            modes={supportModes}
+            onStageChange={setStage}
+            onModesChange={setSupportModes}
+          />
+          <div className="mt-8 flex gap-3">
+            <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
+              Atrás
+            </Button>
+            <Button onClick={() => setStep(4)} className="flex-1 gap-2">
+              Continuar <ArrowRight className="size-4" />
+            </Button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStep(4)}
+            className="mt-3 w-full text-center text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            Prefiero saltarlo por ahora
+          </button>
+        </div>
+      )}
+
+      {/* Paso 6 — Bienvenida */}
+      {step === 6 && (
+        <div className="py-8 text-center">
+          <div className="mb-6 text-5xl">💛</div>
+          <h1 className="mb-3 text-2xl font-bold">
+            Bienvenido{role === 'volunteer' ? ' al equipo' : ''}, {alias}
+          </h1>
+          <p className="mb-8 text-muted-foreground">
+            {role === 'volunteer'
+              ? 'Gracias por querer acompañar. Recibirás solicitudes de personas que han vivido lo que tú has vivido.'
+              : 'Ya estás dentro. Vamos a conectarte con alguien que ha pasado por lo mismo.'}
+          </p>
+          <p className="text-xs text-muted-foreground">Entrando a metoo...</p>
+        </div>
+      )}
+
+      {/* Paso 4 — Perfil */}
+      {step === 4 && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">Tu perfil</h1>
+          <p className="mb-8 text-center text-muted-foreground">
+            Elige un nombre de usuario anónimo y dinos dónde estás
+          </p>
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Nombre de usuario</label>
+              <input
+                type="text"
+                placeholder="Ej: luna_azul, padre_fuerte..."
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+                maxLength={LIMITES.alias}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Tu nombre real nunca se mostrará
+              </p>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Ciudad</label>
+              <input
+                type="text"
+                placeholder="Ej: Barcelona, Madrid, Valencia..."
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                maxLength={LIMITES.city}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">
+                {role === 'volunteer' ? 'Tu experiencia (opcional)' : 'Tu situación (opcional)'}
+              </label>
+              <textarea
+                placeholder={
+                  role === 'volunteer'
+                    ? 'Cuéntanos brevemente qué has vivido y cómo puedes ayudar...'
+                    : 'Cuéntanos brevemente qué estás atravesando...'
+                }
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                maxLength={LIMITES.bio}
+                rows={3}
+                className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {bio.length}/{LIMITES.bio} — se ve en tu perfil, al buscar personas como tú
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 flex gap-3">
+            <Button variant="outline" onClick={() => setStep(3)} className="flex-1">
+              Atrás
+            </Button>
+            <Button
+              onClick={() => setStep(5)}
+              disabled={!alias.trim() || !city.trim()}
+              className="flex-1 gap-2"
+            >
+              Continuar <ArrowRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Paso 5 — Normas, edad y consentimiento: lo último, justo antes de
+          crear el perfil (ver lib/alta.ts) */}
+      {step === 5 && (
+        <div>
+          <h1 className="mb-2 text-center text-2xl font-bold">Último paso</h1>
+          <p className="mb-6 text-center text-muted-foreground">
+            Cómo funciona esto, y tu permiso para crear el perfil
           </p>
 
           <div className="mb-6 space-y-4 rounded-xl border border-border bg-muted/20 p-5 text-sm leading-relaxed text-muted-foreground">
@@ -175,259 +434,23 @@ export function OnboardingWizard({ suggestions }: { suggestions: HashtagOption[]
             </p>
           )}
 
-          <Button
-            onClick={continuarTrasNormas}
-            disabled={!nacimiento || !accepted || !consentSalud || comprobandoEdad}
-            className="w-full gap-2"
-          >
-            Continuar <ArrowRight className="size-4" />
-          </Button>
-        </div>
-      )}
-
-      {/* Paso 2 — Rol */}
-      {step === 2 && !roleConfirmed && (
-        <div>
-          <h1 className="mb-2 text-center text-2xl font-bold">¿Cómo puedo ayudarte?</h1>
-          <p className="mb-8 text-center text-muted-foreground">Cuéntame qué te trae aquí</p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <button
-              onClick={() => {
-                setRole('seeker')
-                setStep(3)
-              }}
-              className="rounded-xl border-2 border-border p-6 text-left transition-all hover:border-primary hover:bg-muted/30"
-            >
-              <div className="mb-3 text-3xl">🤝</div>
-              <h3 className="mb-1 font-semibold">Busco apoyo</h3>
-              <p className="text-sm text-muted-foreground">
-                Quiero conectar con alguien que ha vivido lo mismo
-              </p>
-            </button>
-            <button
-              onClick={() => setRole('volunteer')}
-              className={`rounded-xl border-2 p-6 text-left transition-all hover:border-primary hover:bg-muted/30 ${role === 'volunteer' ? 'border-primary bg-muted/30' : 'border-border'}`}
-            >
-              <div className="mb-3 text-3xl">💛</div>
-              <h3 className="mb-1 font-semibold">Quiero ayudar</h3>
-              <p className="text-sm text-muted-foreground">
-                He pasado por algo difícil y quiero acompañar a otros
-              </p>
-            </button>
-          </div>
-          {role === 'volunteer' && (
-            <Button onClick={() => setRoleConfirmed(true)} className="mt-4 w-full gap-2">
-              Continuar <ArrowRight className="size-4" />
-            </Button>
+          {error && (
+            <p role="alert" className="mb-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </p>
           )}
-          <Button variant="outline" onClick={() => setStep(1)} className="mt-3 w-full">
-            Atrás
-          </Button>
-        </div>
-      )}
 
-      {/* Paso 2b — Rol voluntario: qué se espera */}
-      {step === 2 && roleConfirmed && role === 'volunteer' && (
-        <div>
-          <h1 className="mb-2 text-center text-2xl font-bold">Tu rol como voluntario</h1>
-          <p className="mb-6 text-center text-muted-foreground">
-            Antes de continuar, es importante que esto quede claro
-          </p>
-          <div className="mb-6 space-y-4 rounded-xl border border-border bg-muted/20 p-5 text-sm leading-relaxed text-muted-foreground">
-            <div>
-              <p className="mb-1 font-semibold text-foreground">Hablas desde tu experiencia</p>
-              <p>
-                Compartes cómo lo viviste tú — qué te ayudó, qué fue difícil, qué harías
-                diferente. Das recomendaciones prácticas si las tienes. Sin teorías, sin manuales.
-              </p>
-            </div>
-            <div>
-              <p className="mb-1 font-semibold text-foreground">No quitas hierro</p>
-              <p>
-                Aunque a ti ya no te pese, el dolor de la otra persona es real en su momento.
-                Escucha sin minimizar ni comparar sufrimientos.
-              </p>
-            </div>
-            <div>
-              <p className="mb-1 font-semibold text-foreground">No eres psicólogo</p>
-              <p>
-                No das diagnósticos ni actúas como terapeuta. Si sientes que alguien necesita ayuda
-                profesional, se lo dices con cariño y le mencionas que el{' '}
-                <strong className="text-foreground">024</strong> está disponible.
-              </p>
-            </div>
-            <div>
-              <p className="mb-1 font-semibold text-foreground">Cuídate también a ti</p>
-              <p>
-                Acompañar puede remover cosas. Si en algún momento sientes que no puedes más, está
-                bien parar. Tu bienestar importa.
-              </p>
-            </div>
-          </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setRoleConfirmed(false)} className="flex-1">
-              Atrás
-            </Button>
-            <Button onClick={() => setStep(3)} className="flex-1 gap-2">
-              Lo entiendo, continuar <ArrowRight className="size-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Paso 3 — Hashtags */}
-      {step === 3 && (
-        <div>
-          <h1 className="mb-2 text-center text-2xl font-bold">
-            {role === 'seeker' ? '¿Qué estás viviendo?' : '¿En qué puedes acompañar?'}
-          </h1>
-          <p className="mb-6 text-center text-muted-foreground">
-            Elige hashtags o crea los tuyos — el hospital también puede ser uno
-          </p>
-          <HashtagPicker suggestions={suggestions} selected={hashtags} onChange={setHashtags} />
-          {/* Con dos o más temas puede que alguno sea del otro lado: viviste
-              unos prematuros y ahora estás en un duelo. Con uno solo, la
-              pregunta sobra: es el papel que acabas de elegir. */}
-          {hashtags.length > 1 && (
-            <PapelPorTema
-              temas={hashtags}
-              rolDe={rolDe}
-              onChange={(id, rol) => setRoles((r) => ({ ...r, [id]: rol }))}
-            />
-          )}
-          <div className="mt-6 flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setStep(2)}
-              className="flex-1"
-            >
-              Atrás
-            </Button>
-            <Button
-              onClick={() => setStep(4)}
-              disabled={hashtags.length === 0}
-              className="flex-1 gap-2"
-            >
-              Continuar <ArrowRight className="size-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Paso 4 — Momento y forma de acompañar */}
-      {step === 4 && role && (
-        <div>
-          <h1 className="mb-2 text-center text-2xl font-bold">Tu momento</h1>
-          <p className="mb-8 text-center text-muted-foreground">
-            Dos preguntas rápidas. Puedes cambiarlas cuando quieras.
-          </p>
-          <ProfileFieldsPicker
-            role={role}
-            stage={stage}
-            modes={supportModes}
-            onStageChange={setStage}
-            onModesChange={setSupportModes}
-          />
-          <div className="mt-8 flex gap-3">
-            <Button variant="outline" onClick={() => setStep(3)} className="flex-1">
-              Atrás
-            </Button>
-            <Button onClick={() => setStep(5)} className="flex-1 gap-2">
-              Continuar <ArrowRight className="size-4" />
-            </Button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setStep(5)}
-            className="mt-3 w-full text-center text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-          >
-            Prefiero saltarlo por ahora
-          </button>
-        </div>
-      )}
-
-      {/* Paso 6 — Bienvenida */}
-      {step === 6 && (
-        <div className="py-8 text-center">
-          <div className="mb-6 text-5xl">💛</div>
-          <h1 className="mb-3 text-2xl font-bold">
-            Bienvenido{role === 'volunteer' ? ' al equipo' : ''}, {alias}
-          </h1>
-          <p className="mb-8 text-muted-foreground">
-            {role === 'volunteer'
-              ? 'Gracias por querer acompañar. Recibirás solicitudes de personas que han vivido lo que tú has vivido.'
-              : 'Ya estás dentro. Vamos a conectarte con alguien que ha pasado por lo mismo.'}
-          </p>
-          <p className="text-xs text-muted-foreground">Entrando a metoo...</p>
-        </div>
-      )}
-
-      {/* Paso 5 — Perfil */}
-      {step === 5 && (
-        <div>
-          <h1 className="mb-2 text-center text-2xl font-bold">Tu perfil</h1>
-          <p className="mb-8 text-center text-muted-foreground">
-            Elige un nombre de usuario anónimo y dinos dónde estás
-          </p>
-          <div className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">Nombre de usuario</label>
-              <input
-                type="text"
-                placeholder="Ej: luna_azul, padre_fuerte..."
-                value={alias}
-                onChange={(e) => setAlias(e.target.value)}
-                maxLength={LIMITES.alias}
-                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Tu nombre real nunca se mostrará
-              </p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">Ciudad</label>
-              <input
-                type="text"
-                placeholder="Ej: Barcelona, Madrid, Valencia..."
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                maxLength={LIMITES.city}
-                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                {role === 'volunteer' ? 'Tu experiencia (opcional)' : 'Tu situación (opcional)'}
-              </label>
-              <textarea
-                placeholder={
-                  role === 'volunteer'
-                    ? 'Cuéntanos brevemente qué has vivido y cómo puedes ayudar...'
-                    : 'Cuéntanos brevemente qué estás atravesando...'
-                }
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                maxLength={LIMITES.bio}
-                rows={3}
-                className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {bio.length}/{LIMITES.bio} — se ve en tu perfil, al buscar personas como tú
-              </p>
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-          </div>
-          <div className="mt-6 flex gap-3">
             <Button variant="outline" onClick={() => setStep(4)} className="flex-1">
               Atrás
             </Button>
             <Button
-              onClick={handleFinish}
-              disabled={!alias.trim() || !city.trim() || loading}
+              onClick={terminar}
+              disabled={!nacimiento || !accepted || !consentSalud || comprobandoEdad || loading}
               className="flex-1 gap-2"
             >
-              {loading ? 'Guardando...' : 'Entrar a metoo'}
-              {!loading && <Heart className="size-4" />}
+              {loading || comprobandoEdad ? 'Guardando...' : 'Entrar a metoo'}
+              {!loading && !comprobandoEdad && <Heart className="size-4" />}
             </Button>
           </div>
         </div>

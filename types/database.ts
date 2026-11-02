@@ -14,6 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      alta_pasos: {
+        Row: { user_id: string; paso: number; actualizado_en: string }
+        Insert: { user_id: string; paso: number }
+        Update: { paso?: number }
+        Relationships: []
+      }
       guia_votos: {
         Row: { id: number; hospital_id: string; hashtag_id: string; util: boolean; creado_en: string }
         Insert: { hospital_id: string; hashtag_id: string; util: boolean }
@@ -798,6 +804,7 @@ export type Database = {
         Returns: { slug: string; label: string; voluntarios: number }[]
       }
       marcar_guia_voluntario_leida: { Args: Record<string, never>; Returns: undefined }
+      marcar_paso_alta: { Args: { p_paso: number }; Returns: undefined }
       renovar_consentimiento: {
         Args: { p_version: string; p_nacimiento: string }
         Returns: undefined

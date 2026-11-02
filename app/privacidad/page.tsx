@@ -146,6 +146,13 @@ export default function PrivacidadPage() {
                 , para poder demostrar que la tuviste delante.
               </li>
               <li>
+                <strong className="text-foreground">
+                  Hasta dónde llegaste al crear el perfil
+                </strong>
+                , si lo dejas a medias: solo el número del paso, para saber qué pantalla echa
+                atrás a la gente. Se borra en cuanto terminas el perfil.
+              </li>
+              <li>
                 <strong className="text-foreground">Datos técnicos</strong>: Vercel, nuestro
                 proveedor de alojamiento, y Supabase, el de la base de datos, registran
                 direcciones IP y datos de conexión en sus registros de servidor, por seguridad y
@@ -311,6 +318,14 @@ export default function PrivacidadPage() {
                     <td className="py-2">
                       Tu consentimiento (arts. 6.1.a y 9.2.a), que das al marcar el aviso y
                       enviar cada respuesta
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">
+                      Apuntar hasta qué paso llegaste si dejas el alta a medias
+                    </td>
+                    <td className="py-2">
+                      Interés legítimo en saber qué pantalla echa atrás a la gente (art. 6.1.f)
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">

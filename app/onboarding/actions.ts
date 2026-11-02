@@ -13,8 +13,10 @@ import { BLOQUEO_MENOR_SEGUNDOS, COOKIE_MENOR, comprobarEdad } from '@/lib/edad'
 export type HashtagInput = { id: string; slug: string; label: string; role?: string }
 
 /**
- * La edad, comprobada en el primer paso y no al final: a quien no llega no se
- * le deja rellenar cinco pantallas para decírselo después.
+ * La edad se comprueba en el último paso, junto a las normas (ver lib/alta.ts).
+ * Antes iba la primera para no hacer rellenar cinco pantallas a un menor, pero
+ * eso ponía el muro legal delante de todo el mundo, y es justo ahí donde se iba
+ * la gente. Los menores son la excepción; quien se va al ver el muro, no.
  *
  * Quien declara menos de 16 años se queda bloqueado un día en este navegador:
  * sin eso bastaría con darle a «atrás» y cambiar el año.
@@ -125,4 +127,17 @@ export async function completeOnboarding({
   }
 
   return { success: true }
+}
+
+/**
+ * Apunta el paso del alta al que ha llegado esta cuenta, para saber dónde se
+ * queda quien no termina (migración 20261104). Solo guarda el más lejano y
+ * nada si ya hay perfil. Si falla (p. ej. sin migrar) no pasa nada: el alta
+ * sigue igual.
+ */
+export async function marcarPasoAlta(paso: number): Promise<void> {
+  if (!Number.isInteger(paso)) return
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('marcar_paso_alta', { p_paso: paso })
+  if (error) console.error('marcar_paso_alta failed:', error.message)
 }

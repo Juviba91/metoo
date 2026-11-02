@@ -9,12 +9,17 @@ import { Eye, EyeOff } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
 import { destinoSeguro } from '@/lib/destino'
+import { destinoConRol, rolDeParam } from '@/lib/alta'
 
 type Mode = 'enlace' | 'codigo' | 'login' | 'register' | 'forgot'
 
 function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
+  // «Busco apoyo» / «Quiero ayudar» en la portada: se dice aquí y, al entrar,
+  // se va al alta con ese papel ya marcado (lib/alta.ts).
+  const rol = rolDeParam(params.get('rol'))
+  const next = destinoConRol(params.get('next'), rol)
   // Por defecto, sin contraseña: un enlace por correo vale para entrar y para
   // crear la cuenta. Quien prefiera contraseña tiene las pestañas de siempre.
   const [mode, setMode] = useState<Mode>(
@@ -39,7 +44,7 @@ function LoginForm() {
     setInfo(null)
 
     if (mode === 'enlace') {
-      const result = await enviarEnlace(email, params.get('next'))
+      const result = await enviarEnlace(email, next)
       setLoading(false)
       if (result.error) {
         setError(result.error)
@@ -56,7 +61,7 @@ function LoginForm() {
         setLoading(false)
         return
       }
-      router.push(destinoSeguro(params.get('next')))
+      router.push(destinoSeguro(next))
       router.refresh()
       return
     }
@@ -87,7 +92,7 @@ function LoginForm() {
 
     // Tras crear la cuenta toca el registro, no el enlace; al entrar, sí se
     // vuelve a donde ibas (p. ej. el enlace de un correo).
-    router.push(mode === 'login' ? destinoSeguro(params.get('next')) : '/dashboard')
+    router.push(mode === 'login' ? destinoSeguro(next) : rol ? `/onboarding?rol=${rol}` : '/dashboard')
     router.refresh()
   }
 
@@ -106,11 +111,21 @@ function LoginForm() {
       {mode === 'enlace' || mode === 'codigo' ? (
         <>
           <h1 className="mb-2 text-center text-xl font-semibold">
-            {mode === 'enlace' ? 'Entra o crea tu cuenta' : 'Mira tu correo'}
+            {mode === 'codigo'
+              ? 'Mira tu correo'
+              : rol === 'seeker'
+                ? 'Empieza a buscar apoyo'
+                : rol === 'volunteer'
+                  ? 'Empieza a acompañar'
+                  : 'Entra o crea tu cuenta'}
           </h1>
           <p className="mb-8 text-center text-sm leading-relaxed text-muted-foreground">
             {mode === 'enlace' ? (
-              'Sin contraseña: te mandamos un enlace a tu correo. Si aún no tienes cuenta, se crea al entrar.'
+              rol ? (
+                'Solo tu correo: te mandamos un enlace y en un par de minutos tienes tu perfil, con un alias, sin tu nombre. Si ya tienes cuenta, entras.'
+              ) : (
+                'Sin contraseña: te mandamos un enlace a tu correo. Si aún no tienes cuenta, se crea al entrar.'
+              )
             ) : (
               <>
                 Te hemos escrito a <strong className="text-foreground">{email}</strong>. Pulsa el

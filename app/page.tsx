@@ -103,15 +103,17 @@ export default function Page() {
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+          {/* Cada botón lleva su papel: el login lo dice y el alta lo trae ya
+              marcado. Antes los dos iban al mismo formulario genérico. */}
           <Link
-            href="/auth/login"
+            href="/auth/login?rol=seeker"
             className={cn(buttonVariants(), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
           >
             Busco apoyo
             <ArrowRight className="size-4" />
           </Link>
           <Link
-            href="/auth/login"
+            href="/auth/login?rol=volunteer"
             className={cn(buttonVariants({ variant: 'outline' }), 'w-full gap-2 px-8 py-5 text-base sm:w-auto')}
           >
             Quiero ayudar
