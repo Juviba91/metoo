@@ -252,7 +252,7 @@ export default function Page() {
           Sea para pedir ayuda o para ofrecerla, empieza hoy.
         </p>
         <Link
-          href="/auth/login"
+          href="/auth/login?tab=register"
           className={cn(buttonVariants(), 'gap-2 px-10 py-5 text-base')}
         >
           Unirme a metoo

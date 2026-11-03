@@ -20,10 +20,16 @@ function LoginForm() {
   // se va al alta con ese papel ya marcado (lib/alta.ts).
   const rol = rolDeParam(params.get('rol'))
   const next = destinoConRol(params.get('next'), rol)
-  // Por defecto, sin contraseña: un enlace por correo vale para entrar y para
-  // crear la cuenta. Quien prefiera contraseña tiene las pestañas de siempre.
+  // Por defecto, correo y contraseña (Juan no quería el enlace/código del
+  // correo como forma principal). Se crea cuenta directamente si se llega desde
+  // «Crear cuenta», «Busco apoyo» o «Quiero ayudar». El enlace por correo queda
+  // como alternativa; también se abre si se vuelve de un enlace fallido.
   const [mode, setMode] = useState<Mode>(
-    params.get('tab') === 'register' ? 'register' : params.get('tab') === 'login' ? 'login' : 'enlace',
+    params.get('error') === 'enlace' || params.get('error') === 'auth'
+      ? 'enlace'
+      : params.get('tab') === 'register' || rol
+        ? 'register'
+        : 'login',
   )
   const [codigo, setCodigo] = useState('')
   const [email, setEmail] = useState('')
@@ -186,12 +192,24 @@ function LoginForm() {
               onClick={() => switchMode('login')}
               className="block w-full text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
             >
-              Prefiero usar contraseña
+              ← Entrar con contraseña
             </button>
           </div>
         </>
       ) : mode !== 'forgot' ? (
         <>
+          {rol && (
+            <div className="mb-6 text-center">
+              <h1 className="mb-2 text-xl font-semibold">
+                {rol === 'seeker' ? 'Empieza a buscar apoyo' : 'Empieza a acompañar'}
+              </h1>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Con tu correo y una contraseña. En un par de minutos tienes tu perfil, con un alias,
+                sin tu nombre.
+              </p>
+            </div>
+          )}
+
           {/* Tabs */}
           <div className="mb-8 flex rounded-xl border border-border p-1">
             <button

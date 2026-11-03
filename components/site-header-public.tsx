@@ -31,17 +31,21 @@ export function SiteHeaderPublic({ showAuth = true, ancho = 'max-w-4xl' }: SiteH
           </Link>
           {showAuth ? (
             <>
-              {/* Los dos van a la misma pantalla («Entra o crea tu cuenta»). En
-                  el móvil no caben con «Guías» al lado: queda uno solo. */}
+              {/* En el ordenador, «Entrar» y «Crear cuenta» abren cada uno su
+                  pestaña. En el móvil no caben con «Guías» al lado: queda uno. */}
               <Link
                 href="/auth/login"
                 className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'hidden sm:inline-flex')}
               >
                 Entrar
               </Link>
-              <Link href="/auth/login" className={cn(buttonVariants({ size: 'sm' }))}>
-                <span className="sm:hidden">Entrar</span>
-                <span className="hidden sm:inline">Crear cuenta</span>
+              {/* En el móvil este es el único botón: lleva a «Entrar», que tiene al
+                  lado la pestaña de crear cuenta. */}
+              <Link href="/auth/login" className={cn(buttonVariants({ size: 'sm' }), 'sm:hidden')}>
+                Entrar
+              </Link>
+              <Link href="/auth/login?tab=register" className={cn(buttonVariants({ size: 'sm' }), 'hidden sm:inline-flex')}>
+                Crear cuenta
               </Link>
             </>
           ) : null}
