@@ -20,7 +20,7 @@ vi.mock('next/headers', () => ({
   }),
 }))
 
-const { completeOnboarding, comprobarEdadAlta } = await import('@/app/onboarding/actions')
+const { completeOnboarding } = await import('@/app/onboarding/actions')
 
 function setup(spec: MockSpec = {}) {
   state.mock = createSupabaseMock({ user: { id: 'user-1' }, ...spec })
@@ -33,15 +33,7 @@ const base = {
   alias: 'Ana',
   city: 'Madrid',
   bio: '',
-  nacimiento: '1990-05-01',
-}
-
-/** Hace `años` años justos, en AAAA-MM-DD. */
-function haceAnos(años: number, masDias = 0): string {
-  const d = new Date()
-  d.setFullYear(d.getFullYear() - años)
-  d.setDate(d.getDate() + masDias)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  mayorDeEdad: true,
 }
 
 beforeEach(() => {
@@ -92,22 +84,15 @@ describe('completeOnboarding: consentimiento', () => {
     expect(Number.isNaN(Date.parse(String(payload.edad_comprobada_en)))).toBe(false)
   })
 
-  it('no guarda la fecha de nacimiento en ningún sitio', async () => {
-    const mock = setup()
-
-    await completeOnboarding({ ...base, aceptaTextos: true, consentimientoSalud: true })
-
-    expect(JSON.stringify(mock.calls)).not.toContain('1990-05-01')
-  })
 })
 
 describe('completeOnboarding: edad', () => {
-  it('rechaza a quien tiene menos de 16 años y no crea el perfil', async () => {
+  it('sin la casilla de 16 años o más no crea el perfil', async () => {
     const mock = setup()
 
     const res = await completeOnboarding({
       ...base,
-      nacimiento: haceAnos(16, 1),
+      mayorDeEdad: false,
       aceptaTextos: true,
       consentimientoSalud: true,
     })
@@ -116,42 +101,12 @@ describe('completeOnboarding: edad', () => {
     expect(mock.didCall('profiles', 'insert')).toBe(false)
   })
 
-  it('acepta a quien cumple 16 hoy', async () => {
+  it('con la casilla marcada, sí', async () => {
     setup()
 
-    const res = await completeOnboarding({
-      ...base,
-      nacimiento: haceAnos(16),
-      aceptaTextos: true,
-      consentimientoSalud: true,
-    })
+    const res = await completeOnboarding({ ...base, aceptaTextos: true, consentimientoSalud: true })
 
     expect(res.success).toBe(true)
-  })
-
-  it('rechaza una fecha imposible', async () => {
-    const mock = setup()
-
-    const res = await completeOnboarding({
-      ...base,
-      nacimiento: '1990-02-31',
-      aceptaTextos: true,
-      consentimientoSalud: true,
-    })
-
-    expect(res.error).toBeTruthy()
-    expect(mock.didCall('profiles', 'insert')).toBe(false)
-  })
-
-  it('tras declarar menos de 16, bloquea un día aunque se cambie el año', async () => {
-    setup()
-
-    const primero = await comprobarEdadAlta(haceAnos(14))
-    expect(primero.error).toBeTruthy()
-    expect(jar.get('mt_menor')?.maxAge).toBe(24 * 60 * 60)
-
-    const segundo = await comprobarEdadAlta('1990-05-01')
-    expect(segundo.error).toMatch(/16 años/)
   })
 })
 

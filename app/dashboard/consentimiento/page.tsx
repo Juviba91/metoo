@@ -66,7 +66,7 @@ export default async function ConsentimientoPage({
               como máximo. Después se borra sola.
             </li>
             <li>
-              Te pedimos la fecha de nacimiento para comprobar la edad. No la guardamos.
+              Te pedimos que confirmes con una casilla que tienes 16 años o más.
             </li>
             <li>
               El permiso para tratar datos de salud va en su propia casilla, aparte de los

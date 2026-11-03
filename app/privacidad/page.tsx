@@ -90,10 +90,9 @@ export default function PrivacidadPage() {
                 pedimos tu nombre real ni foto.
               </li>
               <li>
-                <strong className="text-foreground">Tu fecha de nacimiento, solo un momento</strong>:
-                te la pedimos al registrarte para comprobar que tienes al menos 16 años.{' '}
-                <strong className="text-foreground">No la guardamos</strong>: solo anotamos que la
-                comprobación se superó y cuándo.
+                <strong className="text-foreground">Que tienes al menos 16 años</strong>: lo
+                confirmas con una casilla al registrarte. No pedimos tu fecha de nacimiento: solo
+                anotamos que lo confirmaste y cuándo.
               </li>
               <li>
                 <strong className="text-foreground">Tu ciudad</strong>: para poder conectarte
@@ -541,9 +540,8 @@ export default function PrivacidadPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">11. Menores</h2>
             <p>
-              metoo es para mayores de 16 años. Al registrarte te pedimos tu fecha de nacimiento
-              y, si no llegas a esa edad, no puedes crear la cuenta (y ese navegador se queda
-              bloqueado un día, para que no baste con cambiar el año). Nadie puede comprobar del
+              metoo es para mayores de 16 años. Al registrarte tienes que confirmarlo con una
+              casilla; sin marcarla no se puede crear la cuenta. Nadie puede comprobar del
               todo la edad de quien escribe desde el otro lado, así que además revisamos los
               avisos que nos llegan: si detectamos una cuenta de alguien menor de 16 años, la
               eliminamos. Si eres madre, padre o tutor y crees que tu hijo o hija se ha

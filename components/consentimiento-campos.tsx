@@ -10,18 +10,19 @@ import { EDAD_MINIMA } from '@/lib/edad'
  *
  * Cada una por separado, a propósito: el consentimiento de salud (art. 9 RGPD)
  * tiene que ser explícito y no puede ir mezclado con la aceptación de unos
- * textos, y la edad se comprueba con la fecha, no con una casilla.
+ * textos. La edad es una casilla propia (lib/edad.ts): sin marcarla no se
+ * puede seguir.
  */
 export function ConsentimientoCampos({
-  nacimiento,
-  onNacimiento,
+  mayorDeEdad,
+  onMayorDeEdad,
   aceptaTextos,
   onAceptaTextos,
   salud,
   onSalud,
 }: {
-  nacimiento: string
-  onNacimiento: (v: string) => void
+  mayorDeEdad: boolean
+  onMayorDeEdad: (v: boolean) => void
   aceptaTextos: boolean
   onAceptaTextos: (v: boolean) => void
   salud: boolean
@@ -32,23 +33,16 @@ export function ConsentimientoCampos({
 
   return (
     <div className="space-y-4">
-      <div>
-        <label htmlFor="nacimiento" className="mb-1.5 block text-sm font-medium">
-          Fecha de nacimiento
-        </label>
+      <label className="flex cursor-pointer items-start gap-3">
         <input
-          id="nacimiento"
-          type="date"
-          value={nacimiento}
-          onChange={(e) => onNacimiento(e.target.value)}
-          max={new Date().toISOString().slice(0, 10)}
-          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          id="mayor-de-edad"
+          type="checkbox"
+          checked={mayorDeEdad}
+          onChange={(e) => onMayorDeEdad(e.target.checked)}
+          className="mt-0.5 size-4 shrink-0 accent-foreground"
         />
-        <p className="mt-1.5 text-xs text-muted-foreground">
-          Solo para comprobar que tienes al menos {EDAD_MINIMA} años. No la guardamos: anotamos
-          que la comprobación se superó y cuándo.
-        </p>
-      </div>
+        <span className="text-sm text-muted-foreground">Tengo {EDAD_MINIMA} años o más.</span>
+      </label>
 
       <label className="flex cursor-pointer items-start gap-3">
         <input

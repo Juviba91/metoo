@@ -806,7 +806,7 @@ export type Database = {
       marcar_guia_voluntario_leida: { Args: Record<string, never>; Returns: undefined }
       marcar_paso_alta: { Args: { p_paso: number }; Returns: undefined }
       renovar_consentimiento: {
-        Args: { p_version: string; p_nacimiento: string }
+        Args: { p_version: string; p_mayor_de_edad: boolean }
         Returns: undefined
       }
       temas_con_actividad: {

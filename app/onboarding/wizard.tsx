@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Heart } from 'lucide-react'
 import { HashtagPicker, type HashtagOption } from '@/components/hashtag-picker'
-import { completeOnboarding, comprobarEdadAlta, marcarPasoAlta } from './actions'
+import { completeOnboarding, marcarPasoAlta } from './actions'
 import { ConsentimientoCampos } from '@/components/consentimiento-campos'
 import { ProfileFieldsPicker } from '@/components/profile-fields-picker'
 import { PapelPorTema } from '@/components/papel-por-tema'
@@ -28,9 +28,7 @@ export function OnboardingWizard({
   const [step, setStep] = useState(1)
   const [accepted, setAccepted] = useState(false)
   const [consentSalud, setConsentSalud] = useState(false)
-  const [nacimiento, setNacimiento] = useState('')
-  const [errorEdad, setErrorEdad] = useState<string | null>(null)
-  const [comprobandoEdad, setComprobandoEdad] = useState(false)
+  const [mayorDeEdad, setMayorDeEdad] = useState(false)
   const [role, setRole] = useState<'seeker' | 'volunteer' | null>(rolInicial)
   const [roleConfirmed, setRoleConfirmed] = useState(false)
   const [hashtags, setHashtags] = useState<HashtagOption[]>([])
@@ -61,7 +59,7 @@ export function OnboardingWizard({
       supportModes,
       aceptaTextos: accepted,
       consentimientoSalud: consentSalud,
-      nacimiento,
+      mayorDeEdad,
     })
 
     if (result.error) {
@@ -74,19 +72,6 @@ export function OnboardingWizard({
     setStep(6)
     setLoading(false)
     setTimeout(() => router.push('/dashboard'), 3000)
-  }
-
-  // Último paso: primero la edad (si no llega, no se crea nada) y luego el perfil.
-  async function terminar() {
-    setComprobandoEdad(true)
-    setErrorEdad(null)
-    const res = await comprobarEdadAlta(nacimiento)
-    setComprobandoEdad(false)
-    if (res.error) {
-      setErrorEdad(res.error)
-      return
-    }
-    await handleFinish()
   }
 
   // Dónde se queda quien no termina (lib/alta.ts). Llamar a una server action
@@ -419,20 +404,14 @@ export function OnboardingWizard({
 
           <div className="mb-6">
             <ConsentimientoCampos
-              nacimiento={nacimiento}
-              onNacimiento={setNacimiento}
+              mayorDeEdad={mayorDeEdad}
+              onMayorDeEdad={setMayorDeEdad}
               aceptaTextos={accepted}
               onAceptaTextos={setAccepted}
               salud={consentSalud}
               onSalud={setConsentSalud}
             />
           </div>
-
-          {errorEdad && (
-            <p role="alert" className="mb-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {errorEdad}
-            </p>
-          )}
 
           {error && (
             <p role="alert" className="mb-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -445,12 +424,12 @@ export function OnboardingWizard({
               Atrás
             </Button>
             <Button
-              onClick={terminar}
-              disabled={!nacimiento || !accepted || !consentSalud || comprobandoEdad || loading}
+              onClick={handleFinish}
+              disabled={!mayorDeEdad || !accepted || !consentSalud || loading}
               className="flex-1 gap-2"
             >
-              {loading || comprobandoEdad ? 'Guardando...' : 'Entrar a metoo'}
-              {!loading && !comprobandoEdad && <Heart className="size-4" />}
+              {loading ? 'Guardando...' : 'Entrar a metoo'}
+              {!loading && <Heart className="size-4" />}
             </Button>
           </div>
         </div>

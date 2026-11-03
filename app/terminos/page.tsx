@@ -154,9 +154,8 @@ export default function TerminosPage() {
             <h2 className="mb-3 text-lg font-semibold text-foreground">4. Quién puede usar metoo</h2>
             <ul className="ml-4 list-disc space-y-1">
               <li>
-                Debes tener al menos 16 años. Te pedimos la fecha de nacimiento al registrarte y,
-                si no llegas, no se crea la cuenta. Si detectamos que alguien ha mentido en esto,
-                eliminamos la cuenta.
+                Debes tener al menos 16 años, y lo confirmas con una casilla al registrarte. Si
+                detectamos que alguien ha mentido en esto, eliminamos la cuenta.
               </li>
               <li>Debes dar un correo válido y usarlo tú.</li>
               <li>
