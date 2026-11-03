@@ -136,3 +136,29 @@ export function candidatosPara<T extends PerfilConTemas>(yo: Lados, perfiles: T[
     buscadores: yo.acompana ? conLados.filter((c) => c.lados.busca).map((c) => c.perfil) : [],
   }
 }
+
+/** Días desde el alta antes de invitar a quien busca apoyo a acompañar también. */
+export const DIAS_PARA_INVITAR_A_ACOMPANAR = 60
+
+/**
+ * Qué lado sugerirle a una cuenta que solo está en uno (tarjeta de Perfil).
+ *
+ * Estar a los dos lados funcionaba, pero nadie lo usaba (0 de 10 perfiles):
+ * el alta lo plantea como una cosa u otra y nada lo sugería después.
+ *
+ * - A quien acompaña, siempre: «¿ahora eres tú quien lo está pasando?».
+ * - A quien busca apoyo, no al principio: a alguien en mitad de un diagnóstico
+ *   o un duelo no se le pide que acompañe a otros. Solo pasados unos días.
+ * - A quien ya está a los dos lados, nada.
+ */
+export function ladoQueInvitar(
+  lados: Lados,
+  creadoEn: string | null | undefined,
+  ahora: Date = new Date(),
+): 'buscar' | 'acompanar' | null {
+  if (esDoble(lados)) return null
+  if (lados.acompana) return 'buscar'
+  if (!lados.busca || !creadoEn) return null
+  const dias = (ahora.getTime() - new Date(creadoEn).getTime()) / 86_400_000
+  return dias >= DIAS_PARA_INVITAR_A_ACOMPANAR ? 'acompanar' : null
+}

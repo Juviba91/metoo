@@ -1,7 +1,7 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Pencil } from 'lucide-react'
+import { HandHeart, Pencil } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ProfileCard } from '@/components/profile-card'
@@ -11,7 +11,7 @@ import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { HowItWorks } from '@/components/how-it-works'
-import { esDoble, ladosDe } from '@/lib/lados'
+import { esDoble, ladoQueInvitar, ladosDe } from '@/lib/lados'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Perfil' }
@@ -32,7 +32,7 @@ export default async function PerfilPage() {
   const [{ data: profile }, pendingCount, { data: unreadData }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('alias, city, bio, role, is_active, stage, support_modes, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
+      .select('alias, city, bio, role, is_active, stage, support_modes, created_at, profile_hashtags(hashtag_id, role, hashtags(id, slug, label))')
       .eq('id', user.id)
       .single(),
     contarSolicitudesPendientes(),
@@ -47,6 +47,7 @@ export default async function PerfilPage() {
 
   const lados = ladosDe(profile.role, profile.profile_hashtags ?? [])
   const doble = esDoble(lados)
+  const invitar = ladoQueInvitar(lados, profile.created_at)
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -78,6 +79,29 @@ export default async function PerfilPage() {
             </Link>
           </ProfileCard>
         </div>
+
+        {/* Estar a los dos lados funcionaba, pero nadie sabía que se podía. */}
+        {invitar && (
+          <div className="rounded-xl border border-border bg-muted/30 p-4">
+            <p className="flex items-center gap-2 text-sm font-medium">
+              <HandHeart className="size-4" />
+              {invitar === 'buscar'
+                ? '¿Ahora eres tú quien lo está pasando?'
+                : '¿Te ves con fuerzas para acompañar a alguien?'}
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              {invitar === 'buscar'
+                ? 'Acompañar no te quita el derecho a que te acompañen. Añade el tema que estás viviendo y marca «Lo estoy viviendo»: seguirás acompañando en lo tuyo y verás a quien ya pasó por lo nuevo.'
+                : 'Si algo de lo que viviste ya lo llevas mejor, puedes acompañar en ese tema a quien empieza. Marca «Lo viví» en él; en lo demás sigues buscando apoyo igual.'}
+            </p>
+            <Link
+              href="/dashboard/perfil/editar"
+              className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'mt-3')}
+            >
+              {invitar === 'buscar' ? 'Añadir lo que estoy viviendo' : 'Elegir en qué puedo acompañar'}
+            </Link>
+          </div>
+        )}
 
         <div className="border-t border-border/60 pt-8">
           <HowItWorks />
