@@ -30,7 +30,7 @@ function setup(spec: MockSpec = {}) {
   return state.mock
 }
 
-const ok = { nacimiento: '1990-05-01', aceptaTextos: true, consentimientoSalud: true }
+const ok = { mayorDeEdad: true, aceptaTextos: true, consentimientoSalud: true }
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -68,7 +68,7 @@ describe('renovarConsentimiento', () => {
     expect(mock.rpcCalls).toEqual([
       {
         name: 'renovar_consentimiento',
-        args: { p_version: VERSION_TEXTOS_LEGALES, p_nacimiento: '1990-05-01' },
+        args: { p_version: VERSION_TEXTOS_LEGALES, p_mayor_de_edad: true },
       },
     ])
     expect(jar.get('mt_consentimiento')).toBe(valorCookieConsentimiento('user-1'))
@@ -77,7 +77,7 @@ describe('renovarConsentimiento', () => {
   it.each([
     ['sin aceptar los textos', { aceptaTextos: false }],
     ['sin el permiso de salud', { consentimientoSalud: false }],
-    ['con menos de 16 años', { nacimiento: '2015-01-01' }],
+    ['sin la casilla de 16 años o más', { mayorDeEdad: false }],
   ])('no guarda nada %s', async (_n, cambio) => {
     const mock = setup()
 

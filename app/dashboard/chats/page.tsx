@@ -105,7 +105,10 @@ export default async function ChatsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          // `grid-cols-1` y `min-w-0`: sin ellos la columna crece con el texto del
+          // último mensaje en vez de recortarlo, y la tarjeta se salía de la
+          // pantalla (802 px de ancho en un móvil de 390).
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {(connections as any[]).map((conn) => {
               const { ficha: other } = otraPersonaDe(conn, user.id)
               const last = lastMessages[conn.id]
@@ -115,7 +118,7 @@ export default async function ChatsPage() {
                 <Link
                   key={conn.id}
                   href={`/dashboard/chat/${conn.id}`}
-                  className="flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+                  className="flex min-w-0 items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
                 >
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex items-center justify-between gap-2">

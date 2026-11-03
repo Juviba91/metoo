@@ -8,7 +8,7 @@ import { renovarConsentimiento } from './actions'
 
 export function FormularioConsentimiento({ destino }: { destino: string }) {
   const router = useRouter()
-  const [nacimiento, setNacimiento] = useState('')
+  const [mayorDeEdad, setMayorDeEdad] = useState(false)
   const [aceptaTextos, setAceptaTextos] = useState(false)
   const [salud, setSalud] = useState(false)
   const [enviando, setEnviando] = useState(false)
@@ -18,7 +18,7 @@ export function FormularioConsentimiento({ destino }: { destino: string }) {
     setEnviando(true)
     setError(null)
     const res = await renovarConsentimiento({
-      nacimiento,
+      mayorDeEdad,
       aceptaTextos,
       consentimientoSalud: salud,
     })
@@ -33,8 +33,8 @@ export function FormularioConsentimiento({ destino }: { destino: string }) {
   return (
     <div className="space-y-5">
       <ConsentimientoCampos
-        nacimiento={nacimiento}
-        onNacimiento={setNacimiento}
+        mayorDeEdad={mayorDeEdad}
+        onMayorDeEdad={setMayorDeEdad}
         aceptaTextos={aceptaTextos}
         onAceptaTextos={setAceptaTextos}
         salud={salud}
@@ -49,7 +49,7 @@ export function FormularioConsentimiento({ destino }: { destino: string }) {
 
       <Button
         onClick={aceptar}
-        disabled={!nacimiento || !aceptaTextos || !salud || enviando}
+        disabled={!mayorDeEdad || !aceptaTextos || !salud || enviando}
         className="w-full"
       >
         {enviando ? 'Guardando…' : 'Aceptar y seguir'}

@@ -7,21 +7,21 @@ import {
   VERSION_TEXTOS_LEGALES,
   valorCookieConsentimiento,
 } from '@/lib/legal'
-import { BLOQUEO_MENOR_SEGUNDOS, COOKIE_MENOR, comprobarEdad } from '@/lib/edad'
+import { declaraEdad } from '@/lib/edad'
 
 /**
  * Renueva el consentimiento de una cuenta que ya existe: textos, datos de
  * salud y edad, los tres a la vez.
  *
  * Lo pide el middleware a las cuentas de antes de que hubiera casilla de salud
- * y fecha de nacimiento, y a todas cuando sube VERSION_TEXTOS_LEGALES.
+ * y de edad, y a todas cuando sube VERSION_TEXTOS_LEGALES.
  */
 export async function renovarConsentimiento({
-  nacimiento,
+  mayorDeEdad,
   aceptaTextos,
   consentimientoSalud,
 }: {
-  nacimiento: string
+  mayorDeEdad: boolean
   aceptaTextos: boolean
   consentimientoSalud: boolean
 }): Promise<{ success?: boolean; error?: string }> {
@@ -33,22 +33,12 @@ export async function renovarConsentimiento({
     return { error: 'Para seguir usando metoo tienes que marcar las dos casillas.' }
   }
 
-  const jar = await cookies()
-  if (jar.get(COOKIE_MENOR)) {
-    return { error: 'metoo es para mayores de 16 años.' }
-  }
-
-  const edad = comprobarEdad(nacimiento)
-  if (!edad.ok) {
-    if (edad.menor) {
-      jar.set(COOKIE_MENOR, '1', { path: '/', httpOnly: true, sameSite: 'lax', maxAge: BLOQUEO_MENOR_SEGUNDOS })
-    }
-    return { error: edad.error }
-  }
+  const edad = declaraEdad(mayorDeEdad)
+  if (!edad.ok) return { error: edad.error }
 
   const { error } = await supabase.rpc('renovar_consentimiento', {
     p_version: VERSION_TEXTOS_LEGALES,
-    p_nacimiento: nacimiento,
+    p_mayor_de_edad: true,
   })
 
   if (error) {
@@ -58,6 +48,7 @@ export async function renovarConsentimiento({
 
   // Lo mismo que pondría el middleware en la siguiente visita; así no hace
   // falta otra consulta para dejarte pasar.
+  const jar = await cookies()
   jar.set(COOKIE_CONSENTIMIENTO, valorCookieConsentimiento(user.id), {
     path: '/',
     httpOnly: true,
