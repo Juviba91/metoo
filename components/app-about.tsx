@@ -7,6 +7,9 @@ import { Logo } from '@/components/logo'
  * El pie del sitio (SiteFooter) va oculto en móvil en las pantallas de la app
  * porque la barra inferior ocupa ese espacio, así que desde el móvil no había
  * forma de llegar a Privacidad ni a Términos. Este bloque cubre ese hueco.
+ *
+ * Solo en el móvil: a partir de `sm` el pie del sitio sí se ve, y en el
+ * ordenador salían los dos seguidos, con el «© 2026 metoo…» repetido.
  */
 export function AppAbout() {
   return (
@@ -28,7 +31,7 @@ export function AppAbout() {
         </p>
       </div>
 
-      <div className="border-t border-border/60 pt-6 text-center">
+      <div className="border-t border-border/60 pt-6 text-center sm:hidden">
         <p className="text-xs leading-relaxed text-muted-foreground">
           © 2026 metoo. Todos los derechos reservados. Hecho con cuidado por{' '}
           <a
