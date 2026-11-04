@@ -207,20 +207,23 @@ export default async function AdminPage() {
         <h1 className="text-3xl font-bold">Admin</h1>
 
         {/* Tu chat con cada persona de metoo. */}
-        <Link
-          href="/admin/mensajes"
-          className="flex items-center justify-between gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
-        >
-          <div>
-            <p className="font-semibold">{NOMBRE_EQUIPO}</p>
-            <p className="text-sm text-muted-foreground">Dar la bienvenida y orientar a cada persona.</p>
-          </div>
-          {equipoEsperando > 0 && (
-            <span className="shrink-0 rounded-full bg-destructive px-2.5 py-0.5 text-sm text-destructive-foreground">
-              {equipoEsperando}
-            </span>
-          )}
-        </Link>
+        <section>
+          <h2 className="mb-4 text-lg font-semibold">Chats admin</h2>
+          <Link
+            href="/admin/mensajes"
+            className="flex items-center justify-between gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+          >
+            <div>
+              <p className="font-semibold">{NOMBRE_EQUIPO}</p>
+              <p className="text-sm text-muted-foreground">Dar la bienvenida y orientar a cada persona.</p>
+            </div>
+            {equipoEsperando > 0 && (
+              <span className="shrink-0 rounded-full bg-destructive px-2.5 py-0.5 text-sm text-destructive-foreground">
+                {equipoEsperando}
+              </span>
+            )}
+          </Link>
+        </section>
 
         {/* El embudo, arriba de todo: es la pregunta de cada día. */}
         <section>
