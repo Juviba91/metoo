@@ -155,11 +155,11 @@ export function ChatEquipo({
                   <div className={`flex ${mio ? 'justify-end' : 'justify-start'}`}>
                     <div
                       className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
-                        mio ? 'bg-foreground text-background' : 'bg-muted text-foreground'
+                        mio ? 'bg-burbuja text-burbuja-foreground' : 'bg-muted text-foreground'
                       }`}
                     >
                       <p className="whitespace-pre-line break-words">{m.contenido}</p>
-                      <p className={`mt-0.5 text-[11px] ${mio ? 'text-background/60' : 'text-muted-foreground'}`} suppressHydrationWarning>
+                      <p className={`mt-0.5 text-[11px] ${mio ? 'text-burbuja-foreground/60' : 'text-muted-foreground'}`} suppressHydrationWarning>
                         {FORMATO_HORA.format(new Date(m.creado_en))}
                       </p>
                     </div>
