@@ -145,6 +145,12 @@ export default function PrivacidadPage() {
                 , para poder demostrar que la tuviste delante.
               </li>
               <li>
+                <strong className="text-foreground">Lo que hables con el equipo de metoo</strong>
+                : los mensajes que nos escribas y los que te escribamos desde la pestaña Chats. Solo
+                los vemos quienes llevamos metoo, no otras personas de la comunidad. Se borran al
+                darte de baja.
+              </li>
+              <li>
                 <strong className="text-foreground">
                   Hasta dónde llegaste al crear el perfil
                 </strong>
@@ -317,6 +323,13 @@ export default function PrivacidadPage() {
                     <td className="py-2">
                       Tu consentimiento (arts. 6.1.a y 9.2.a), que das al marcar el aviso y
                       enviar cada respuesta
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-4">Atender y orientarte desde el chat del equipo</td>
+                    <td className="py-2">
+                      Ejecución del servicio que nos pides (art. 6.1.b) y, si nos cuentas algo de tu
+                      salud, tu consentimiento expreso (art. 9.2.a)
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">

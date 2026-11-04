@@ -14,6 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      mensajes_equipo: {
+        Row: { id: number; usuario_id: string; del_equipo: boolean; contenido: string; creado_en: string; leido_en: string | null }
+        Insert: { usuario_id: string; del_equipo: boolean; contenido: string; creado_en?: string; leido_en?: string | null }
+        Update: { leido_en?: string | null }
+        Relationships: []
+      }
       alta_pasos: {
         Row: { user_id: string; paso: number; actualizado_en: string }
         Insert: { user_id: string; paso: number }
@@ -805,6 +811,7 @@ export type Database = {
       }
       marcar_guia_voluntario_leida: { Args: Record<string, never>; Returns: undefined }
       marcar_paso_alta: { Args: { p_paso: number }; Returns: undefined }
+      marcar_equipo_leido: { Args: Record<string, never>; Returns: undefined }
       renovar_consentimiento: {
         Args: { p_version: string; p_mayor_de_edad: boolean }
         Returns: undefined

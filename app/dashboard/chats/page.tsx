@@ -8,6 +8,7 @@ import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { NOMBRE_EQUIPO } from '@/lib/equipo'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Chats' }
@@ -48,11 +49,21 @@ export default async function ChatsPage() {
     .or(`seeker_id.eq.${user.id},volunteer_id.eq.${user.id}`)
     .order('created_at', { ascending: false })
 
-  const [{ data: allConnections }, { data: unreadData }, hiddenIds] = await Promise.all([
+  const [{ data: allConnections }, { data: unreadData }, hiddenIds, { data: ultimoEquipo }] = await Promise.all([
     connectionsQuery,
     supabase.rpc('get_unread_count', { user_uuid: user.id }),
     getHiddenUserIds(),
+    // El chat con el equipo de metoo. Si la migración aún no está aplicada,
+    // `data` es null y simplemente no se enseña.
+    supabase
+      .from('mensajes_equipo')
+      .select('del_equipo, contenido, leido_en')
+      .eq('usuario_id', user.id)
+      .order('creado_en', { ascending: false })
+      .limit(1),
   ])
+  const equipo = (ultimoEquipo ?? [])[0] as { del_equipo: boolean; contenido: string; leido_en: string | null } | undefined
+  const equipoSinLeer = Boolean(equipo?.del_equipo && !equipo.leido_en)
 
   // Mismo criterio que en Inicio: fuera las de gente bloqueada, y a quien
   // busca apoyo no se le enseñan las rechazadas. Estaba solo en Inicio, así que
@@ -96,7 +107,26 @@ export default async function ChatsPage() {
           Tus conversaciones
         </h2>
 
-        {connections.length === 0 ? (
+        {/* Solo cuando el equipo ya te ha escrito o tú a él. */}
+        {equipo && (
+          <Link
+            href="/dashboard/equipo"
+            className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-muted/30 p-4 transition-colors hover:bg-muted/50"
+          >
+            <div className="flex min-w-0 flex-1 flex-col">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-semibold">{NOMBRE_EQUIPO}</p>
+                {equipoSinLeer && <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-label="Sin leer" />}
+              </div>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                {equipo.del_equipo ? '' : 'Tú: '}
+                {equipo.contenido}
+              </p>
+            </div>
+          </Link>
+        )}
+
+        {connections.length === 0 && !equipo ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
             <p className="mb-2 text-3xl">💬</p>
             <p>Todavía no tienes conversaciones.</p>
