@@ -42,7 +42,7 @@ export default async function EquipoPage() {
           </Link>
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold leading-tight">{NOMBRE_EQUIPO}</p>
-            <p className="text-xs text-muted-foreground">Te escribe Juan, de metoo</p>
+            <p className="text-xs text-muted-foreground">Te escribe Juan, del Equipo de metoo</p>
           </div>
         </header>
 
