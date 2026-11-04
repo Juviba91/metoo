@@ -260,59 +260,6 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        {/* Guías por hospital.
-            A todo el mundo, y no solo a los voluntarios: para quien busca
-            apoyo es lo único de la app que sirve ahora mismo, sin esperar a
-            que alguien conteste. */}
-        <div>
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <BookOpen className="size-5" />
-            Guías
-          </h2>
-          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-            Dónde dormir, cómo son los horarios de verdad, qué papeles pedir. Lo
-            práctico que nadie te cuenta, hospital por hospital.
-          </p>
-
-          {(guias ?? []).length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              <p>Todavía no hay ninguna guía escrita.</p>
-              <Link
-                href="/guias"
-                prefetch
-                className="mt-2 inline-block font-medium text-foreground underline-offset-2 hover:underline"
-              >
-                Ver de qué van →
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(guias ?? []).map((g) => (
-                  <Link
-                    key={`${g.hospital_slug}/${g.tema_slug}`}
-                    href={`/guias/${g.hospital_slug}/${g.tema_slug}`}
-                    className="rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
-                  >
-                    <p className="font-semibold">{g.tema}</p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{g.hospital}</p>
-                    <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="size-3" /> {g.ciudad}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-              <Link
-                href="/guias"
-                prefetch
-                className="mt-4 block w-full rounded-lg border border-border py-2.5 text-center text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                Ver más
-              </Link>
-            </>
-          )}
-        </div>
-
         {/* Conversations */}
         {visibleConnections.length > 0 && (
           <div>
@@ -469,6 +416,59 @@ export default async function DashboardPage({
               </div>
             )
           })}
+
+        {/* Guías por hospital.
+            A todo el mundo, y no solo a los voluntarios: para quien busca
+            apoyo es lo único de la app que sirve ahora mismo, sin esperar a
+            que alguien conteste. */}
+        <div>
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <BookOpen className="size-5" />
+            Guías
+          </h2>
+          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+            Dónde dormir, cómo son los horarios de verdad, qué papeles pedir. Lo
+            práctico que nadie te cuenta, hospital por hospital.
+          </p>
+
+          {(guias ?? []).length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              <p>Todavía no hay ninguna guía escrita.</p>
+              <Link
+                href="/guias"
+                prefetch
+                className="mt-2 inline-block font-medium text-foreground underline-offset-2 hover:underline"
+              >
+                Ver de qué van →
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {(guias ?? []).map((g) => (
+                  <Link
+                    key={`${g.hospital_slug}/${g.tema_slug}`}
+                    href={`/guias/${g.hospital_slug}/${g.tema_slug}`}
+                    className="rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+                  >
+                    <p className="font-semibold">{g.tema}</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{g.hospital}</p>
+                    <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="size-3" /> {g.ciudad}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href="/guias"
+                prefetch
+                className="mt-4 block w-full rounded-lg border border-border py-2.5 text-center text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Ver más
+              </Link>
+            </>
+          )}
+        </div>
 
       </main>
 
