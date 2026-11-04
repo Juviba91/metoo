@@ -328,8 +328,8 @@ export default function PrivacidadPage() {
                   <tr className="border-b border-border/50">
                     <td className="py-2 pr-4">Atender y orientarte desde el chat del equipo</td>
                     <td className="py-2">
-                      Ejecución del servicio que nos pides (art. 6.1.b) y, si nos cuentas algo de tu
-                      salud, tu consentimiento expreso (art. 9.2.a)
+                      Interés legítimo en darte la bienvenida y orientarte (art. 6.1.f), y, si nos
+                      cuentas algo de tu salud, tu consentimiento expreso (art. 9.2.a)
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -443,7 +443,8 @@ export default function PrivacidadPage() {
                 ese plazo se borra entero, automáticamente. Una conversación es de dos: borrarla
                 por un lado le dejaría a la otra persona un hueco sin explicación, y en esta app
                 eso duele. Pero tampoco tiene sentido guardarla para siempre, así que le ponemos
-                fecha. Del resto de tu ficha solo sobrevive el alias —ni tu descripción, ni tu
+                fecha. (Esto es solo para las conversaciones con otras personas: lo que hables con
+                el equipo de metoo se borra entero al darte de baja.) Del resto de tu ficha solo sobrevive el alias —ni tu descripción, ni tu
                 ciudad, ni tus etiquetas— y nadie puede escribirte ya.
               </li>
               <li>

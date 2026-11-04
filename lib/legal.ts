@@ -15,7 +15,7 @@
 export const VERSION_TEXTOS_LEGALES = '2026-10-14'
 
 /** Lo que se lee al pie de las páginas legales. */
-export const TEXTOS_ACTUALIZADOS = 'octubre de 2026'
+export const TEXTOS_ACTUALIZADOS = 'noviembre de 2026'
 
 /**
  * Cookie que recuerda que esta cuenta ya tiene el consentimiento al día, para

@@ -80,8 +80,10 @@ END
 $$;
 
 -- El aviso no lleva lo escrito (se ve en la pantalla de bloqueo) y se junta: si
--- ya hubo otro mensaje en el mismo sentido hace menos de 10 minutos, no se
--- manda otro correo.
+-- ya hubo otro mensaje en el mismo sentido hace menos de 10 minutos y SIGUE SIN
+-- LEER, no se manda otro correo. Lo de «sin leer» importa: si la persona ya lo
+-- abrió y contestó, el siguiente mensaje sí merece su aviso, o no se enteraría.
+-- La bienvenida automática no cuenta (no avisó a nadie).
 CREATE OR REPLACE FUNCTION public.avisar_mensaje_equipo()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -99,6 +101,7 @@ BEGIN
     SELECT 1 FROM mensajes_equipo e
      WHERE e.usuario_id = NEW.usuario_id AND e.del_equipo = NEW.del_equipo
        AND e.id < NEW.id AND e.creado_en > now() - interval '10 minutes'
+       AND e.leido_en IS NULL AND NOT e.automatico
   ) THEN
     RETURN NULL;
   END IF;
@@ -171,7 +174,7 @@ BEGIN
       || E'No tienes que contar nada que no quieras. Si te apetece, en Inicio puedes ver a personas '
       || E'que ya pasaron por algo parecido y escribirles un «hola». Y si prefieres, cuéntame aquí '
       || E'qué te está pasando y te digo con quién puede encajar hablar.\n\n'
-      || E'Si es urgente, el 024 atiende gratis las 24 horas.'
+      || E'Si es urgente, el 024 atiende gratis las 24 horas y, en una emergencia, el 112.'
     END,
     true
   );

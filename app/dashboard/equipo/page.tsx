@@ -5,7 +5,7 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import { SiteHeader } from '@/components/site-header'
 import { ChatEquipo } from '@/components/chat-equipo'
 import { NOMBRE_EQUIPO } from '@/lib/equipo'
-import { enviarAlEquipo } from './actions'
+import { enviarAlEquipo, marcarEquipoLeido } from './actions'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: NOMBRE_EQUIPO }
@@ -26,9 +26,6 @@ export default async function EquipoPage() {
     .eq('usuario_id', user.id)
     .order('creado_en', { ascending: true })
     .limit(500)
-
-  // Lo que se enseña aquí ya está leído.
-  await supabase.rpc('marcar_equipo_leido')
 
   return (
     <div className="flex h-dvh flex-col bg-background">
@@ -53,6 +50,7 @@ export default async function EquipoPage() {
           mensajes={(mensajes ?? []) as { id: number; del_equipo: boolean; contenido: string; creado_en: string }[]}
           soyEquipo={false}
           enviar={enviarAlEquipo}
+          alVer={marcarEquipoLeido}
           vacio="Todavía no hay mensajes. Si tienes cualquier duda o idea, escríbenos."
           nota={
             <>

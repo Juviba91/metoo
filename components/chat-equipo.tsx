@@ -26,8 +26,14 @@ function dia(iso: string) {
  *
  * Se refresca sola cada pocos segundos mientras la pestaña está a la vista (no
  * hay conexión en vivo: es la misma tabla y la leen los dos lados con la clave
- * que les toca). Tras enviar, el mensaje sale al momento.
+ * que les toca), y deja de hacerlo si nadie toca nada en 5 minutos: una pestaña
+ * olvidada abierta era una invocación al servidor cada 8 segundos.
+ *
+ * Tras enviar, el mensaje sale al momento y se queda hasta que el servidor lo
+ * devuelve; así un refresco que salió antes del envío no lo hace parpadear.
  */
+const INACTIVIDAD_MAX_MS = 5 * 60_000
+const ULTIMOS_A_COMPARAR = 5
 export function ChatEquipo({
   mensajes,
   soyEquipo,
@@ -35,6 +41,7 @@ export function ChatEquipo({
   placeholder = 'Escribe un mensaje...',
   vacio,
   nota,
+  alVer,
   refrescarCadaMs = 8000,
 }: {
   mensajes: MensajeVista[]
@@ -43,17 +50,19 @@ export function ChatEquipo({
   placeholder?: string
   vacio: string
   nota?: React.ReactNode
+  /** Se llama al abrir la conversación y cada vez que llega algo nuevo (marcar leído). */
+  alVer?: () => void
   refrescarCadaMs?: number
 }) {
   const router = useRouter()
-  const [lista, setLista] = useState(mensajes)
-  const [previas, setPrevias] = useState(mensajes)
-  // Se resincroniza en el render: tras un refresco, `mensajes` trae lo nuevo y
-  // useState(props) por sí solo se quedaría con lo viejo.
-  if (mensajes !== previas) {
-    setPrevias(mensajes)
-    setLista(mensajes)
-  }
+  // Lo que he enviado y el servidor aún no ha devuelto. La lista que se pinta
+  // sale de las props (la verdad) más esto, no de un estado copiado de ellas.
+  const [pendientes, setPendientes] = useState<MensajeVista[]>([])
+  const ultimos = mensajes.slice(-ULTIMOS_A_COMPARAR)
+  const lista = [
+    ...mensajes,
+    ...pendientes.filter((p) => !ultimos.some((m) => m.del_equipo === p.del_equipo && m.contenido === p.contenido)),
+  ]
 
   const [texto, setTexto] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -65,11 +74,37 @@ export function ChatEquipo({
     fondo.current?.scrollIntoView({ behavior: 'instant' })
   }, [lista.length])
 
+  // Al abrir y cada vez que llega algo nuevo del otro lado.
+  const ultimoAjeno = [...mensajes].reverse().find((m) => m.del_equipo !== soyEquipo)?.id
   useEffect(() => {
+    alVer?.()
+    // `alVer` es una server action estable; solo importa cuándo llega algo nuevo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ultimoAjeno])
+
+  const ultimaActividad = useRef(0)
+  useEffect(() => {
+    ultimaActividad.current = Date.now()
+    const tocar = () => {
+      ultimaActividad.current = Date.now()
+    }
+    const alVolver = () => {
+      if (document.visibilityState === 'visible') tocar()
+    }
+    window.addEventListener('pointerdown', tocar)
+    window.addEventListener('keydown', tocar)
+    document.addEventListener('visibilitychange', alVolver)
     const id = setInterval(() => {
-      if (document.visibilityState === 'visible') router.refresh()
+      if (document.visibilityState === 'visible' && Date.now() - ultimaActividad.current < INACTIVIDAD_MAX_MS) {
+        router.refresh()
+      }
     }, refrescarCadaMs)
-    return () => clearInterval(id)
+    return () => {
+      clearInterval(id)
+      window.removeEventListener('pointerdown', tocar)
+      window.removeEventListener('keydown', tocar)
+      document.removeEventListener('visibilitychange', alVolver)
+    }
   }, [router, refrescarCadaMs])
 
   async function alEnviar(e?: React.FormEvent) {
@@ -78,16 +113,23 @@ export function ChatEquipo({
     if (!contenido || enviando) return
     setEnviando(true)
     setError(null)
-    const res = await enviar(contenido)
-    setEnviando(false)
-    if (res.error) {
-      setError(res.error)
-      return
+    try {
+      const res = await enviar(contenido)
+      if (res.error) {
+        setError(res.error)
+        return
+      }
+      setPendientes((p) => [...p, { id: -Date.now(), del_equipo: soyEquipo, contenido, creado_en: new Date().toISOString() }])
+      setTexto('')
+      entrada.current?.focus()
+      // Sin router.refresh(): la acción ya revalida esta ruta y la vuelve a pintar.
+    } catch {
+      // Red caída o acción que no responde: sin esto el botón se quedaba
+      // desactivado y Enter dejaba de enviar hasta recargar.
+      setError('No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.')
+    } finally {
+      setEnviando(false)
     }
-    setLista((l) => [...l, { id: -Date.now(), del_equipo: soyEquipo, contenido, creado_en: new Date().toISOString() }])
-    setTexto('')
-    entrada.current?.focus()
-    router.refresh()
   }
 
   return (

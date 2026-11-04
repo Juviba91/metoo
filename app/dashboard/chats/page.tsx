@@ -115,7 +115,14 @@ export default async function ChatsPage() {
           >
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex items-center justify-between gap-2">
-                <p className="font-semibold">{NOMBRE_EQUIPO}</p>
+                <p className="flex items-center gap-2 font-semibold">
+                  {NOMBRE_EQUIPO}
+                  {/* Para que no se confunda con alguien de la comunidad: aquí escribe
+                      metoo primero, y en el resto de chats escribe quien busca apoyo. */}
+                  <span className="rounded-full bg-foreground px-2 py-0.5 text-[10px] font-medium text-background">
+                    Equipo
+                  </span>
+                </p>
                 {equipoSinLeer && <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-label="Sin leer" />}
               </div>
               <p className="mt-0.5 truncate text-xs text-muted-foreground">
@@ -126,10 +133,10 @@ export default async function ChatsPage() {
           </Link>
         )}
 
-        {connections.length === 0 && !equipo ? (
+        {connections.length === 0 ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
             <p className="mb-2 text-3xl">💬</p>
-            <p>Todavía no tienes conversaciones.</p>
+            <p>{equipo ? 'Todavía no has hablado con nadie de la comunidad.' : 'Todavía no tienes conversaciones.'}</p>
             <p className="mt-1 text-sm">
               {mensajeVacio}
             </p>

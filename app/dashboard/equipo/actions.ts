@@ -26,6 +26,33 @@ export async function enviarAlEquipo(contenido: string): Promise<{ success?: boo
     return { error: 'No se pudo enviar. Inténtalo de nuevo en un rato.' }
   }
 
+  // También la lista de Chats: enseña el último mensaje, y viene de la caché
+  // del router (`staleTimes.dynamic`, 30 s).
   revalidatePath('/dashboard/equipo')
+  revalidatePath('/dashboard/chats')
   return { success: true }
+}
+
+/**
+ * Marca como leído lo que el equipo te ha escrito, y avisa a las pestañas que
+ * pintan el globo de «sin leer». Se llama desde el navegador al ver la
+ * conversación (como `markConnectionRead` en los chats), no al renderizarla:
+ * renderizar no puede revalidar, y un prefetch la marcaría sin que nadie la
+ * haya abierto.
+ */
+export async function marcarEquipoLeido(): Promise<void> {
+  const user = await getUser()
+  if (!user) return
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('marcar_equipo_leido')
+  if (error) {
+    console.error('marcar_equipo_leido failed:', error)
+    return
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/chats')
+  revalidatePath('/dashboard/perfil')
+  revalidatePath('/feed')
 }
