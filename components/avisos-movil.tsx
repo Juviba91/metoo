@@ -112,10 +112,8 @@ export function AvisosMovil() {
           <p className="mt-1 text-xs text-muted-foreground">
             {estado === 'ios-sin-instalar' ? (
               <>
-                En iPhone, primero añade metoo a la pantalla de inicio: en Safari, pulsa{' '}
-                <strong className="text-foreground">Compartir</strong> y luego{' '}
-                <strong className="text-foreground">Añadir a pantalla de inicio</strong>. Ábrela desde
-                ahí y vuelve aquí.
+                En iPhone, primero añade metoo a la pantalla de inicio (justo encima te dice cómo). Ábrela
+                desde ahí y vuelve aquí.
               </>
             ) : estado === 'bloqueado' ? (
               'Los avisos están bloqueados para metoo en este navegador. Puedes permitirlos en los ajustes del navegador o del móvil.'
