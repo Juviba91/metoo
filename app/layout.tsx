@@ -57,6 +57,15 @@ export default function RootLayout({
   return (
     <html lang="es" className={geistSans.variable}>
       <body className="font-sans antialiased">
+        {/* Chrome ofrece instalar la app con un evento que lanza una sola vez al
+            cargar, en la página que sea. Se guarda aquí para que el botón de
+            Ajustes pueda usarlo después. No se cancela: el aviso propio de
+            Chrome sigue saliendo. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "addEventListener('beforeinstallprompt',function(e){window.__metooInstalar=e})",
+          }}
+        />
         <AppSplash />
         <ScrollReset />
         {children}
