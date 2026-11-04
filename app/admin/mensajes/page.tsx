@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { hilosDeEquipo, NOMBRE_EQUIPO } from '@/lib/equipo'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Mensajes del equipo' }
+export const metadata: Metadata = { title: 'Chats admin' }
 
 const ADMIN_EMAIL = 'baygual91@gmail.com'
 
@@ -42,9 +42,9 @@ export default async function MensajesEquipoPage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold">{NOMBRE_EQUIPO}</h1>
+        <h1 className="text-2xl font-bold">Chats admin</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {esperando > 0 ? `${esperando} esperando respuesta.` : 'Nadie espera respuesta.'} Pulsa a una persona para
+          Escribes como «{NOMBRE_EQUIPO}». {esperando > 0 ? `${esperando} esperando respuesta.` : 'Nadie espera respuesta.'} Pulsa a una persona para
           escribirle, hayan escrito antes o no.
         </p>
       </div>
