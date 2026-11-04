@@ -16,21 +16,32 @@ CREATE TABLE IF NOT EXISTS public.mensajes_equipo (
   contenido text NOT NULL CHECK (char_length(contenido) BETWEEN 1 AND 2000),
   creado_en timestamptz NOT NULL DEFAULT now(),
   -- Cuándo lo leyó el destinatario: la persona si `del_equipo`, el equipo si no.
-  leido_en timestamptz
+  leido_en timestamptz,
+  -- El mensaje de bienvenida que sale solo al crear el perfil. No manda correo:
+  -- la persona acaba de entrar y lo ve en Chats.
+  automatico boolean NOT NULL DEFAULT false
 );
 
 CREATE INDEX IF NOT EXISTS mensajes_equipo_hilo ON public.mensajes_equipo (usuario_id, creado_en);
 
 ALTER TABLE public.mensajes_equipo ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS mensajes_equipo_propios_select ON public.mensajes_equipo;
-CREATE POLICY mensajes_equipo_propios_select ON public.mensajes_equipo
-  FOR SELECT TO authenticated USING (usuario_id = (SELECT auth.uid()));
-
-DROP POLICY IF EXISTS mensajes_equipo_propios_insert ON public.mensajes_equipo;
-CREATE POLICY mensajes_equipo_propios_insert ON public.mensajes_equipo
-  FOR INSERT TO authenticated
-  WITH CHECK (usuario_id = (SELECT auth.uid()) AND del_equipo = false);
+-- Sin DROP, para poder repetir la migración sin que nada se borre y volver a crear.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public'
+                  AND tablename = 'mensajes_equipo' AND policyname = 'mensajes_equipo_propios_select') THEN
+    CREATE POLICY mensajes_equipo_propios_select ON public.mensajes_equipo
+      FOR SELECT TO authenticated USING (usuario_id = (SELECT auth.uid()));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public'
+                  AND tablename = 'mensajes_equipo' AND policyname = 'mensajes_equipo_propios_insert') THEN
+    CREATE POLICY mensajes_equipo_propios_insert ON public.mensajes_equipo
+      FOR INSERT TO authenticated
+      WITH CHECK (usuario_id = (SELECT auth.uid()) AND del_equipo = false AND automatico = false);
+  END IF;
+END
+$$;
 
 REVOKE ALL ON public.mensajes_equipo FROM anon, authenticated;
 GRANT SELECT ON public.mensajes_equipo TO authenticated;
@@ -58,10 +69,15 @@ $$;
 
 REVOKE ALL ON FUNCTION public.mensajes_equipo_antes() FROM PUBLIC, anon, authenticated;
 
-DROP TRIGGER IF EXISTS mensajes_equipo_freno ON public.mensajes_equipo;
-CREATE TRIGGER mensajes_equipo_freno
-  BEFORE INSERT ON public.mensajes_equipo
-  FOR EACH ROW EXECUTE FUNCTION public.mensajes_equipo_antes();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'mensajes_equipo_freno' AND NOT tgisinternal) THEN
+    CREATE TRIGGER mensajes_equipo_freno
+      BEFORE INSERT ON public.mensajes_equipo
+      FOR EACH ROW EXECUTE FUNCTION public.mensajes_equipo_antes();
+  END IF;
+END
+$$;
 
 -- El aviso no lleva lo escrito (se ve en la pantalla de bloqueo) y se junta: si
 -- ya hubo otro mensaje en el mismo sentido hace menos de 10 minutos, no se
@@ -74,6 +90,11 @@ SET search_path TO 'public'
 AS $$
 DECLARE v_destino text;
 BEGIN
+  -- La bienvenida automática se ve en Chats al entrar: no hace falta otro correo.
+  IF NEW.automatico THEN
+    RETURN NULL;
+  END IF;
+
   IF EXISTS (
     SELECT 1 FROM mensajes_equipo e
      WHERE e.usuario_id = NEW.usuario_id AND e.del_equipo = NEW.del_equipo
@@ -108,10 +129,68 @@ $$;
 
 REVOKE ALL ON FUNCTION public.avisar_mensaje_equipo() FROM PUBLIC, anon, authenticated;
 
-DROP TRIGGER IF EXISTS mensajes_equipo_avisar ON public.mensajes_equipo;
-CREATE TRIGGER mensajes_equipo_avisar
-  AFTER INSERT ON public.mensajes_equipo
-  FOR EACH ROW EXECUTE FUNCTION public.avisar_mensaje_equipo();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'mensajes_equipo_avisar' AND NOT tgisinternal) THEN
+    CREATE TRIGGER mensajes_equipo_avisar
+      AFTER INSERT ON public.mensajes_equipo
+      FOR EACH ROW EXECUTE FUNCTION public.avisar_mensaje_equipo();
+  END IF;
+END
+$$;
+
+-- ─── bienvenida automática al crear el perfil ─────────────────────────────
+-- El primer mensaje sale solo, desde Juan, y de ahí en adelante contesta él a
+-- mano. Dos textos, según el lado con el que se registró la persona. Solo a
+-- cuentas nuevas: a las que ya existen se les escribe aparte, y a propósito,
+-- no por un efecto secundario de esta migración.
+
+CREATE OR REPLACE FUNCTION public.bienvenida_equipo()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+  IF NEW.deleted_at IS NOT NULL OR EXISTS (SELECT 1 FROM mensajes_equipo WHERE usuario_id = NEW.id) THEN
+    RETURN NULL;
+  END IF;
+
+  INSERT INTO mensajes_equipo (usuario_id, del_equipo, contenido, automatico)
+  VALUES (
+    NEW.id,
+    true,
+    CASE WHEN NEW.role = 'volunteer' THEN
+      E'Hola, soy Juan, de metoo. Gracias por querer acompañar a quien lo necesita.\n\n'
+      || E'No tienes que hacer nada más ahora: cuando alguien te escriba, te llegará un aviso. '
+      || E'Si quieres ayudar ya, en Inicio → Guías puedes escribir la guía de tu hospital: '
+      || E'la lee gente que acaba de llegar y no sabe por dónde empezar.\n\n'
+      || E'Si tienes cualquier duda o idea, escríbeme aquí.'
+    ELSE
+      E'Hola, soy Juan, de metoo. Me alegra que estés aquí.\n\n'
+      || E'No tienes que contar nada que no quieras. Si te apetece, en Inicio puedes ver a personas '
+      || E'que ya pasaron por algo parecido y escribirles un «hola». Y si prefieres, cuéntame aquí '
+      || E'qué te está pasando y te digo con quién puede encajar hablar.\n\n'
+      || E'Si es urgente, el 024 atiende gratis las 24 horas.'
+    END,
+    true
+  );
+
+  RETURN NULL;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.bienvenida_equipo() FROM PUBLIC, anon, authenticated;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'profiles_bienvenida_equipo' AND NOT tgisinternal) THEN
+    CREATE TRIGGER profiles_bienvenida_equipo
+      AFTER INSERT ON public.profiles
+      FOR EACH ROW EXECUTE FUNCTION public.bienvenida_equipo();
+  END IF;
+END
+$$;
 
 -- ─── la persona marca como leído lo que le escribió el equipo ─────────────
 

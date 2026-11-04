@@ -15,8 +15,8 @@ export type Database = {
   public: {
     Tables: {
       mensajes_equipo: {
-        Row: { id: number; usuario_id: string; del_equipo: boolean; contenido: string; creado_en: string; leido_en: string | null }
-        Insert: { usuario_id: string; del_equipo: boolean; contenido: string; creado_en?: string; leido_en?: string | null }
+        Row: { id: number; usuario_id: string; del_equipo: boolean; contenido: string; creado_en: string; leido_en: string | null; automatico: boolean }
+        Insert: { usuario_id: string; del_equipo: boolean; contenido: string; creado_en?: string; leido_en?: string | null; automatico?: boolean }
         Update: { leido_en?: string | null }
         Relationships: []
       }

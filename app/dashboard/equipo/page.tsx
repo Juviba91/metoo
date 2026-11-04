@@ -2,12 +2,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { createClient, getUser } from '@/lib/supabase/server'
-import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { SiteHeader } from '@/components/site-header'
-import { BottomNav } from '@/components/bottom-nav'
-import { SiteFooter } from '@/components/site-footer'
+import { ChatEquipo } from '@/components/chat-equipo'
 import { NOMBRE_EQUIPO } from '@/lib/equipo'
-import { FormularioEquipo } from './formulario'
 import { enviarAlEquipo } from './actions'
 import type { Metadata } from 'next'
 
@@ -15,7 +12,8 @@ export const metadata: Metadata = { title: NOMBRE_EQUIPO }
 
 /**
  * La conversación de una persona con el equipo de metoo. Una sola, siempre la
- * misma. La escribe Juan desde el panel de admin.
+ * misma, a pantalla completa como el resto de chats (sin barra inferior). La
+ * escribe Juan desde el panel de admin; el primer mensaje sale solo.
  */
 export default async function EquipoPage() {
   const supabase = await createClient()
@@ -29,68 +27,41 @@ export default async function EquipoPage() {
     .order('creado_en', { ascending: true })
     .limit(500)
 
-  // Lo que se enseña aquí ya está leído. Se marca antes de contar lo pendiente,
-  // para que el globo de la barra inferior ya no lo cuente.
+  // Lo que se enseña aquí ya está leído.
   await supabase.rpc('marcar_equipo_leido')
 
-  const [pendingCount, { data: unreadData }] = await Promise.all([
-    contarSolicitudesPendientes(),
-    supabase.rpc('get_unread_count', { user_uuid: user.id }),
-  ])
-
-  const lista = (mensajes ?? []) as { id: number; del_equipo: boolean; contenido: string; creado_en: string }[]
-
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex h-dvh flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-5 px-4 py-6 pb-28 sm:px-6 sm:py-8 sm:pb-8">
-        <Link
-          href="/dashboard/chats"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> Chats
-        </Link>
+      <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col md:border-x md:border-border/60">
+        <header className="flex shrink-0 items-center gap-3 border-b border-border/60 bg-background/80 px-4 py-2.5 backdrop-blur-sm">
+          <Link
+            href="/dashboard/chats"
+            aria-label="Volver a Chats"
+            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ArrowLeft className="size-5" />
+          </Link>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-semibold leading-tight">{NOMBRE_EQUIPO}</p>
+            <p className="text-xs text-muted-foreground">Te escribe Juan, de metoo</p>
+          </div>
+        </header>
 
-        <div>
-          <h1 className="text-lg font-semibold">{NOMBRE_EQUIPO}</h1>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Aquí te escribe una persona del equipo de metoo. No somos profesionales de la salud: si
-            es urgente, llama al <strong className="text-foreground">024</strong> o al{' '}
-            <strong className="text-foreground">112</strong>.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {lista.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              Todavía no hay mensajes. Si tienes cualquier duda o idea, escríbenos.
-            </p>
-          ) : (
-            lista.map((m) => (
-              <div key={m.id} className={`flex ${m.del_equipo ? 'justify-start' : 'justify-end'}`}>
-                <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                    m.del_equipo
-                      ? 'border border-border bg-muted/40'
-                      : 'bg-foreground text-background'
-                  }`}
-                >
-                  {m.del_equipo && (
-                    <p className="mb-0.5 text-xs font-semibold text-muted-foreground">{NOMBRE_EQUIPO}</p>
-                  )}
-                  <p className="whitespace-pre-line break-words">{m.contenido}</p>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        <FormularioEquipo enviar={enviarAlEquipo} />
-      </main>
-
-      <SiteFooter className="hidden sm:block" />
-      <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
+        <ChatEquipo
+          mensajes={(mensajes ?? []) as { id: number; del_equipo: boolean; contenido: string; creado_en: string }[]}
+          soyEquipo={false}
+          enviar={enviarAlEquipo}
+          vacio="Todavía no hay mensajes. Si tienes cualquier duda o idea, escríbenos."
+          nota={
+            <>
+              Al otro lado hay una persona, no un profesional. Si es urgente:{' '}
+              <strong className="font-medium">024</strong> o <strong className="font-medium">112</strong>.
+            </>
+          }
+        />
+      </div>
     </div>
   )
 }
