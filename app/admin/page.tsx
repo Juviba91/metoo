@@ -2,6 +2,7 @@ import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { calcularEmbudo } from '@/lib/embudo'
 import { dondeSeQuedan } from '@/lib/alta'
+import { hilosDeEquipo, NOMBRE_EQUIPO } from '@/lib/equipo'
 import { redirect } from 'next/navigation'
 import {
   DeleteUserBtn,
@@ -51,6 +52,7 @@ export default async function AdminPage() {
     { data: votos },
     { data: temasVoluntarios },
     { data: pasosAlta },
+    { data: mensajesEquipo },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -101,6 +103,12 @@ export default async function AdminPage() {
     // Solo tiene filas de quien aún no tiene perfil (migración 20261104). Si no
     // está migrada, `data` es null y todo cae en «sin dato».
     admin.from('alta_pasos').select('user_id, paso').limit(5000),
+    // Para saber a cuántas personas les debes respuesta en el chat del equipo.
+    admin
+      .from('mensajes_equipo')
+      .select('usuario_id, del_equipo, contenido, creado_en')
+      .order('creado_en', { ascending: false })
+      .limit(5000),
   ])
 
   // «¿Te ha servido?» por guía, con la misma clave que los grupos de abajo.
@@ -136,6 +144,10 @@ export default async function AdminPage() {
     new Set(((perfilesEmbudo ?? []) as { id: string }[]).map((p) => p.id)),
     (pasosAlta ?? []) as { user_id: string; paso: number }[],
   )
+  const equipoEsperando = hilosDeEquipo(
+    ((profiles ?? []) as any[]).map((p) => ({ id: p.id, alias: p.alias, role: p.role, city: p.city })),
+    (mensajesEquipo ?? []) as { usuario_id: string; del_equipo: boolean; contenido: string; creado_en: string }[],
+  ).filter((h) => h.esperando).length
   const sinTerminar = seQuedan.reduce((n, p) => n + p.personas, 0)
 
   // Por cuenta: en qué temas acompaña y en cuáles busca apoyo.
@@ -193,6 +205,22 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
         <h1 className="text-3xl font-bold">Admin</h1>
+
+        {/* Tu chat con cada persona de metoo. */}
+        <Link
+          href="/admin/mensajes"
+          className="flex items-center justify-between gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+        >
+          <div>
+            <p className="font-semibold">{NOMBRE_EQUIPO}</p>
+            <p className="text-sm text-muted-foreground">Dar la bienvenida y orientar a cada persona.</p>
+          </div>
+          {equipoEsperando > 0 && (
+            <span className="shrink-0 rounded-full bg-destructive px-2.5 py-0.5 text-sm text-destructive-foreground">
+              {equipoEsperando}
+            </span>
+          )}
+        </Link>
 
         {/* El embudo, arriba de todo: es la pregunta de cada día. */}
         <section>

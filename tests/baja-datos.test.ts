@@ -35,6 +35,7 @@ describe('eliminar_mi_cuenta (última definición en las migraciones)', () => {
     ['las sugerencias de etiquetas', /UPDATE hashtag_suggestions SET profile_id = NULL/],
     ['los avisos de «avísame cuando haya alguien»', /DELETE FROM avisos_tema WHERE profile_id = v_uid/],
     ['las suscripciones a avisos push', /DELETE FROM push_suscripciones WHERE profile_id = v_uid/],
+    ['el chat con el equipo', /DELETE FROM mensajes_equipo WHERE usuario_id = v_uid/],
   ])('desvincula %s', (_nombre, patron) => {
     expect(def).toMatch(patron)
   })
