@@ -18,8 +18,8 @@ export const metadata: Metadata = {
  * Un cartel para imprimir (A4) o una hoja de tarjetas, con un QR a la guía.
  *
  * Las guías ya no se indexan (nota legal, U-3), así que no llegan por Google:
- * tienen que llegar en papel, a la sala de familias del hospital, que es donde
- * está quien las necesita. El QR lleva `utm_source=cartel` para saber en las
+ * tienen que llegar en papel, a las salas de espera y a las asociaciones, que
+ * es donde está quien las necesita. El QR lleva `utm_source=cartel` para saber en las
  * analíticas cuántas visitas vienen de ahí.
  */
 export default async function CartelPage({ params, searchParams }: { params: Params; searchParams: Busqueda }) {
@@ -88,7 +88,7 @@ export default async function CartelPage({ params, searchParams }: { params: Par
             <h1 className="mt-4 text-[38pt] font-bold leading-tight">{data.tema}</h1>
             <p className="mx-auto mt-6 max-w-[140mm] text-[15pt] leading-snug text-neutral-700">
               Personas que ya pasaron por esto cuentan lo práctico que nadie te explica:
-              dónde dormir, horarios, trámites, qué traer.
+              por dónde empezar, a quién pedir ayuda, trámites, qué les sostuvo.
             </p>
           </div>
 

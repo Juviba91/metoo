@@ -151,8 +151,8 @@ export default async function GuiaPage({ params }: { params: Params }) {
           </Link>
         </div>
 
-        {/* Sin Google (noindex), estas páginas llegan en papel: a la sala de
-            familias del hospital. */}
+        {/* Sin Google (noindex), estas páginas llegan en papel: a las salas de
+            espera y a las asociaciones. */}
         <p className="text-center text-xs text-muted-foreground">
           ¿Quieres dejarla en una sala de espera?{' '}
           <Link
