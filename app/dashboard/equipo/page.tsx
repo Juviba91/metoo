@@ -55,7 +55,7 @@ export default async function EquipoPage() {
           nota={
             <>
               Al otro lado hay una persona, no un profesional. Si es urgente:{' '}
-              <strong className="font-medium">024</strong> o <strong className="font-medium">112</strong>.
+              <strong className="font-medium">112</strong>.
             </>
           }
         />

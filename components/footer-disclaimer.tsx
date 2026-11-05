@@ -6,8 +6,8 @@ export function FooterDisclaimer() {
       <Link href="/guidelines" className="underline hover:text-foreground">
         Normas de la comunidad
       </Link>{' '}
-      · metoo no sustituye a un profesional. Si lo necesitas, el{' '}
-      <strong>024</strong> te escucha.
+      · metoo no sustituye a un profesional. En una emergencia, llama al{' '}
+      <strong>112</strong>.
     </p>
   )
 }

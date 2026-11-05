@@ -329,7 +329,7 @@ function LoginForm() {
       <p className="mt-10 text-center text-xs text-muted-foreground">
         metoo no sustituye a un profesional de salud mental.
         <br />
-        Si lo necesitas, el <strong>024</strong> te escucha.
+        En una emergencia, llama al <strong>112</strong>.
         <br />
         <a href="/guidelines" className="mt-1 inline-block underline hover:text-foreground">
           Normas de la comunidad

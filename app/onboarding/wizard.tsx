@@ -169,8 +169,8 @@ export function OnboardingWizard({
               <p className="mb-1 font-semibold text-foreground">No eres psicólogo</p>
               <p>
                 No das diagnósticos ni actúas como terapeuta. Si sientes que alguien necesita ayuda
-                profesional, se lo dices con cariño y le mencionas que el{' '}
-                <strong className="text-foreground">024</strong> está disponible.
+                profesional, se lo dices con cariño. Si hay peligro, que llame al{' '}
+                <strong className="text-foreground">112</strong>.
               </p>
             </div>
             <div>

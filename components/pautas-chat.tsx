@@ -9,7 +9,7 @@ const PAUTAS = {
   volunteer: [
     'Cuenta lo que viviste tú. Sin diagnósticos ni recomendar tratamientos.',
     'No presiones para seguir fuera de la app: eso lo decide la otra persona.',
-    'Si notas que está en riesgo, recuérdale el 024. No tienes que cargarlo tú.',
+    'Si notas que está en peligro, recuérdale el 112. No tienes que cargarlo tú.',
   ],
 } as const
 

@@ -474,8 +474,7 @@ export function ChatView({
               quien solo viene a charlar. */}
           <p className="pb-1 text-center text-[11px] leading-snug text-muted-foreground">
             Al otro lado hay una persona, no un profesional, y puede tardar. Si es
-            urgente: <strong className="font-medium">024</strong> o{' '}
-            <strong className="font-medium">112</strong>.
+            urgente: <strong className="font-medium">112</strong>.
           </p>
         </form>
       )}

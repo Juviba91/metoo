@@ -259,8 +259,8 @@ export default function Page() {
           <ArrowRight className="size-4" />
         </Link>
         <p className="mt-8 text-xs text-muted-foreground">
-          metoo no sustituye a un profesional de salud mental. Si lo necesitas, el{' '}
-          <strong>024</strong> está disponible.
+          metoo no sustituye a un profesional de salud mental. En una emergencia, llama al{' '}
+          <strong>112</strong>.
         </p>
       </section>
 
