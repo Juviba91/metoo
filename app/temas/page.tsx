@@ -50,8 +50,8 @@ export default async function TemasPage() {
         </Link>
 
         <div>
-          <h1 className="text-lg font-semibold">Temas</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="hidden text-lg font-semibold sm:block">Temas</h1>
+          <p className="text-sm text-muted-foreground sm:mt-1">
             De qué se habla aquí, y cuánta gente hay detrás de cada cosa. Solo números:
             nadie aparece con nombre.
           </p>

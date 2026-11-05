@@ -45,11 +45,11 @@ export default async function GuiasPage() {
     <GuiasShell>
       <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         <div>
-          <h1 className="flex items-center gap-2 text-lg font-semibold">
+          <h1 className="hidden items-center gap-2 text-lg font-semibold sm:flex">
             <BookOpen className="size-5" />
             Guías
           </h1>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          <p className="text-sm leading-relaxed text-muted-foreground sm:mt-1">
             Dónde dormir, cómo son los horarios de verdad, qué papeles pedir, qué llevarte.
             Lo escriben personas que han pasado por algo parecido, no los hospitales.
           </p>

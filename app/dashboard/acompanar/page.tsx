@@ -60,7 +60,7 @@ export default async function AcompanarPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-6 py-8 pb-28 sm:pb-8">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-8 sm:px-6 pb-28 sm:pb-8">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -69,8 +69,8 @@ export default async function AcompanarPage() {
         </Link>
 
         <div>
-          <h1 className="text-2xl font-bold">Cómo acompañar</h1>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          <h1 className="hidden text-2xl font-bold sm:block">Cómo acompañar</h1>
+          <p className="text-sm leading-relaxed text-muted-foreground sm:mt-1">
             Cinco claves para quien escribe a alguien que está pasando por lo que tú ya
             pasaste. Dos minutos.
           </p>

@@ -5,7 +5,7 @@ export default function PerfilLoading() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeaderShell />
-      <main className="mx-auto w-full max-w-lg space-y-8 px-6 py-8 pb-28 sm:pb-8">
+      <main className="mx-auto w-full max-w-lg space-y-8 px-4 py-8 sm:px-6 pb-28 sm:pb-8">
         <div className="h-8 w-40 animate-pulse rounded bg-muted" />
 
         {/* Formulario */}

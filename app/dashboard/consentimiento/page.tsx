@@ -43,7 +43,7 @@ export default async function ConsentimientoPage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-6 py-8">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-8 sm:px-6">
         <div>
           <h1 className="text-2xl font-bold">Antes de seguir</h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

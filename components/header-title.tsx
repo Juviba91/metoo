@@ -18,12 +18,19 @@ const TITLES: [test: (p: string) => boolean, title: string][] = [
   [(p) => p === '/dashboard', 'Inicio'],
   [(p) => p.startsWith('/dashboard/chats'), 'Chats'],
   [(p) => p.startsWith('/dashboard/chat/'), 'Chat'],
+  [(p) => p === '/dashboard/equipo', 'Chat'],
   [(p) => p.startsWith('/feed'), 'Feed'],
   [(p) => p === '/dashboard/perfil/blocked', 'Bloqueados'],
   [(p) => p === '/dashboard/ajustes', 'Ajustes'],
   [(p) => p === '/dashboard/perfil', 'Mi perfil'],
   [(p) => p === '/dashboard/perfil/editar', 'Editar perfil'],
   [(p) => p.startsWith('/dashboard/perfil/'), 'Perfil'],
+  [(p) => p === '/dashboard/guias' || p === '/guias', 'Guías'],
+  [(p) => p === '/dashboard/acompanar', 'Cómo acompañar'],
+  [(p) => p === '/temas', 'Temas'],
+  [(p) => p === '/admin', 'Admin'],
+  [(p) => p === '/admin/mensajes', 'Chats admin'],
+  [(p) => p.startsWith('/admin/mensajes/'), 'Chat'],
 ]
 
 export function HeaderTitle() {
