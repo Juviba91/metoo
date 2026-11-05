@@ -216,7 +216,7 @@ function LoginForm() {
               onClick={() => switchMode('login')}
               className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
                 mode === 'login'
-                  ? 'bg-foreground text-background'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -226,7 +226,7 @@ function LoginForm() {
               onClick={() => switchMode('register')}
               className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
                 mode === 'register'
-                  ? 'bg-foreground text-background'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >

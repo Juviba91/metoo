@@ -9,6 +9,7 @@ import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { NOMBRE_EQUIPO } from '@/lib/equipo'
+import { conversacionSinLeer } from '@/lib/sin-leer'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Chats' }
@@ -44,7 +45,7 @@ export default async function ChatsPage() {
   const connectionsQuery = supabase
     .from('connections')
     .select(
-      'id, status, seeker_id, volunteer_id, seeker:seeker_id(alias, city, deleted_at), volunteer:volunteer_id(alias, city, deleted_at)',
+      'id, status, seeker_id, volunteer_id, seeker_last_read_at, volunteer_last_read_at, seeker:seeker_id(alias, city, deleted_at), volunteer:volunteer_id(alias, city, deleted_at)',
     )
     .or(`seeker_id.eq.${user.id},volunteer_id.eq.${user.id}`)
     .order('created_at', { ascending: false })
@@ -80,19 +81,19 @@ export default async function ChatsPage() {
   // mensajes de todas las conexiones ordenados por fecha y se queda el primero
   // de cada una, que por el orden es el más reciente.
   const connectionIds = connections.map((c: any) => c.id)
-  const lastMessages: Record<string, { content: string; sender_id: string }> = {}
+  const lastMessages: Record<string, { content: string; sender_id: string; created_at: string }> = {}
 
   if (connectionIds.length > 0) {
     const { data: recent } = await supabase
       .from('messages')
-      .select('connection_id, content, sender_id')
+      .select('connection_id, content, sender_id, created_at')
       .in('connection_id', connectionIds)
       .order('created_at', { ascending: false })
       .limit(500)
 
     for (const m of recent ?? []) {
       if (!lastMessages[m.connection_id]) {
-        lastMessages[m.connection_id] = { content: m.content, sender_id: m.sender_id }
+        lastMessages[m.connection_id] = { content: m.content, sender_id: m.sender_id, created_at: m.created_at }
       }
     }
   }
@@ -101,94 +102,104 @@ export default async function ChatsPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
         <h2 className="hidden items-center gap-2 text-lg font-semibold sm:flex">
           <MessageCircle className="size-5" />
           Tus conversaciones
         </h2>
 
-        {/* Solo cuando el equipo ya te ha escrito o tú a él. */}
-        {equipo && (
-          <Link
-            href="/dashboard/equipo"
-            className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-muted/30 p-4 transition-colors hover:bg-muted/50"
-          >
-            <div className="flex min-w-0 flex-1 flex-col">
-              <div className="flex items-center justify-between gap-2">
-                <p className="flex items-center gap-2 font-semibold">
-                  {NOMBRE_EQUIPO}
-                  {/* Para que no se confunda con alguien de la comunidad: aquí escribe
-                      metoo primero, y en el resto de chats escribe quien busca apoyo. */}
-                  <span className="rounded-full bg-foreground px-2 py-0.5 text-[10px] font-medium text-background">
-                    Equipo
-                  </span>
+        {/* Equipo y conversaciones van juntos, con la misma separación entre
+            tarjetas: antes el Equipo quedaba suelto, a 32 px del resto. */}
+        <div className="space-y-3">
+          {/* Solo cuando el equipo ya te ha escrito o tú a él. */}
+          {equipo && (
+            <Link
+              href="/dashboard/equipo"
+              className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-muted/30 p-4 transition-colors hover:bg-muted/50"
+            >
+              <div className="flex min-w-0 flex-1 flex-col">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="flex items-center gap-2 font-semibold">
+                    {NOMBRE_EQUIPO}
+                    {/* Para que no se confunda con alguien de la comunidad: aquí escribe
+                        metoo primero, y en el resto de chats escribe quien busca apoyo. */}
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">
+                      Equipo
+                    </span>
+                  </p>
+                  {equipoSinLeer && <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-label="Sin leer" />}
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {equipo.del_equipo ? '' : 'Tú: '}
+                  {equipo.contenido}
                 </p>
-                {equipoSinLeer && <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-label="Sin leer" />}
               </div>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {equipo.del_equipo ? '' : 'Tú: '}
-                {equipo.contenido}
+            </Link>
+          )}
+
+          {connections.length === 0 ? (
+            <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
+              <p className="mb-2 text-3xl">💬</p>
+              <p>{equipo ? 'Todavía no has hablado con nadie de la comunidad.' : 'Todavía no tienes conversaciones.'}</p>
+              <p className="mt-1 text-sm">
+                {mensajeVacio}
               </p>
             </div>
-          </Link>
-        )}
-
-        {connections.length === 0 ? (
-          <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
-            <p className="mb-2 text-3xl">💬</p>
-            <p>{equipo ? 'Todavía no has hablado con nadie de la comunidad.' : 'Todavía no tienes conversaciones.'}</p>
-            <p className="mt-1 text-sm">
-              {mensajeVacio}
-            </p>
-          </div>
-        ) : (
-          // `grid-cols-1` y `min-w-0`: sin ellos la columna crece con el texto del
-          // último mensaje en vez de recortarlo, y la tarjeta se salía de la
-          // pantalla (802 px de ancho en un móvil de 390).
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {(connections as any[]).map((conn) => {
-              const { ficha: other } = otraPersonaDe(conn, user.id)
-              const last = lastMessages[conn.id]
-              const lastIsMe = last?.sender_id === user.id
-              const seFue = Boolean(other?.deleted_at)
-              return (
-                <Link
-                  key={conn.id}
-                  href={`/dashboard/chat/${conn.id}`}
-                  className="flex min-w-0 items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
-                >
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
-                      <span
-                        className={`shrink-0 text-xs font-medium ${
-                          seFue
-                            ? 'text-muted-foreground'
-                            : conn.status === 'accepted'
-                              ? 'text-green-600'
-                              : conn.status === 'rejected'
-                                ? 'text-destructive'
-                                : 'text-muted-foreground'
-                        }`}
-                      >
-                        {seFue ? 'Cuenta eliminada' : (statusLabel[conn.status] ?? conn.status)}
-                      </span>
+          ) : (
+            // `grid-cols-1` y `min-w-0`: sin ellos la columna crece con el texto del
+            // último mensaje en vez de recortarlo, y la tarjeta se salía de la
+            // pantalla (802 px de ancho en un móvil de 390).
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {(connections as any[]).map((conn) => {
+                const { ficha: other } = otraPersonaDe(conn, user.id)
+                const last = lastMessages[conn.id]
+                const lastIsMe = last?.sender_id === user.id
+                const seFue = Boolean(other?.deleted_at)
+                const sinLeer = !seFue && conversacionSinLeer(conn, last, user.id)
+                return (
+                  <Link
+                    key={conn.id}
+                    href={`/dashboard/chat/${conn.id}`}
+                    className="flex min-w-0 items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
+                  >
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold">{other?.alias ?? 'Usuario'}</p>
+                        <span className="flex shrink-0 items-center gap-2">
+                        <span
+                          className={`shrink-0 text-xs font-medium ${
+                            seFue
+                              ? 'text-muted-foreground'
+                              : conn.status === 'accepted'
+                                ? 'text-green-600'
+                                : conn.status === 'rejected'
+                                  ? 'text-destructive'
+                                  : 'text-muted-foreground'
+                          }`}
+                        >
+                          {seFue ? 'Cuenta eliminada' : (statusLabel[conn.status] ?? conn.status)}
+                        </span>
+                        {/* El mismo punto que el chat del Equipo: antes solo la barra
+                            de abajo decía que había algo nuevo, no en qué conversación. */}
+                        {sinLeer && <span className="size-2.5 rounded-full bg-primary" aria-label="Sin leer" />}
+                        </span>
+                      </div>
+                      {last ? (
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {lastIsMe ? 'Tú: ' : ''}{last.content}
+                        </p>
+                      ) : other?.city ? (
+                        <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="size-3" /> {other.city}
+                        </p>
+                      ) : null}
                     </div>
-                    {last ? (
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {lastIsMe ? 'Tú: ' : ''}{last.content}
-                      </p>
-                    ) : other?.city ? (
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="size-3" /> {other.city}
-                      </p>
-                    ) : null}
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
 
       </main>
 

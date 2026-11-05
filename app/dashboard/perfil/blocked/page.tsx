@@ -1,8 +1,9 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, Shield } from 'lucide-react'
-import { getBlockedUsers } from '@/app/safety/actions'
+import { ArrowLeft, Shield } from 'lucide-react'
+import { getBlockedUsers, contarSolicitudesPendientes } from '@/app/safety/actions'
+import { BottomNav } from '@/components/bottom-nav'
 import { BlockButton } from '@/components/block-button'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
@@ -16,7 +17,11 @@ export default async function BlockedUsersPage() {
 
   if (!user) redirect('/auth/login')
 
-  const blockedIds = await getBlockedUsers()
+  const [blockedIds, pendingCount, { data: unreadData }] = await Promise.all([
+    getBlockedUsers(),
+    contarSolicitudesPendientes(),
+    supabase.rpc('get_unread_count', { user_uuid: user.id }),
+  ])
 
   let blockedProfiles: any[] = []
   if (blockedIds.length > 0) {
@@ -32,14 +37,16 @@ export default async function BlockedUsersPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
-        <div className="mb-6 flex items-center gap-3">
-          <Link
-            href="/dashboard/perfil"
-            className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted"
-          >
-            <ChevronLeft className="size-4" />
-          </Link>
+      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-28 sm:px-6 sm:py-8 sm:pb-8">
+        {/* El mismo «← Perfil» que Editar perfil o Ajustes; aquí era un
+            recuadro con una flecha, distinto de todas las demás. */}
+        <Link
+          href="/dashboard/perfil"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Perfil
+        </Link>
+        <div className="mb-6">
           <div>
             <h1 className="hidden text-2xl font-bold sm:block">Usuarios bloqueados</h1>
             <p className="text-sm text-muted-foreground">
@@ -84,6 +91,7 @@ export default async function BlockedUsersPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )
 }

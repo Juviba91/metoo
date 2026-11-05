@@ -24,7 +24,7 @@ export function SiteHeaderShell({ adminLink }: { adminLink?: React.ReactNode }) 
   return (
     <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-sm">
       {/* `relative` para que el título se centre respecto a la barra entera */}
-      <div className="relative mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
+      <div className="relative mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
         {/* En móvil solo el isotipo: la barra va justa de espacio */}
         <Link href="/dashboard" className="shrink-0">
           <Logo size={28} wordmarkClassName="sr-only sm:not-sr-only" />

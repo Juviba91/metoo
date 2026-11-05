@@ -99,7 +99,7 @@ export default async function PublicProfilePage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
         <Link
           href="/dashboard"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -116,7 +116,7 @@ export default async function PublicProfilePage({
             // Ya hay conversación, la haya abierto quien la haya abierto.
             <Link
               href={`/dashboard/chat/${existingConn?.id}`}
-              className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+              className="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80"
             >
               Ver conversación →
             </Link>

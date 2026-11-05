@@ -88,8 +88,7 @@ export function DashboardMatches({
 
   const visible = filtered.slice(0, visibleCount)
 
-  return (
-    <div>
+  const cabecera = (
       <div className="mb-4 flex items-center gap-2">
         {/* Con icono, igual que «Guías»: si una sección lo lleva y la de al
             lado no, parece que falta algo. */}
@@ -104,6 +103,27 @@ export function DashboardMatches({
           <span className="text-sm text-muted-foreground">({filtered.length})</span>
         )}
       </div>
+  )
+
+  // Sin nadie en la lista, ni buscador ni filtros (no hay nada que buscar) y
+  // una línea en vez del recuadro grande. Quien está a los dos lados veía dos
+  // recuadros seguidos con el mismo «Todavía no hay personas disponibles».
+  if (matches.length === 0) {
+    return (
+      <div>
+        {cabecera}
+        <p className="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
+          {role === 'seeker'
+            ? 'Todavía no hay voluntarios en tus temas. En cuanto llegue alguien, aparecerá aquí.'
+            : 'Ahora mismo nadie busca apoyo en tus temas. Cuando alguien lo necesite, aparecerá aquí.'}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {cabecera}
 
       {/* Hashtag filter chips */}
       {hashtagOptions.length > 0 && (
@@ -116,12 +136,12 @@ export function DashboardMatches({
                 onClick={() => setActiveHashtag(activeHashtag === h.slug ? null : h.slug)}
                 className={`flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
                   activeHashtag === h.slug
-                    ? 'border-foreground bg-foreground text-background'
+                    ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground'
                 }`}
               >
                 #{h.label}
-                <span className={`tabular-nums ${activeHashtag === h.slug ? 'text-background/70' : 'text-muted-foreground/60'}`}>
+                <span className={`tabular-nums ${activeHashtag === h.slug ? 'text-primary-foreground/70' : 'text-muted-foreground/60'}`}>
                   {matchCountBySlug[h.slug]}
                 </span>
               </button>
@@ -242,7 +262,7 @@ export function DashboardMatches({
                     ) : connectedTo[match.id] ? (
                       <Link
                         href={`/dashboard/chat/${connectedTo[match.id]}`}
-                        className="flex w-full items-center justify-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+                        className="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80"
                       >
                         Ver conversación →
                       </Link>

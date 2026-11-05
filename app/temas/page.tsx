@@ -41,7 +41,7 @@ export default async function TemasPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
         <Link
           href="/feed"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -50,8 +50,8 @@ export default async function TemasPage() {
         </Link>
 
         <div>
-          <h1 className="text-lg font-semibold">Temas</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="hidden text-lg font-semibold sm:block">Temas</h1>
+          <p className="text-sm text-muted-foreground sm:mt-1">
             De qué se habla aquí, y cuánta gente hay detrás de cada cosa. Solo números:
             nadie aparece con nombre.
           </p>

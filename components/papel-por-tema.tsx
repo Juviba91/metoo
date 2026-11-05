@@ -49,7 +49,7 @@ export function PapelPorTema({
                     onClick={() => onChange(tema.id, rol)}
                     className={`rounded-full px-3 py-1 transition-colors ${
                       activo
-                        ? 'bg-foreground text-background'
+                        ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >

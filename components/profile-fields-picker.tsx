@@ -85,7 +85,7 @@ export function ProfileFieldsPicker({
                 onClick={() => toggleMode(opt.value)}
                 className={`flex items-center gap-1.5 rounded-full border px-3 py-2 text-sm transition-colors ${
                   selected
-                    ? 'border-foreground bg-foreground text-background'
+                    ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground'
                 }`}
               >

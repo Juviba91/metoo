@@ -223,12 +223,15 @@ export function ChatView({
     return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
   }
 
+  // Mayúscula solo en la primera letra: con la clase `capitalize` salía
+  // «Domingo, 1 De Noviembre». Igual que en el chat con el equipo.
   function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString('es-ES', {
+    const t = new Date(iso).toLocaleDateString('es-ES', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
     })
+    return t.charAt(0).toUpperCase() + t.slice(1)
   }
 
   const grouped = messages.reduce<{ date: string; msgs: Message[] }[]>((acc, msg) => {
@@ -323,7 +326,7 @@ export function ChatView({
           <div key={date}>
             <div className="my-4 flex items-center gap-3">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-xs capitalize text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {formatDate(msgs[0].created_at)}
               </span>
               <div className="h-px flex-1 bg-border" />
@@ -372,7 +375,7 @@ export function ChatView({
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80"
           >
             Volver a Inicio →
           </Link>
@@ -383,7 +386,7 @@ export function ChatView({
           <p className="mb-3 text-sm text-muted-foreground">Esta conversación ha terminado.</p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80"
           >
             Buscar otro voluntario →
           </Link>

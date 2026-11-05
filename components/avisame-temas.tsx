@@ -71,7 +71,7 @@ export function AvisameTemas({ temas, pedidos }: { temas: Tema[]; pedidos: strin
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors ${
                   pedido
                     ? 'border-border text-muted-foreground hover:text-foreground'
-                    : 'border-foreground bg-foreground text-background hover:opacity-90'
+                    : 'border-primary bg-primary text-primary-foreground hover:opacity-90'
                 }`}
               >
                 {ocupado === tema.id ? (

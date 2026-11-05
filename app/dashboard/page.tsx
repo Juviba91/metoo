@@ -154,9 +154,11 @@ export default async function DashboardPage({
   // existe, `guiaLeida` es null y no se enseña: mejor eso que insistir.
   const mostrarGuiaVoluntario = lados.acompana && guiaLeida !== null && !guiaLeida?.guia_voluntario_leida_en
 
+  // Con su lado, para marcar 💛/🤝 como en Mi perfil cuando estás a los dos.
   const ownHashtags = (profile.profile_hashtags as any[])
-    ?.map((ph: any) => ph.hashtags)
-    .filter(Boolean) ?? []
+    ?.filter((ph: any) => ph.hashtags)
+    .map((ph: any) => ({ ...ph.hashtags, role: ph.role })) ?? []
+  const marcarLado = lados.busca && lados.acompana
 
   const statusLabel: Record<string, string> = {
     pending: 'Pendiente',
@@ -168,7 +170,7 @@ export default async function DashboardPage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:space-y-10 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:space-y-10 sm:px-6 sm:py-8 sm:pb-8">
         {/* Email confirmation banner */}
         {!user.email_confirmed_at && (
           <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/30">
@@ -222,7 +224,7 @@ export default async function DashboardPage({
                         key={tag.id}
                         className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
                       >
-                        #{tag.label}
+                        {marcarLado && tag.role && (tag.role === 'volunteer' ? '💛 ' : '🤝 ')}#{tag.label}
                       </span>
                     ))}
                   </div>
@@ -283,7 +285,7 @@ export default async function DashboardPage({
                     .filter(Boolean)
                     .slice(0, 4)
                   return (
-                    <div key={conn.id} className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+                    <div key={conn.id} className="rounded-xl border border-primary/25 bg-primary/5 p-4">
                       <div className="mb-3">
                         <div className="mb-2 flex items-start justify-between gap-2">
                           <div>

@@ -437,7 +437,7 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
             onClick={() => setRole('volunteer')}
             className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all ${
               role === 'volunteer'
-                ? 'bg-foreground text-background shadow-sm'
+                ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -447,7 +447,7 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
             onClick={() => setRole('seeker')}
             className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all ${
               role === 'seeker'
-                ? 'bg-foreground text-background shadow-sm'
+                ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
