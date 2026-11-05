@@ -13,6 +13,7 @@ import {
 import { StatsGrid } from './stats-grid'
 import { UsersSection } from './users-section'
 import Link from 'next/link'
+import { SiteHeader } from '@/components/site-header'
 import { ChevronDown } from 'lucide-react'
 import type { Metadata } from 'next'
 
@@ -189,22 +190,10 @@ export default async function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/90 backdrop-blur px-6 py-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="text-xl font-bold tracking-tight">metoo.</Link>
-            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-              Admin
-            </span>
-          </div>
-          <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Dashboard
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
-      <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
-        <h1 className="text-3xl font-bold">Admin</h1>
+      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6">
+        <h1 className="hidden text-2xl font-bold sm:block">Admin</h1>
 
         {/* Tu chat con cada persona de metoo. */}
         <section>
@@ -218,7 +207,7 @@ export default async function AdminPage() {
               <p className="text-sm text-muted-foreground">Dar la bienvenida y orientar a cada persona.</p>
             </div>
             {equipoEsperando > 0 && (
-              <span className="shrink-0 rounded-full bg-destructive px-2.5 py-0.5 text-sm text-destructive-foreground">
+              <span className="shrink-0 rounded-full bg-destructive px-2.5 py-0.5 text-sm text-white">
                 {equipoEsperando}
               </span>
             )}
@@ -278,7 +267,7 @@ export default async function AdminPage() {
           <section>
             <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
               Reportes pendientes
-              <span className="rounded-full bg-destructive px-2 py-0.5 text-xs text-destructive-foreground">
+              <span className="rounded-full bg-destructive px-2 py-0.5 text-xs text-white">
                 {pendingReports}
               </span>
             </h2>
