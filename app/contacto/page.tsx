@@ -67,7 +67,7 @@ export default function ContactoPage() {
         </div>
 
         <p className="mt-10 text-center text-xs text-muted-foreground">
-          Si lo necesitas, el <strong>024</strong> te escucha. En emergencia, llama al <strong>112</strong>.
+          En una emergencia, llama al <strong>112</strong>.
         </p>
       </main>
 

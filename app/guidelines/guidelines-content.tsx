@@ -371,8 +371,8 @@ function SeekerContent() {
           </ul>
         </Highlight>
         <Item title="Línea 024 — atención a la conducta suicida">
-          Gratuita, confidencial y disponible las 24 horas. No tienes que estar en peligro
-          inmediato para llamar — el 024 también atiende crisis emocionales.
+          Para pensamientos de quitarse la vida, tuyos o de alguien cercano. Gratuita,
+          confidencial y disponible las 24 horas.
         </Item>
         <Item title="112 — emergencias">
           Si el peligro es inmediato para ti o para alguien de tu entorno.
@@ -459,8 +459,8 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
         {role === 'volunteer' ? <VolunteerContent /> : <SeekerContent />}
 
         <div className="mt-4 border-t border-border/60 pt-8 text-center text-xs text-muted-foreground">
-          metoo no sustituye a un profesional de salud mental · Si lo necesitas, el{' '}
-          <strong className="text-foreground">024</strong> te escucha
+          metoo no sustituye a un profesional de salud mental · En una emergencia, llama al{' '}
+          <strong className="text-foreground">112</strong>
         </div>
       </main>
 

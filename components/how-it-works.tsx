@@ -30,7 +30,7 @@ const PUNTOS = [
     icon: ShieldCheck,
     titulo: 'Aquí nadie es profesional',
     texto:
-      'Los voluntarios cuentan su experiencia, no dan diagnósticos. Puedes bloquear o reportar a cualquiera. Si necesitas ayuda profesional, el 024 atiende gratis a todas horas.',
+      'Los voluntarios cuentan su experiencia, no dan diagnósticos. Puedes bloquear o reportar a cualquiera. En una emergencia, llama al 112.',
   },
 ]
 
