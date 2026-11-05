@@ -44,14 +44,13 @@ export default function PrivacidadPage() {
               </li>
               <li>
                 Puedes darte de baja tú, cuando quieras, desde Ajustes. Lo único que sobrevive
-                es lo que escribiste en las guías, sin firma (punto 3), y tus conversaciones,
+                es lo que escribiste en las guías, sin tu alias (punto 3), y tus conversaciones,
                 que le quedan a la otra persona durante un año como máximo; después se borran
                 solas (punto 7).
               </li>
               <li>
-                Las guías por hospital se leen sin cuenta, pero lo que escribes en ellas sale
-                sin tu alias y sin enlace a tu perfil, y pedimos a los buscadores que no las
-                indexen (punto 3).
+                Las guías se leen sin cuenta y lo que escribes en ellas sale con tu alias; pedimos
+                a los buscadores que no las indexen (punto 3).
               </li>
             </ul>
           </section>
@@ -114,8 +113,8 @@ export default function PrivacidadPage() {
                 reacciones que dejas.
               </li>
               <li>
-                <strong className="text-foreground">Lo que escribes en las guías</strong>, con el
-                hospital y el tema al que se refieren (punto 3).
+                <strong className="text-foreground">Lo que escribes en las guías</strong>, con tu
+                alias y el tema al que se refieren (punto 3).
               </li>
               <li>
                 <strong className="text-foreground">Cuándo aceptaste estos textos y cuándo nos
@@ -168,7 +167,7 @@ export default function PrivacidadPage() {
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">
-              3. Las guías por hospital
+              3. Las guías
             </h2>
             <p>
               Las guías son lo único de metoo que se puede leer sin tener cuenta, y por eso van
@@ -177,13 +176,11 @@ export default function PrivacidadPage() {
             <ul className="ml-4 mt-3 list-disc space-y-1.5">
               <li>
                 <strong className="text-foreground">Qué se publica:</strong> tus respuestas a las
-                preguntas de la guía, el hospital y el tema al que se refieren, y si ya pasaste por
-                ello o lo estás viviendo.{' '}
-                <strong className="text-foreground">
-                  No se publica tu alias ni ningún enlace a tu perfil
-                </strong>
-                : las respuestas salen sin firma. Quién escribió cada una lo guardamos solo para
-                poder moderar.
+                preguntas de la guía, el tema al que se refieren, si ya pasaste por ello o lo
+                estás viviendo, y{' '}
+                <strong className="text-foreground">tu alias junto a cada respuesta</strong>. En
+                tu perfil aparece, para quien lo vea, un enlace a las guías en las que has
+                escrito. No pedimos ni publicamos el hospital.
               </li>
               <li>
                 <strong className="text-foreground">Quién lo ve:</strong> cualquiera, con o sin
@@ -196,7 +193,7 @@ export default function PrivacidadPage() {
               </li>
               <li>
                 <strong className="text-foreground">Si te das de baja:</strong> tus respuestas se
-                quedan, y ya ni siquiera nosotros sabemos de quién eran. Si prefieres que se
+                quedan, dejan de llevar tu alias y ya ni siquiera nosotros sabemos de quién eran. Si prefieres que se
                 borren, escríbenos antes y las borramos.
               </li>
               <li>
@@ -206,10 +203,9 @@ export default function PrivacidadPage() {
             </ul>
             <p className="mt-3">
               <strong className="text-foreground">Ten en cuenta una cosa importante:</strong>{' '}
-              aunque no aparezca tu alias, la combinación del hospital, el tema y el momento en
-              que lo cuentas puede bastar para que alguien de tu entorno te reconozca, sobre todo
-              si el hospital es pequeño. Escribe pensando en eso: nada que te identifique, ni
-              nombres de personas del hospital, y nada sobre tratamientos.
+              tu alias es un seudónimo, pero junto al tema y al momento en que lo cuentas puede
+              bastar para que alguien de tu entorno te reconozca. Escribe pensando en eso: nada
+              que te identifique, ni nombres de personas, y nada sobre tratamientos.
             </p>
           </section>
 
@@ -246,7 +242,7 @@ export default function PrivacidadPage() {
             </p>
             <p className="mt-3">
               Lo mismo vale para lo que publiques en las guías (punto 3), con una diferencia: ahí
-              lo lee cualquiera, aunque sin tu firma. Antes de escribir te lo recordamos y tienes
+              lo lee cualquiera, y con tu alias. Antes de escribir te lo recordamos y tienes
               que marcar que lo has entendido.
             </p>
             <p className="mt-3">
@@ -318,7 +314,7 @@ export default function PrivacidadPage() {
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="py-2 pr-4">
-                      Publicar tus respuestas en las guías por hospital
+                      Publicar tus respuestas en las guías, con tu alias
                     </td>
                     <td className="py-2">
                       Tu consentimiento (arts. 6.1.a y 9.2.a), que das al marcar el aviso y
@@ -449,7 +445,7 @@ export default function PrivacidadPage() {
               </li>
               <li>
                 <strong className="text-foreground">Tus respuestas en las guías</strong> se
-                quedan, sin firma y sin que quede guardado de quién eran (punto 3). Si quieres que
+                quedan, sin tu alias y sin que quede guardado de quién eran (punto 3). Si quieres que
                 se borren, escríbenos antes de darte de baja.
               </li>
               <li>

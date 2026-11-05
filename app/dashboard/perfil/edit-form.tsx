@@ -154,7 +154,7 @@ export function EditForm({
       <div>
         <label className="mb-1.5 block text-sm font-medium">Tus hashtags</label>
         <p className="mb-3 text-xs text-muted-foreground">
-          Indica tu situación, hospital, diagnóstico...
+          Indica tu situación o tu diagnóstico...
         </p>
         <HashtagPicker
           suggestions={suggestions}

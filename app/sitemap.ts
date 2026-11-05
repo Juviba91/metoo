@@ -4,12 +4,11 @@ import { URL_SITIO } from '@/lib/sitio'
 /**
  * Lo que se ofrece a los buscadores.
  *
- * Las guías de cada hospital estuvieron aquí y ya no: la nota legal de octubre
- * de 2026 (medida U-3) pide que no se indexen, porque un hospital, un tema de
- * salud y el momento en que alguien lo cuenta pueden bastar para reconocer a
- * una persona. Siguen siendo públicas —se enlazan desde /guias— pero llevan
- * `noindex`. El índice de /guias sí está: solo dice qué hospitales y temas
- * tienen algo escrito.
+ * Las guías estuvieron aquí y ya no: la nota legal de octubre de 2026 (medida
+ * U-3) pide que no se indexen, porque un tema de salud y el momento en que
+ * alguien lo cuenta pueden bastar para reconocer a una persona. Siguen siendo
+ * públicas —se enlazan desde /guias— pero llevan `noindex`. El índice de /guias
+ * sí está: solo dice qué temas tienen algo escrito.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

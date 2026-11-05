@@ -128,7 +128,7 @@ export default function Page() {
           className="mt-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           <BookOpen className="size-4" />
-          ¿Acabas de llegar a un hospital? Lee las guías, sin cuenta
+          ¿Estás pasando por algo difícil? Lee las guías, sin cuenta
         </Link>
       </section>
 
@@ -150,15 +150,15 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Guías por hospital. Antes nada en la portada llevaba a ellas, y por
+      {/* Guías. Antes nada en la portada llevaba a ellas, y por
           eso tampoco las encontraba Google. */}
       <section className="mx-auto max-w-5xl px-6 pt-14 sm:pt-20">
         <div className="rounded-xl border border-border p-6 text-center sm:p-10">
           <BookOpen className="mx-auto mb-4 size-6" />
-          <h2 className="mb-3 text-2xl font-bold sm:text-3xl">Lo que nadie te cuenta, hospital por hospital</h2>
+          <h2 className="mb-3 text-2xl font-bold sm:text-3xl">Lo que nadie te cuenta, escrito por quien ya lo vivió</h2>
           <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
-            Dónde dormir, cómo son los horarios de verdad, qué papeles pedir, qué llevarte.
-            Lo escriben familias que ya pasaron por ese hospital. Se lee sin cuenta.
+            Por dónde empezar, a quién pedir ayuda, qué papeles hacen falta, qué te sostuvo.
+            Lo escriben personas que ya pasaron por lo mismo. Se lee sin cuenta.
           </p>
           <Link href="/guias" className={cn(buttonVariants({ variant: 'outline' }), 'gap-2')}>
             Ver las guías

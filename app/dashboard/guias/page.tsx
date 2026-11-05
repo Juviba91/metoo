@@ -10,18 +10,18 @@ import { CajaPregunta, Selectores } from './guia-form'
 import { AvisoPublicacion } from './aviso-publicacion'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Escribir una guía' }
+export const metadata: Metadata = { title: 'Redacta tu guía' }
 
 export default async function EscribirGuiaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ hospital?: string; tema?: string }>
+  searchParams: Promise<{ tema?: string }>
 }) {
   const supabase = await createClient()
   const user = await getUser()
   if (!user) redirect('/auth/login')
 
-  const { hospital: hospitalSlug = null, tema: temaSlug = null } = await searchParams
+  const { tema: temaSlug = null } = await searchParams
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -41,14 +41,12 @@ export default async function EscribirGuiaPage({
   )
 
   const [
-    { data: hospitales },
     { data: todosLosTemas },
     { data: preguntas },
     { data: yaHay },
     pendingCount,
     { data: unreadData },
   ] = await Promise.all([
-      supabase.from('hospitals').select('slug, name, city').order('name'),
       supabase.from('hashtags').select('slug, label').order('label'),
       temaSlug
         ? supabase
@@ -57,12 +55,8 @@ export default async function EscribirGuiaPage({
             .eq('activa', true)
             .order('orden')
         : Promise.resolve({ data: [] }),
-      hospitalSlug && temaSlug
-        ? supabase
-            .from('guias_publicas')
-            .select('pregunta_id')
-            .eq('hospital_slug', hospitalSlug)
-            .eq('tema_slug', temaSlug)
+      temaSlug
+        ? supabase.from('guias_publicas').select('pregunta_id').eq('tema_slug', temaSlug)
         : Promise.resolve({ data: [] }),
       contarSolicitudesPendientes(),
       supabase.rpc('get_unread_count', { user_uuid: user.id }),
@@ -105,10 +99,10 @@ export default async function EscribirGuiaPage({
         </Link>
 
         <div>
-          <h1 className="text-lg font-semibold">Cuenta lo que aprendiste</h1>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Lo práctico que nadie te contó y que a ti te habría ahorrado horas. Va a una
-            página del hospital que puede leer cualquiera.
+          <h1 className="hidden text-lg font-semibold sm:block">Redacta tu guía</h1>
+          <p className="text-sm leading-relaxed text-muted-foreground sm:mt-1">
+            Lo práctico que nadie te contó y que a ti te habría ahorrado horas. Va a la guía
+            del tema que elijas, que puede leer cualquiera.
           </p>
         </div>
 
@@ -119,21 +113,15 @@ export default async function EscribirGuiaPage({
         ) : (
           <>
             {/* Se dice ANTES de escribir, y hay que marcarlo: lo que se
-                escriba queda público, aunque sin firma. */}
+                escriba queda público y con tu alias. */}
             <AvisoPublicacion>
-              <Selectores
-                hospitales={hospitales ?? []}
-                temas={temas}
-                hospitalSlug={hospitalSlug}
-                temaSlug={temaSlug}
-              />
+              <Selectores temas={temas} temaSlug={temaSlug} />
 
-              {hospitalSlug && temaSlug ? (
+              {temaSlug ? (
                 <div className="space-y-3">
                   {preguntasDelTema.map((p) => (
                     <CajaPregunta
                       key={p.id}
-                      hospitalSlug={hospitalSlug}
                       temaSlug={temaSlug}
                       preguntaId={p.id}
                       enunciado={p.enunciado}
@@ -147,13 +135,12 @@ export default async function EscribirGuiaPage({
                   </p>
                   {/* Solo si la guía ya tiene algo escrito. La página pública
                       hace notFound() cuando está vacía —para que no haya páginas
-                      fantasma con el nombre de un hospital— así que este enlace
-                      daba un 404 justo al abrir el formulario, que es cuando más
-                      apetece pulsarlo. */}
+                      fantasma— así que este enlace daba un 404 justo al abrir el
+                      formulario, que es cuando más apetece pulsarlo. */}
                   {Object.keys(cuantasPorPregunta).length > 0 ? (
                     <p className="text-center text-xs">
                       <Link
-                        href={`/guias/${hospitalSlug}/${temaSlug}`}
+                        href={`/guias/${temaSlug}`}
                         className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
                       >
                         Ver cómo queda la página →
@@ -168,7 +155,7 @@ export default async function EscribirGuiaPage({
                 </div>
               ) : (
                 <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                  Elige un hospital y un tema para ver las preguntas.
+                  Elige un tema para ver las preguntas.
                 </p>
               )}
             </AvisoPublicacion>

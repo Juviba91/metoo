@@ -199,7 +199,7 @@ export function OnboardingWizard({
             {role === 'seeker' ? '¿Qué estás viviendo?' : '¿En qué puedes acompañar?'}
           </h1>
           <p className="mb-6 text-center text-muted-foreground">
-            Elige hashtags o crea los tuyos — el hospital también puede ser uno
+            Elige hashtags o crea los tuyos
           </p>
           <HashtagPicker suggestions={suggestions} selected={hashtags} onChange={setHashtags} />
           {/* Con dos o más temas puede que alguno sea del otro lado: viviste

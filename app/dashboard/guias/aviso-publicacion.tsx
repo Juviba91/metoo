@@ -15,21 +15,21 @@ export function AvisoPublicacion({ children }: { children: React.ReactNode }) {
   return (
     <>
       <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
-        <p className="font-semibold">Esto se publica, sin tu alias</p>
+        <p className="font-semibold">Esto se publica con tu alias</p>
         <p className="mt-1 text-muted-foreground">
-          Lo que escribas lo podrá leer cualquiera, también sin tener cuenta. No lleva tu alias
-          ni enlaza a tu perfil, y pedimos a los buscadores que no lo indexen. Aun así, el
-          hospital, el tema y lo que cuentes pueden bastar para que alguien de tu entorno te
-          reconozca, sobre todo si el hospital es pequeño: no cuentes nada que te identifique
-          —ni fechas exactas, ni nombres de personas del hospital— y nada sobre tratamientos
-          o medicación.
+          Lo que escribas lo podrá leer cualquiera, también sin tener cuenta, y saldrá con tu
+          alias, y desde tu perfil habrá un enlace a tus guías. Pedimos a los buscadores que no
+          lo indexen. Aun así, el alias, el
+          tema y lo que cuentes pueden bastar para que alguien de tu entorno te reconozca: no
+          cuentes nada que te identifique —ni fechas exactas, ni nombres de personas— y nada
+          sobre tratamientos o medicación.
         </p>
         <label className="mt-3 flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
             checked={entendido}
             onChange={(e) => setEntendido(e.target.checked)}
-            className="mt-0.5 size-4 shrink-0 accent-foreground"
+            className="mt-0.5 size-4 shrink-0 accent-primary"
           />
           <span className="font-medium text-foreground">
             Entendido: lo que escriba aquí será público.

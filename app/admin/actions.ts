@@ -120,5 +120,5 @@ export async function ocultarAportacionGuia(
   // quien la tuviera abierta seguiría viendo lo que acabas de ocultar. Con el
   // patrón de la ruta dinámica se invalidan todas sus instancias, que es lo que
   // hace falta porque aquí no sabemos de qué guía era.
-  revalidatePath('/guias/[hospital]/[tema]', 'page')
+  revalidatePath('/guias/[tema]', 'page')
 }

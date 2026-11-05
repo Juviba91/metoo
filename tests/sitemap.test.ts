@@ -7,7 +7,7 @@ describe('sitemap', () => {
   it('incluye el índice de guías pero no cada guía, en el dominio con www', async () => {
     const urls = (await sitemap()).map((e) => e.url)
 
-    // Medida U-3 de la nota legal: las guías de cada hospital no se indexan.
+    // Medida U-3 de la nota legal: las guías no se indexan.
     expect(urls.some((u) => /\/guias\/[^/]+\/[^/]+$/.test(u))).toBe(false)
     expect(urls).toContain('https://www.metoonetwork.xyz/guias')
     // El dominio sin www redirige: una URL así en el sitemap la penaliza Google.

@@ -27,8 +27,8 @@ export type Database = {
         Relationships: []
       }
       guia_votos: {
-        Row: { id: number; hospital_id: string; hashtag_id: string; util: boolean; creado_en: string }
-        Insert: { hospital_id: string; hashtag_id: string; util: boolean }
+        Row: { id: number; hospital_id: string | null; hashtag_id: string; util: boolean; creado_en: string }
+        Insert: { hospital_id?: string | null; hashtag_id: string; util: boolean }
         Update: { util?: boolean }
         Relationships: [
           { foreignKeyName: 'guia_votos_hospital_id_fkey'; columns: ['hospital_id']; isOneToOne: false; referencedRelation: 'hospitals'; referencedColumns: ['id'] },
@@ -319,12 +319,13 @@ export type Database = {
           },
         ]
       }
-      // Se escribe por `aportar_a_guia` y se lee por `guias_publicas`: ni anon
-      // ni authenticated tienen permisos sobre esta tabla.
+      // Se escribe por `aportar_a_tema` y se lee por `guias_publicas`: ni anon
+      // ni authenticated tienen permisos sobre esta tabla. El hospital es
+      // opcional: lo escrito antes de las guías generales lo conserva.
       guia_respuestas: {
         Row: {
           id: string
-          hospital_id: string
+          hospital_id: string | null
           hashtag_id: string
           pregunta_id: string
           contenido: string
@@ -337,7 +338,7 @@ export type Database = {
         }
         Insert: {
           id?: string
-          hospital_id: string
+          hospital_id?: string | null
           hashtag_id: string
           pregunta_id: string
           contenido: string
@@ -350,7 +351,7 @@ export type Database = {
         }
         Update: {
           id?: string
-          hospital_id?: string
+          hospital_id?: string | null
           hashtag_id?: string
           pregunta_id?: string
           contenido?: string
@@ -741,14 +742,14 @@ export type Database = {
       }
     }
     Views: {
-      // Las guías se leen SOLO por vista, nunca por `guia_respuestas`: así el
-      // `autor_id` no puede salir por la API ni pidiendo `*`.
+      // Las guías se leen SOLO por vista, nunca por `guia_respuestas`: la vista
+      // decide qué sale del autor (alias e id solo si la cuenta sigue activa).
       guias_publicas: {
         Row: {
           id: string
-          hospital_slug: string
-          hospital: string
-          ciudad: string
+          hospital_slug: string | null
+          hospital: string | null
+          ciudad: string | null
           tema_slug: string
           tema: string
           pregunta_id: string
@@ -758,6 +759,18 @@ export type Database = {
           contenido: string
           revisada_en: string
           autor_rol: string | null
+          autor_alias: string | null
+          autor_id: string | null
+        }
+        Relationships: []
+      }
+      // Una fila por tema con algo escrito.
+      guias_temas: {
+        Row: {
+          tema_slug: string
+          tema: string
+          aportaciones: number
+          ultima: string
         }
         Relationships: []
       }
@@ -799,6 +812,14 @@ export type Database = {
           p_mostrar_alias?: boolean
         }
         Returns: string
+      }
+      aportar_a_tema: {
+        Args: { p_tema_slug: string; p_pregunta_id: string; p_contenido: string }
+        Returns: string
+      }
+      votar_guia_tema: {
+        Args: { p_tema_slug: string; p_util: boolean }
+        Returns: undefined
       }
       quitar_mi_firma_en_guias: { Args: Record<string, never>; Returns: number }
       votar_guia: {

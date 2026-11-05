@@ -63,7 +63,7 @@ describe('agruparPorPregunta', () => {
 
 describe('mesYAno', () => {
   it('escribe el mes en castellano y sin el día', () => {
-    // Sin día a propósito: una fecha exacta junto a un texto de un hospital
+    // Sin día a propósito: una fecha exacta junto a un texto
     // concreto acota demasiado quién pudo escribirlo.
     expect(mesYAno('2026-09-15T10:00:00Z')).toBe('septiembre de 2026')
     expect(mesYAno('2026-01-02T00:00:00Z')).toBe('enero de 2026')
@@ -127,14 +127,32 @@ describe('agruparPorPregunta: el rol viaja con la respuesta', () => {
   })
 })
 
-describe('sin firma', () => {
-  it('de cada aportación solo pasa el contenido, la fecha y si lo vivió o lo vive', () => {
-    // Aunque la consulta trajera de más, la página no recibe nada que
-    // identifique a quien escribe.
+describe('con firma', () => {
+  // Decisión de Juan (noviembre de 2026, revierte la medida U-3): cada
+  // aportación lleva el alias de quien la escribió.
+  it('cada aportación conserva su alias y el id para enlazar al perfil', () => {
     const bloques = agruparPorPregunta([
-      { ...fila('p1', 1, 'la mía'), autor_rol: 'volunteer', autor_alias: 'luna_azul', autor_id: 'u-1' } as never,
+      { ...fila('p1', 1, 'la mía'), autor_rol: 'volunteer', autor_alias: 'luna_azul', autor_id: 'u-1' },
     ])
 
-    expect(Object.keys(bloques[0].respuestas[0]).sort()).toEqual(['autor_rol', 'contenido', 'revisada_en'])
+    expect(bloques[0].respuestas[0]).toMatchObject({
+      contenido: 'la mía',
+      autor_alias: 'luna_azul',
+      autor_id: 'u-1',
+      autor_rol: 'volunteer',
+    })
+  })
+
+  it('si la cuenta se dio de baja, alias e id vienen vacíos y así se quedan', () => {
+    const bloques = agruparPorPregunta([{ ...fila('p1', 1, 'sin dueño'), autor_rol: null, autor_alias: null, autor_id: null }])
+
+    expect(bloques[0].respuestas[0].autor_alias).toBeNull()
+    expect(bloques[0].respuestas[0].autor_id).toBeNull()
+  })
+
+  it('una fila sin esos campos (consulta antigua) no rompe', () => {
+    const bloques = agruparPorPregunta([fila('p1', 1, 'x')])
+
+    expect(bloques[0].respuestas[0].autor_alias).toBeNull()
   })
 })

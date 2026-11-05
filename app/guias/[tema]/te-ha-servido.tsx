@@ -7,8 +7,8 @@ import { votarGuia } from '@/app/guias/actions'
  * Un toque para saber si una guía sirve. El voto se recuerda en este
  * navegador para no preguntar dos veces (y no contar dos veces lo mismo).
  */
-export function TeHaServido({ hospitalSlug, temaSlug }: { hospitalSlug: string; temaSlug: string }) {
-  const clave = `metoo-voto-${hospitalSlug}-${temaSlug}`
+export function TeHaServido({ temaSlug }: { temaSlug: string }) {
+  const clave = `metoo-voto-${temaSlug}`
   const [votoAhora, setVotado] = useState<boolean | null>(null)
   const [enviando, setEnviando] = useState(false)
   // Lo votado otro día, leído del navegador (en el servidor no hay: null).
@@ -27,7 +27,7 @@ export function TeHaServido({ hospitalSlug, temaSlug }: { hospitalSlug: string; 
 
   async function votar(util: boolean) {
     setEnviando(true)
-    const res = await votarGuia(hospitalSlug, temaSlug, util)
+    const res = await votarGuia(temaSlug, util)
     setEnviando(false)
     if (res.error) return
     setVotado(util)

@@ -10,17 +10,17 @@ describe('votarGuia', () => {
   it('vota por la función de la base, sin cuenta', async () => {
     state.mock = createSupabaseMock({ user: null })
 
-    const res = await votarGuia('la-paz', 'uci-neonatal', true)
+    const res = await votarGuia('uci-neonatal', true)
 
     expect(res.success).toBe(true)
     expect(state.mock.rpcCalls).toEqual([
-      { name: 'votar_guia', args: { p_hospital_slug: 'la-paz', p_tema_slug: 'uci-neonatal', p_util: true } },
+      { name: 'votar_guia_tema', args: { p_tema_slug: 'uci-neonatal', p_util: true } },
     ])
   })
 
   it('si la base falla, devuelve error', async () => {
-    state.mock = createSupabaseMock({ rpc: { votar_guia: { error: { message: 'x' } } } })
+    state.mock = createSupabaseMock({ rpc: { votar_guia_tema: { error: { message: 'x' } } } })
 
-    expect((await votarGuia('a', 'b', false)).error).toBeTruthy()
+    expect((await votarGuia('b', false)).error).toBeTruthy()
   })
 })

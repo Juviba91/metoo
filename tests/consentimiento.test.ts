@@ -106,9 +106,17 @@ describe('la vista pública de las guías (última definición en las migracione
     .flatMap((f) => readFileSync(join(DIR, f), 'utf8').match(/CREATE (?:OR REPLACE )?VIEW public\.guias_publicas AS[\s\S]*?;/g) ?? [])
   const ultima = defs[defs.length - 1] ?? ''
 
-  it('no expone el alias ni el id de quien escribe', () => {
+  // Decisión de Juan (noviembre de 2026, revierte la medida U-3): cada
+  // aportación lleva el alias de quien la escribió. Lo que sigue vigilando este
+  // test es que solo salga mientras la cuenta existe: tras una baja, ni alias
+  // ni enlace, aunque `autor_id` no se hubiera puesto a NULL.
+  it('expone el alias y el id solo si la cuenta sigue activa', () => {
     expect(ultima).toContain('guias_publicas')
-    expect(ultima).not.toMatch(/AS autor_alias|r\.autor_id\s*(,|\n\s*FROM)/)
-    expect(ultima).not.toMatch(/a\.alias/)
+    expect(ultima).toMatch(/CASE WHEN a\.deleted_at IS NULL THEN a\.alias END AS autor_alias/)
+    expect(ultima).toMatch(/CASE WHEN a\.deleted_at IS NULL THEN r\.autor_id END AS autor_id/)
+  })
+
+  it('no expone nada más del perfil de quien escribe', () => {
+    expect(ultima).not.toMatch(/a\.(bio|city|email|stage|support_modes)/)
   })
 })

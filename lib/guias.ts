@@ -1,5 +1,5 @@
 /**
- * Guías por hospital y tema: lo que las familias aprendieron allí.
+ * Guías por tema: lo que aprendieron quienes ya pasaron por ello.
  *
  * Aquí solo va la lógica que se puede probar sin base de datos. Las consultas
  * están en las páginas, y la escritura en `aportar_a_guia` (la base es la que
@@ -13,17 +13,20 @@ export type FilaGuia = {
   ayuda: string | null
   contenido: string
   revisada_en: string
-  /**
-   * 'seeker' | 'volunteer' en el tema de la guía, o null si la cuenta se dio
-   * de baja. Es lo único que se cuenta de quien escribe: ni alias ni enlace.
-   */
+  /** 'seeker' | 'volunteer' en el tema de la guía, o null si la cuenta se dio de baja. */
   autor_rol?: string | null
+  /** Alias de quien la escribió, o null si la cuenta ya no existe. */
+  autor_alias?: string | null
+  /** Para enlazar a su perfil. Null cuando el alias también lo es. */
+  autor_id?: string | null
 }
 
 export type RespuestaGuia = {
   contenido: string
   revisada_en: string
   autor_rol?: string | null
+  autor_alias?: string | null
+  autor_id?: string | null
 }
 
 export type BloqueGuia = {
@@ -64,6 +67,8 @@ export function agruparPorPregunta(filas: FilaGuia[]): BloqueGuia[] {
       contenido: fila.contenido,
       revisada_en: fila.revisada_en,
       autor_rol: fila.autor_rol ?? null,
+      autor_alias: fila.autor_alias ?? null,
+      autor_id: fila.autor_id ?? null,
     })
   }
 
@@ -82,8 +87,8 @@ const MESES = [
 ]
 
 /**
- * «septiembre de 2026». Sin día a propósito: una fecha exacta junto a un texto
- * de un hospital concreto acota demasiado quién pudo escribirlo.
+ * «septiembre de 2026». Sin día a propósito: una fecha exacta acota demasiado
+ * quién pudo escribirlo.
  */
 export function mesYAno(iso: string): string {
   const fecha = new Date(iso)
@@ -111,11 +116,10 @@ export function puedeEstarDesfasada(iso: string, ahora: Date = new Date()): bool
 }
 
 /**
- * Cómo se presenta quién escribió, sin decir quién es.
+ * Cómo se presenta el momento de quien escribió (el alias va aparte).
  *
- * El rol no identifica —son dos valores para toda la app— pero cambia cómo se
- * lee una respuesta: alguien ingresado ahora y alguien que salió hace tres años
- * no cuentan lo mismo, y hasta ahora se leían igual.
+ * Cambia cómo se lee una respuesta: alguien ingresado ahora y alguien que
+ * salió hace tres años no cuentan lo mismo.
  *
  * Se nombra por el momento en que está, no por su papel en la app: «voluntario»
  * no le dice nada a quien llega de Google.

@@ -39,7 +39,7 @@ export function ConsentimientoCampos({
           type="checkbox"
           checked={mayorDeEdad}
           onChange={(e) => onMayorDeEdad(e.target.checked)}
-          className="mt-0.5 size-4 shrink-0 accent-foreground"
+          className="mt-0.5 size-4 shrink-0 accent-primary"
         />
         <span className="text-sm text-muted-foreground">Tengo {EDAD_MINIMA} años o más.</span>
       </label>
@@ -49,7 +49,7 @@ export function ConsentimientoCampos({
           type="checkbox"
           checked={aceptaTextos}
           onChange={(e) => onAceptaTextos(e.target.checked)}
-          className="mt-0.5 size-4 shrink-0 accent-foreground"
+          className="mt-0.5 size-4 shrink-0 accent-primary"
         />
         <span className="text-sm text-muted-foreground">
           He leído y acepto las{' '}
@@ -73,7 +73,7 @@ export function ConsentimientoCampos({
           type="checkbox"
           checked={salud}
           onChange={(e) => onSalud(e.target.checked)}
-          className="mt-0.5 size-4 shrink-0 accent-foreground"
+          className="mt-0.5 size-4 shrink-0 accent-primary"
         />
         <span className="text-sm text-muted-foreground">
           Autorizo expresamente que metoo trate la información sobre mi salud, la de mi familia
