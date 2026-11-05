@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { BottomNav } from '@/components/bottom-nav'
+import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { LeidoBoton } from './leido-boton'
 import type { Metadata } from 'next'
 
@@ -50,11 +52,11 @@ export default async function AcompanarPage() {
   const user = await getUser()
   if (!user) redirect('/auth/login')
 
-  const { data } = await supabase
-    .from('profiles')
-    .select('guia_voluntario_leida_en')
-    .eq('id', user.id)
-    .maybeSingle()
+  const [{ data }, pendingCount, { data: unreadData }] = await Promise.all([
+    supabase.from('profiles').select('guia_voluntario_leida_en').eq('id', user.id).maybeSingle(),
+    contarSolicitudesPendientes(),
+    supabase.rpc('get_unread_count', { user_uuid: user.id }),
+  ])
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -99,6 +101,7 @@ export default async function AcompanarPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
+      <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />
     </div>
   )
 }

@@ -207,7 +207,7 @@ export default async function AdminPage() {
               <p className="text-sm text-muted-foreground">Dar la bienvenida y orientar a cada persona.</p>
             </div>
             {equipoEsperando > 0 && (
-              <span className="shrink-0 rounded-full bg-destructive px-2.5 py-0.5 text-sm text-white">
+              <span className="shrink-0 rounded-full bg-primary px-2.5 py-0.5 text-sm text-primary-foreground">
                 {equipoEsperando}
               </span>
             )}
@@ -227,7 +227,7 @@ export default async function AdminPage() {
                 <li key={p.paso} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[16rem_1fr_auto]">
                   <span className="col-start-1 row-start-1 text-sm">{p.paso}</span>
                   <div className="col-span-2 row-start-2 h-2.5 overflow-hidden rounded-full bg-muted sm:col-span-1 sm:col-start-2 sm:row-start-1">
-                    <div className="h-full rounded-full bg-foreground" style={{ width: `${(p.personas / tope) * 100}%` }} />
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${(p.personas / tope) * 100}%` }} />
                   </div>
                   <span className="col-start-2 row-start-1 whitespace-nowrap text-right text-sm tabular-nums sm:col-start-3">
                     {p.personas}

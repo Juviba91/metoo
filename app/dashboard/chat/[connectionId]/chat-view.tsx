@@ -375,7 +375,7 @@ export function ChatView({
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80"
           >
             Volver a Inicio →
           </Link>
@@ -386,7 +386,7 @@ export function ChatView({
           <p className="mb-3 text-sm text-muted-foreground">Esta conversación ha terminado.</p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80"
           >
             Buscar otro voluntario →
           </Link>

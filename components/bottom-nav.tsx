@@ -73,7 +73,7 @@ export function BottomNav({ pendingCount = 0, chatUnread = 0 }: { pendingCount?:
               <div className="relative">
                 <Icon className={`size-5 ${active ? 'stroke-[2.5]' : 'stroke-[1.5]'}`} />
                 {aviso > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
+                  <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
                     {aviso > 9 ? '9+' : aviso}
                   </span>
                 )}

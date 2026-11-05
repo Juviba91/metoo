@@ -53,7 +53,7 @@ export default async function PerfilPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
         <div>
           <p className="mb-3 text-sm text-muted-foreground">
             {doble

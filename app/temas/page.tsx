@@ -41,7 +41,7 @@ export default async function TemasPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
         <Link
           href="/feed"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"

@@ -37,7 +37,7 @@ export function AvisoVersion() {
   return (
     <div
       role="alert"
-      className="fixed inset-x-4 bottom-24 z-[60] mx-auto flex max-w-sm items-center justify-between gap-3 rounded-xl bg-foreground px-4 py-3 text-sm text-background shadow-lg sm:bottom-6"
+      className="fixed inset-x-4 bottom-24 z-[60] mx-auto flex max-w-sm items-center justify-between gap-3 rounded-xl bg-primary px-4 py-3 text-sm text-primary-foreground shadow-lg sm:bottom-6"
     >
       <span>Hay una versión nueva de metoo.</span>
       <button

@@ -25,7 +25,7 @@ export function ContactButton({
     return (
       <Link
         href={`/dashboard/chat/${connectionId}`}
-        className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80"
       >
         <MessageCircle className="size-3.5" /> Ver conversación →
       </Link>

@@ -69,7 +69,7 @@ export default async function MensajesEquipoPage() {
                       </span>
                     </p>
                     {h.esperando && (
-                      <span className="shrink-0 rounded-full bg-destructive px-2 py-0.5 text-xs text-white">
+                      <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                         Responder
                       </span>
                     )}
