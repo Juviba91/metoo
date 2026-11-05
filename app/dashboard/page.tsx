@@ -97,8 +97,8 @@ export default async function DashboardPage({
 
     // Las cuatro con más escrito. El listado entero está en /guias.
     supabase
-      .from('guias_indice')
-      .select('hospital_slug, hospital, ciudad, tema_slug, tema, aportaciones')
+      .from('guias_temas')
+      .select('tema_slug, tema, aportaciones')
       .order('aportaciones', { ascending: false })
       .limit(4),
 
@@ -419,7 +419,7 @@ export default async function DashboardPage({
             )
           })}
 
-        {/* Guías por hospital.
+        {/* Guías por tema.
             A todo el mundo, y no solo a los voluntarios: para quien busca
             apoyo es lo único de la app que sirve ahora mismo, sin esperar a
             que alguien conteste. */}
@@ -429,8 +429,8 @@ export default async function DashboardPage({
             Guías
           </h2>
           <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-            Dónde dormir, cómo son los horarios de verdad, qué papeles pedir. Lo
-            práctico que nadie te cuenta, hospital por hospital.
+            Lo que escriben personas que han pasado por esa experiencia: lo práctico
+            que nadie te cuenta.
           </p>
 
           {(guias ?? []).length === 0 ? (
@@ -449,14 +449,13 @@ export default async function DashboardPage({
               <div className="grid gap-3 sm:grid-cols-2">
                 {(guias ?? []).map((g) => (
                   <Link
-                    key={`${g.hospital_slug}/${g.tema_slug}`}
-                    href={`/guias/${g.hospital_slug}/${g.tema_slug}`}
+                    key={g.tema_slug}
+                    href={`/guias/${g.tema_slug}`}
                     className="rounded-xl border border-border p-4 transition-colors hover:bg-muted/40"
                   >
                     <p className="font-semibold">{g.tema}</p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{g.hospital}</p>
-                    <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="size-3" /> {g.ciudad}
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {g.aportaciones === 1 ? '1 aportación' : `${g.aportaciones} aportaciones`}
                     </p>
                   </Link>
                 ))}

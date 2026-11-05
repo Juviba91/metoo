@@ -2,7 +2,7 @@ import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, MapPin } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
@@ -10,66 +10,63 @@ import { GuiasShell } from '@/components/guias-shell'
 import { TeHaServido } from './te-ha-servido'
 import type { Metadata } from 'next'
 
-type Params = Promise<{ hospital: string; tema: string }>
+type Params = Promise<{ tema: string }>
 
 /**
  * Memoizado por petición: `generateMetadata` y la página piden lo mismo, y sin
  * esto cada visita hacía la consulta dos veces. Mismo motivo que `getUser` en
  * lib/supabase/server.
  */
-const cargar = cache(async (hospital: string, tema: string) => {
+const cargar = cache(async (tema: string) => {
   const supabase = await createClient()
 
   const { data } = await supabase
     .from('guias_publicas')
-    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, hospital, ciudad, tema')
-    .eq('hospital_slug', hospital)
+    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, tema')
     .eq('tema_slug', tema)
 
   return { filas: data ?? [] }
 })
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { hospital, tema } = await params
-  const { filas } = await cargar(hospital, tema)
+  const { tema } = await params
+  const { filas } = await cargar(tema)
   const primera = filas[0]
 
   if (!primera) return { title: 'Guía no encontrada' }
 
   return {
-    title: `${primera.tema} · ${primera.hospital}`,
-    description: `Lo que otras familias aprendieron sobre ${primera.tema.toLowerCase()} en ${primera.hospital}: dónde dormir, horarios, trámites y lo práctico que nadie te cuenta.`,
+    title: `Guía: ${primera.tema}`,
+    description: `Lo que aprendieron personas que ya pasaron por ${primera.tema.toLowerCase()}: lo práctico que nadie te cuenta.`,
     // Los enlaces que se reparten llevan ?utm_… para medir de dónde vienen:
     // sin canónica, cada variante contaría como una página distinta.
-    alternates: { canonical: `/guias/${hospital}/${tema}` },
-    // Se lee sin cuenta, pero no se ofrece a los buscadores. Un hospital, un
-    // diagnóstico y el momento en que alguien lo cuenta pueden bastar para
-    // reconocer a una persona en un sitio pequeño, aunque no lleve firma; y lo
-    // que indexa Google ya no se puede retirar del todo. Ver la nota legal de
-    // octubre de 2026 (medida U-3).
+    alternates: { canonical: `/guias/${tema}` },
+    // Se lee sin cuenta, pero no se ofrece a los buscadores: un tema de salud
+    // y el momento en que alguien lo cuenta pueden bastar para reconocer a una
+    // persona, y lo que indexa Google ya no se puede retirar del todo. Esto se
+    // mantiene aunque las aportaciones lleven alias (nota legal, medida U-3).
     robots: { index: false, follow: false },
   }
 }
 
 /**
- * Una guía: un hospital y un tema. Se lee sin cuenta, pero no se indexa.
+ * La guía de un tema. Se lee sin cuenta, pero no se indexa.
  *
- * Las aportaciones NO llevan firma. El autor se guarda en la base para poder
- * moderar, pero no sale por la vista (`guias_publicas` ni siquiera tiene la
- * columna): un alias atado a un hospital y un diagnóstico, en una ciudad
- * pequeña, es un nombre y un apellido. Lo que sí sale es si quien escribe lo
- * vivió o lo está viviendo, que son dos valores para toda la app y no
- * identifican a nadie.
+ * Cada aportación lleva el alias de quien la escribió. Es un seudónimo, y poder
+ * ver quién dice algo es parte de poder valorarlo. No se enlaza al perfil: la
+ * ficha de otra persona solo existe si podéis ayudaros (`puedenConectar`), y
+ * desde aquí llevaría a un 404 a buena parte de quien lee. El enlace va al
+ * revés: del perfil a las guías de esa persona.
  */
 export default async function GuiaPage({ params }: { params: Params }) {
-  const { hospital: hospitalSlug, tema: temaSlug } = await params
-  const { filas } = await cargar(hospitalSlug, temaSlug)
+  const { tema: temaSlug } = await params
+  const { filas } = await cargar(temaSlug)
 
-  // Una guía sin nada escrito no existe: no se pinta un esqueleto vacío con el
-  // nombre de un hospital, que parecería abandonado.
+  // Una guía sin nada escrito no existe: no se pinta un esqueleto vacío, que
+  // parecería abandonado.
   if (filas.length === 0) notFound()
 
-  const { hospital, ciudad, tema } = filas[0]
+  const { tema } = filas[0]
   const bloques = agruparPorPregunta(filas)
 
   return (
@@ -84,17 +81,16 @@ export default async function GuiaPage({ params }: { params: Params }) {
 
         <div>
           <h1 className="text-2xl font-bold">{tema}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{hospital}</p>
-          <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="size-3.5" /> {ciudad}
+          <p className="mt-1 text-sm text-muted-foreground">
+            Lo que cuentan personas que ya pasaron por esto.
           </p>
         </div>
 
-        {/* Esto va arriba y no en el pie: una página titulada con el nombre de
-            un hospital se lee como si la hubiera escrito el hospital. */}
+        {/* Arriba y no en el pie: hay que leerlo antes que nada. */}
         <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
           <p className="font-semibold">
-            Esto lo escriben personas que han pasado por algo parecido, no el hospital.
+            Esto lo escriben personas que han pasado por algo parecido, no un hospital ni un
+            profesional.
           </p>
           <p className="mt-1 text-muted-foreground">
             No es información médica ni oficial, y puede haber cambiado. Para cualquier
@@ -117,7 +113,10 @@ export default async function GuiaPage({ params }: { params: Params }) {
                     className="rounded-xl border border-border p-4 text-sm leading-relaxed"
                   >
                     <p className="whitespace-pre-line">{r.contenido}</p>
-                    <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                    <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      {r.autor_alias && (
+                        <span className="font-medium text-foreground">{r.autor_alias}</span>
+                      )}
                       {etiquetaAutor(r.autor_rol) && (
                         <span className="rounded-full border border-border px-2 py-0.5">
                           {etiquetaAutor(r.autor_rol)}
@@ -137,7 +136,7 @@ export default async function GuiaPage({ params }: { params: Params }) {
           ))}
         </div>
 
-        <TeHaServido hospitalSlug={hospitalSlug} temaSlug={temaSlug} />
+        <TeHaServido temaSlug={temaSlug} />
 
         <div className="rounded-xl border border-border p-4">
           <p className="font-semibold">¿Has pasado por aquí?</p>
@@ -145,7 +144,7 @@ export default async function GuiaPage({ params }: { params: Params }) {
             Lo que tú aprendiste le puede ahorrar horas a quien acaba de llegar.
           </p>
           <Link
-            href={`/dashboard/guias?hospital=${hospitalSlug}&tema=${temaSlug}`}
+            href={`/dashboard/guias?tema=${temaSlug}`}
             className={cn(buttonVariants({ size: 'sm' }), 'mt-3')}
           >
             Añadir lo que sepas
@@ -155,9 +154,9 @@ export default async function GuiaPage({ params }: { params: Params }) {
         {/* Sin Google (noindex), estas páginas llegan en papel: a la sala de
             familias del hospital. */}
         <p className="text-center text-xs text-muted-foreground">
-          ¿Quieres dejarla en la sala de familias?{' '}
+          ¿Quieres dejarla en una sala de espera?{' '}
           <Link
-            href={`/guias/${hospitalSlug}/${temaSlug}/cartel`}
+            href={`/guias/${temaSlug}/cartel`}
             className="underline underline-offset-2 hover:text-foreground"
           >
             Imprime un cartel con QR

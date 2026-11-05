@@ -5,6 +5,7 @@ import { HandHeart, Pencil } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ProfileCard } from '@/components/profile-card'
+import { GuiasDePerfil } from '@/components/guias-de-perfil'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
@@ -78,6 +79,8 @@ export default async function PerfilPage() {
               <Pencil className="size-4" /> Editar perfil
             </Link>
           </ProfileCard>
+
+          <GuiasDePerfil userId={user.id} propio />
         </div>
 
         {/* Estar a los dos lados funcionaba, pero nadie sabía que se podía. */}

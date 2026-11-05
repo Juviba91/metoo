@@ -82,13 +82,13 @@ export default async function AdminPage() {
       .select('id, suggestion, created_at, profiles!profile_id(alias)')
       .order('created_at', { ascending: false })
       .limit(50),
-    // Las guías son públicas, indexables y las escribe cualquiera con cuenta:
-    // es el contenido que más falta hace poder moderar. Se traen también las
+    // Las guías son públicas y las escribe cualquiera con cuenta: es el
+    // contenido que más falta hace poder moderar. Se traen también las
     // ocultas, para poder deshacer.
     admin
       .from('guia_respuestas')
       .select(
-        'id, contenido, creada_en, oculta, oculta_motivo, hospitals(name, slug), hashtags(label, slug), guia_preguntas(enunciado), profiles(alias)',
+        'id, contenido, creada_en, oculta, oculta_motivo, hashtags(label, slug), guia_preguntas(enunciado), profiles(alias)',
       )
       .order('creada_en', { ascending: false })
       .limit(100),
@@ -97,7 +97,7 @@ export default async function AdminPage() {
     admin.from('connections').select('id, seeker_id, volunteer_id').limit(5000),
     admin.from('messages').select('connection_id, sender_id').limit(20000),
     admin.from('profiles').select('id, deleted_at').limit(5000),
-    admin.from('guia_votos').select('util, hospitals(slug), hashtags(slug)').limit(10000),
+    admin.from('guia_votos').select('util, hashtags(slug)').limit(10000),
     // Los temas de cada cuenta con su papel EN ESE TEMA: se enseñan junto a
     // cada usuario («acompaña en…», «busca apoyo en…»).
     admin.from('profile_hashtags').select('profile_id, role, hashtags(label)').limit(10000),
@@ -114,7 +114,7 @@ export default async function AdminPage() {
 
   // «¿Te ha servido?» por guía, con la misma clave que los grupos de abajo.
   const votosPorGuia = ((votos ?? []) as any[]).reduce<Record<string, { si: number; no: number }>>((acc, v) => {
-    const clave = `${v.hospitals?.slug ?? '?'}/${v.hashtags?.slug ?? '?'}`
+    const clave = v.hashtags?.slug ?? '?'
     acc[clave] ??= { si: 0, no: 0 }
     if (v.util) acc[clave].si++
     else acc[clave].no++
@@ -171,14 +171,13 @@ export default async function AdminPage() {
   // guía, que es como se leen en la web, y cada grupo se abre cuando toca.
   const gruposGuias = Object.values(
     (aportaciones ?? []).reduce<
-      Record<string, { clave: string; tema: string; hospital: string; href: string | null; ocultas: number; aportaciones: any[] }>
+      Record<string, { clave: string; tema: string; href: string | null; ocultas: number; aportaciones: any[] }>
     >((acc, a: any) => {
-      const clave = `${a.hospitals?.slug ?? '?'}/${a.hashtags?.slug ?? '?'}`
+      const clave = a.hashtags?.slug ?? '?'
       acc[clave] ??= {
         clave,
         tema: a.hashtags?.label ?? '—',
-        hospital: a.hospitals?.name ?? '—',
-        href: a.hospitals?.slug && a.hashtags?.slug ? `/guias/${clave}` : null,
+        href: a.hashtags?.slug ? `/guias/${clave}` : null,
         ocultas: 0,
         aportaciones: [],
       }
@@ -328,7 +327,6 @@ export default async function AdminPage() {
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{g.tema}</p>
-                      <p className="truncate text-xs text-muted-foreground">{g.hospital}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
                       {g.ocultas > 0 && (

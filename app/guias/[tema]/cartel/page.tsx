@@ -6,7 +6,7 @@ import { qrSvg } from '@/lib/qr'
 import { Imprimir } from './imprimir'
 import type { Metadata } from 'next'
 
-type Params = Promise<{ hospital: string; tema: string }>
+type Params = Promise<{ tema: string }>
 type Busqueda = Promise<{ formato?: string }>
 
 export const metadata: Metadata = {
@@ -23,23 +23,22 @@ export const metadata: Metadata = {
  * analíticas cuántas visitas vienen de ahí.
  */
 export default async function CartelPage({ params, searchParams }: { params: Params; searchParams: Busqueda }) {
-  const { hospital: hospitalSlug, tema: temaSlug } = await params
+  const { tema: temaSlug } = await params
   const { formato } = await searchParams
   const tarjetas = formato === 'tarjetas'
 
   const supabase = await createClient()
   const { data } = await supabase
-    .from('guias_indice')
-    .select('hospital, ciudad, tema')
-    .eq('hospital_slug', hospitalSlug)
+    .from('guias_temas')
+    .select('tema')
     .eq('tema_slug', temaSlug)
     .maybeSingle()
 
   if (!data) notFound()
 
-  const enlace = `${URL_SITIO}/guias/${hospitalSlug}/${temaSlug}?utm_source=${tarjetas ? 'tarjeta' : 'cartel'}&utm_medium=qr`
+  const enlace = `${URL_SITIO}/guias/${temaSlug}?utm_source=${tarjetas ? 'tarjeta' : 'cartel'}&utm_medium=qr`
   const svg = await qrSvg(enlace)
-  const corto = `metoonetwork.xyz/guias/${hospitalSlug}/${temaSlug}`
+  const corto = `metoonetwork.xyz/guias/${temaSlug}`
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -71,10 +70,9 @@ export default async function CartelPage({ params, searchParams }: { params: Par
               <div className="size-[34mm] shrink-0" dangerouslySetInnerHTML={{ __html: svg }} />
               <div className="min-w-0">
                 <p className="text-[11pt] font-bold leading-tight">{data.tema}</p>
-                <p className="text-[9pt] leading-tight">{data.hospital}</p>
                 <p className="mt-2 text-[8.5pt] leading-snug text-neutral-700">
-                  Lo práctico que otras familias aprendieron aquí. Y alguien que lo vivió con
-                  quien hablar.
+                  Lo práctico que aprendieron quienes ya pasaron por esto. Y alguien que lo
+                  vivió con quien hablar.
                 </p>
                 <p className="mt-2 text-[8pt] font-semibold">metoo.</p>
               </div>
@@ -84,12 +82,12 @@ export default async function CartelPage({ params, searchParams }: { params: Par
       ) : (
         <div className="mx-auto flex min-h-[260mm] max-w-[186mm] flex-col items-center justify-between px-6 py-10 text-center">
           <div>
-            <p className="text-[14pt] uppercase tracking-widest text-neutral-500">{data.hospital}</p>
+            <p className="text-[14pt] uppercase tracking-widest text-neutral-500">Guía</p>
             {/* El tema va tal cual: son etiquetas con siglas («UCI»), y pasarlas
                 a minúsculas para meterlas en una frase las estropea. */}
             <h1 className="mt-4 text-[38pt] font-bold leading-tight">{data.tema}</h1>
             <p className="mx-auto mt-6 max-w-[140mm] text-[15pt] leading-snug text-neutral-700">
-              Otras familias que estuvieron aquí cuentan lo práctico que nadie te explica:
+              Personas que ya pasaron por esto cuentan lo práctico que nadie te explica:
               dónde dormir, horarios, trámites, qué traer.
             </p>
           </div>
@@ -106,7 +104,7 @@ export default async function CartelPage({ params, searchParams }: { params: Par
             </p>
             <p className="mt-8 text-[22pt] font-bold">metoo.</p>
             <p className="mt-2 text-[9pt] text-neutral-500">
-              Lo escriben familias, no el hospital. No es información médica. {TITULAR.corto}, sin
+              Lo escriben personas que lo han vivido, no un hospital. No es información médica. {TITULAR.corto}, sin
               ánimo de lucro.
             </p>
           </div>

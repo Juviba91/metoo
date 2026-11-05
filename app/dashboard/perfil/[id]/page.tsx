@@ -6,6 +6,7 @@ import { ContactButton } from '@/components/contact-button'
 import { BlockButton } from '@/components/block-button'
 import { isUserBlocked, canInteractWith, contarSolicitudesPendientes } from '@/app/safety/actions'
 import { ProfileCard } from '@/components/profile-card'
+import { GuiasDePerfil } from '@/components/guias-de-perfil'
 import { ladosDe, puedeIniciar, puedenConectar, temasVisibles } from '@/lib/lados'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
@@ -136,6 +137,7 @@ export default async function PublicProfilePage({
           <BlockButton userId={id} isBlocked={isBlocked} />
         </ProfileCard>
 
+        <GuiasDePerfil userId={id} />
       </main>
 
       <SiteFooter className="hidden sm:block" />

@@ -58,8 +58,8 @@ export default async function ConsentimientoPage({
           <p className="mb-2 font-semibold text-foreground">Lo que cambia</p>
           <ul className="ml-4 list-disc space-y-1.5">
             <li>
-              Las guías por hospital ya no llevan tu alias ni enlazan a tu perfil, y hemos
-              pedido a los buscadores que no las indexen.
+              Las guías son ahora por tema, sin hospital, y cada respuesta lleva el alias de
+              quien la escribe. Hemos pedido a los buscadores que no las indexen.
             </li>
             <li>
               Si te das de baja, a la otra persona le queda la conversación durante un año

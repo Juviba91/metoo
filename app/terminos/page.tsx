@@ -93,9 +93,9 @@ export default function TerminosPage() {
               indicado en su perfil, y decides tú.
             </p>
             <p className="mt-3">
-              Además, hay <strong className="text-foreground">guías por hospital</strong>: lo
-              práctico que otras familias aprendieron allí, escrito por ellas y publicado sin
-              firma (punto 6).
+              Además, hay <strong className="text-foreground">guías por tema</strong>: lo
+              práctico que aprendieron otras personas que pasaron por lo mismo, escrito por
+              ellas y publicado con su alias (punto 6).
             </p>
           </section>
 
@@ -241,12 +241,12 @@ export default function TerminosPage() {
               acaba, con la excepción de las guías que se explica abajo.
             </p>
             <p className="mt-3">
-              Las <strong className="text-foreground">guías por hospital</strong> se leen sin
-              cuenta, aunque pedimos a los buscadores que no las indexen. Al enviar una respuesta
-              nos autorizas a publicarla ahí, sin tu alias ni enlace a tu perfil, y a mantenerla
+              Las <strong className="text-foreground">guías</strong> se leen sin cuenta, aunque
+              pedimos a los buscadores que no las indexen. Al enviar una respuesta nos autorizas
+              a publicarla ahí, con tu alias y con un enlace desde tu perfil, y a mantenerla
               mientras no la retires: puedes pedirnos que la borremos en cualquier momento. Si te
-              das de baja, se queda. Las guías no las escriben los hospitales ni los representan,
-              y pueden estar desfasadas. No nombres en ellas a profesionales ni a otras personas
+              das de baja, se queda, sin tu alias. Las guías no las escriben los hospitales ni
+              los representan, y pueden estar desfasadas. No nombres en ellas a profesionales ni a otras personas
               concretas; lo que lo haga se oculta.
             </p>
           </section>
