@@ -27,23 +27,62 @@ export type UsuarioSesion = {
 export async function usuarioDeLaSesion(
   supabase: SupabaseClient<any, any, any>,
 ): Promise<UsuarioSesion | null> {
+  return (await sesionDe(supabase)).usuario
+}
+
+/**
+ * ¿El error dice que la sesión guardada en el navegador ya no sirve?
+ *
+ * Pasa cuando el token de renovación no existe (se cerró la sesión en otro
+ * sitio, se rotó la clave, la cuenta se borró…). Es distinto de «no hay
+ * sesión»: aquí el navegador sigue mandando una cookie que no vale.
+ */
+export function sesionCaducada(error: unknown): boolean {
+  const e = error as { code?: string; message?: string } | null | undefined
+  if (!e) return false
+  if (['refresh_token_not_found', 'refresh_token_already_used', 'session_not_found'].includes(e.code ?? '')) {
+    return true
+  }
+  return /Invalid Refresh Token|Refresh Token Not Found/i.test(e.message ?? '')
+}
+
+/** Las cookies de sesión de Supabase (también las partidas en trozos: `.0`, `.1`…). */
+export function cookiesDeSesion(nombres: string[]): string[] {
+  return nombres.filter((n) => /^sb-.+-auth-token(\.\d+)?$/.test(n))
+}
+
+/**
+ * Lo mismo que `usuarioDeLaSesion`, y además si la cookie que llegó ya no vale.
+ * El middleware lo usa para borrarla: sin eso, ese navegador reintentaba la
+ * renovación (y fallaba, y lo registraba) en cada carga.
+ */
+export async function sesionDe(
+  supabase: SupabaseClient<any, any, any>,
+): Promise<{ usuario: UsuarioSesion | null; caducada: boolean }> {
   const { data, error } = await supabase.auth.getClaims()
   const claims = data?.claims
-  if (error || !claims?.sub) return null
+  if (error) return { usuario: null, caducada: sesionCaducada(error) }
+  if (!claims?.sub) return { usuario: null, caducada: false }
 
   const metadatos = (claims.user_metadata ?? {}) as { email_verified?: unknown }
   if (metadatos.email_verified === true) {
     return {
-      id: claims.sub,
-      email: typeof claims.email === 'string' ? claims.email : undefined,
-      // No es la fecha real (el token no la lleva): solo marca que está confirmado.
-      email_confirmed_at: new Date((claims.iat ?? 0) * 1000).toISOString(),
+      usuario: {
+        id: claims.sub,
+        email: typeof claims.email === 'string' ? claims.email : undefined,
+        // No es la fecha real (el token no la lleva): solo marca que está confirmado.
+        email_confirmed_at: new Date((claims.iat ?? 0) * 1000).toISOString(),
+      },
+      caducada: false,
     }
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return null
-  return { id: user.id, email: user.email, email_confirmed_at: user.email_confirmed_at ?? null }
+  if (!user) return { usuario: null, caducada: false }
+  return {
+    usuario: { id: user.id, email: user.email, email_confirmed_at: user.email_confirmed_at ?? null },
+    caducada: false,
+  }
 }

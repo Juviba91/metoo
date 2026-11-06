@@ -40,11 +40,14 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
-  ],
+  // Solo claro, que es lo que la app es: ningún código activa el modo oscuro
+  // (la clase `dark` no se pone en ningún sitio). Con `light dark` y un color
+  // de barra negro para el oscuro, quien tenía el móvil en oscuro veía la
+  // barra del navegador negra encima de una página blanca.
+  colorScheme: 'light',
+  // El terracota de metoo (--primary), también en la barra del navegador y en
+  // la de la app instalada.
+  themeColor: '#a85a34',
   width: 'device-width',
   initialScale: 1,
 }

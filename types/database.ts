@@ -774,18 +774,6 @@ export type Database = {
         }
         Relationships: []
       }
-      guias_indice: {
-        Row: {
-          hospital_slug: string
-          hospital: string
-          ciudad: string
-          tema_slug: string
-          tema: string
-          aportaciones: number
-          ultima: string
-        }
-        Relationships: []
-      }
     }
     Functions: {
       blocked_user_ids: {
@@ -803,27 +791,16 @@ export type Database = {
         Returns: { alias: string; activo: boolean }[]
       }
       get_pending_count: { Args: Record<string, never>; Returns: number }
-      aportar_a_guia: {
-        Args: {
-          p_hospital_slug: string
-          p_tema_slug: string
-          p_pregunta_id: string
-          p_contenido: string
-          p_mostrar_alias?: boolean
-        }
-        Returns: string
-      }
       aportar_a_tema: {
         Args: { p_tema_slug: string; p_pregunta_id: string; p_contenido: string }
         Returns: string
       }
-      votar_guia_tema: {
-        Args: { p_tema_slug: string; p_util: boolean }
+      editar_aportacion: {
+        Args: { p_id: string; p_contenido: string }
         Returns: undefined
       }
-      quitar_mi_firma_en_guias: { Args: Record<string, never>; Returns: number }
-      votar_guia: {
-        Args: { p_hospital_slug: string; p_tema_slug: string; p_util: boolean }
+      votar_guia_tema: {
+        Args: { p_tema_slug: string; p_util: boolean }
         Returns: undefined
       }
       voluntarios_por_tema: {

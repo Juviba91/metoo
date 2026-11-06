@@ -1,5 +1,5 @@
 import { cache } from 'react'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
 import { GuiasShell } from '@/components/guias-shell'
+import { EditarRespuesta } from '@/components/editar-respuesta'
 import { TeHaServido } from './te-ha-servido'
 import type { Metadata } from 'next'
 
@@ -22,7 +23,7 @@ const cargar = cache(async (tema: string) => {
 
   const { data } = await supabase
     .from('guias_publicas')
-    .select('pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, tema')
+    .select('id, pregunta_id, orden, enunciado, ayuda, contenido, revisada_en, autor_rol, autor_alias, autor_id, tema')
     .eq('tema_slug', tema)
 
   return { filas: data ?? [] }
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
  */
 export default async function GuiaPage({ params }: { params: Params }) {
   const { tema: temaSlug } = await params
-  const { filas } = await cargar(temaSlug)
+  const [{ filas }, user] = await Promise.all([cargar(temaSlug), getUser()])
 
   // Una guía sin nada escrito no existe: no se pinta un esqueleto vacío, que
   // parecería abandonado.
@@ -107,12 +108,8 @@ export default async function GuiaPage({ params }: { params: Params }) {
               )}
 
               <div className="mt-3 space-y-3">
-                {bloque.respuestas.map((r, i) => (
-                  <div
-                    key={i}
-                    className="rounded-xl border border-border p-4 text-sm leading-relaxed"
-                  >
-                    <p className="whitespace-pre-line">{r.contenido}</p>
+                {bloque.respuestas.map((r, i) => {
+                  const meta = (
                     <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                       {r.autor_alias && (
                         <span className="font-medium text-foreground">{r.autor_alias}</span>
@@ -129,8 +126,28 @@ export default async function GuiaPage({ params }: { params: Params }) {
                         </span>
                       )}
                     </p>
-                  </div>
-                ))}
+                  )
+                  // Las tuyas se pueden corregir; las de los demás, no.
+                  const esMia = Boolean(user && r.id && r.autor_id === user.id)
+
+                  return (
+                    <div
+                      key={r.id ?? i}
+                      className="rounded-xl border border-border p-4 text-sm leading-relaxed"
+                    >
+                      {esMia ? (
+                        <EditarRespuesta id={r.id!} contenido={r.contenido}>
+                          {meta}
+                        </EditarRespuesta>
+                      ) : (
+                        <>
+                          <p className="whitespace-pre-line">{r.contenido}</p>
+                          {meta}
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </section>
           ))}

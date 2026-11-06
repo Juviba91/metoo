@@ -10,7 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#0a0a0a',
+    theme_color: '#a85a34',
     orientation: 'portrait',
     // Se apunta a /logo.png (en public/) en vez de a las rutas generadas por
     // app/icon.png, cuya URL lleva un hash que cambia en cada build.

@@ -159,7 +159,7 @@ export function ChatEquipo({
                       }`}
                     >
                       <p className="whitespace-pre-line break-words">{m.contenido}</p>
-                      <p className={`mt-0.5 text-[11px] ${mio ? 'text-burbuja-foreground/60' : 'text-muted-foreground'}`} suppressHydrationWarning>
+                      <p className={`mt-0.5 text-xs ${mio ? 'text-burbuja-foreground/60' : 'text-muted-foreground'}`} suppressHydrationWarning>
                         {FORMATO_HORA.format(new Date(m.creado_en))}
                       </p>
                     </div>
@@ -202,7 +202,7 @@ export function ChatEquipo({
             <Send className="size-4" />
           </Button>
         </div>
-        {nota && <p className="pb-1 text-center text-[11px] leading-snug text-muted-foreground">{nota}</p>}
+        {nota && <p className="pb-1 text-center text-xs leading-snug text-muted-foreground">{nota}</p>}
       </form>
     </div>
   )
