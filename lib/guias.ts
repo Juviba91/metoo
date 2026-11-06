@@ -2,11 +2,13 @@
  * Guías por tema: lo que aprendieron quienes ya pasaron por ello.
  *
  * Aquí solo va la lógica que se puede probar sin base de datos. Las consultas
- * están en las páginas, y la escritura en `aportar_a_guia` (la base es la que
- * manda: comprueba rol, tema del perfil y rate limit).
+ * están en las páginas, y la escritura en `aportar_a_tema` y `editar_aportacion`
+ * (la base es la que manda: comprueba sesión, longitud y rate limit).
  */
 
 export type FilaGuia = {
+  /** Id de la aportación; con él se edita la propia. */
+  id?: string
   pregunta_id: string
   orden: number
   enunciado: string
@@ -22,6 +24,7 @@ export type FilaGuia = {
 }
 
 export type RespuestaGuia = {
+  id?: string
   contenido: string
   revisada_en: string
   autor_rol?: string | null
@@ -64,6 +67,7 @@ export function agruparPorPregunta(filas: FilaGuia[]): BloqueGuia[] {
       porPregunta.set(fila.pregunta_id, bloque)
     }
     bloque.respuestas.push({
+      id: fila.id,
       contenido: fila.contenido,
       revisada_en: fila.revisada_en,
       autor_rol: fila.autor_rol ?? null,

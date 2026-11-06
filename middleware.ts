@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { destinoSeguro } from '@/lib/destino'
-import { usuarioDeLaSesion } from '@/lib/supabase/sesion'
+import { cookiesDeSesion, sesionDe } from '@/lib/supabase/sesion'
 import {
   COOKIE_CONSENTIMIENTO,
   consentimientoAlDia,
@@ -55,7 +55,19 @@ export async function middleware(request: NextRequest) {
 
   // Comprueba la firma del token aquí, sin ir a Supabase (claves
   // asimétricas); de paso renueva la sesión si ha caducado. Ver lib/supabase/sesion.ts.
-  const user = await usuarioDeLaSesion(supabase)
+  const { usuario: user, caducada } = await sesionDe(supabase)
+
+  // Si la cookie de sesión ya no vale (token de renovación inexistente), se
+  // borra en la respuesta que salga, sea cual sea. Sin esto ese navegador
+  // la seguía mandando y fallaba la renovación en cada carga.
+  const limpiar = <T extends NextResponse>(res: T): T => {
+    if (caducada) {
+      for (const nombre of cookiesDeSesion(request.cookies.getAll().map((c) => c.name))) {
+        res.cookies.set(nombre, '', { path: '/', maxAge: 0 })
+      }
+    }
+    return res
+  }
 
   const path = request.nextUrl.pathname
 
@@ -65,13 +77,13 @@ export async function middleware(request: NextRequest) {
     // Se recuerda a dónde ibas, con sus parámetros, para volver tras entrar.
     url.search = ''
     url.searchParams.set('next', path + request.nextUrl.search)
-    return NextResponse.redirect(url)
+    return limpiar(NextResponse.redirect(url))
   }
 
   if (user && !user.email_confirmed_at && (PROTECTED.some((p) => path.startsWith(p)))) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/verificar'
-    return NextResponse.redirect(url)
+    return limpiar(NextResponse.redirect(url))
   }
 
   // Consentimiento al día. Las cuentas de antes de la casilla de salud y de la
@@ -100,7 +112,7 @@ export async function middleware(request: NextRequest) {
       url.pathname = '/dashboard/consentimiento'
       url.search = ''
       url.searchParams.set('next', path + request.nextUrl.search)
-      return NextResponse.redirect(url)
+      return limpiar(NextResponse.redirect(url))
     }
 
     if (registro) {
@@ -127,10 +139,10 @@ export async function middleware(request: NextRequest) {
     } else {
       url.pathname = '/auth/verificar'
     }
-    return NextResponse.redirect(url)
+    return limpiar(NextResponse.redirect(url))
   }
 
-  return supabaseResponse
+  return limpiar(supabaseResponse)
 }
 
 // `auth.getUser()` valida el token contra el servidor de Supabase Auth en cada

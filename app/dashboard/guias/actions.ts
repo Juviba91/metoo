@@ -38,3 +38,34 @@ export async function aportar(
   revalidatePath('/guias')
   return { success: true }
 }
+
+/**
+ * Corrige una aportación propia.
+ *
+ * La base (`editar_aportacion`) es quien comprueba que sea tuya y que no esté
+ * oculta por moderación, además de la longitud y el límite de ediciones. Aquí
+ * solo se traduce el error. Se invalida la página de la guía de cualquier tema
+ * porque desde aquí no se sabe de cuál era.
+ */
+export async function editarAportacion(
+  id: string,
+  contenido: string,
+): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase.rpc('editar_aportacion', {
+    p_id: id,
+    p_contenido: contenido,
+  })
+
+  if (error) {
+    console.error('editar_aportacion failed:', error)
+    return { error: error.message || 'No se pudo guardar' }
+  }
+
+  revalidatePath('/guias/[tema]', 'page')
+  revalidatePath('/guias')
+  return { success: true }
+}
