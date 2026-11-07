@@ -125,9 +125,9 @@ export default function Page() {
             de metoo que sirve en el minuto uno. */}
         <Link
           href="/guias"
-          className="mt-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="mt-6 inline-block text-balance text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
-          <BookOpen className="size-4" />
+          <BookOpen className="mr-1.5 inline size-4 align-[-3px]" />
           ¿Estás pasando por algo difícil? Lee las guías, sin cuenta
         </Link>
       </section>
@@ -174,15 +174,15 @@ export default function Page() {
           metoo acaba de empezar y todavía somos pocos: no en todos los temas hay
           alguien esperando, y preferimos decírtelo antes de que entres.
         </p>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
           {categories.map((cat) => (
             <div
               key={cat.label}
-              className="rounded-xl border border-border p-5 transition-colors hover:bg-muted/50"
+              className="rounded-xl border border-border p-4 transition-colors hover:bg-muted/50 sm:p-5"
             >
-              <span className="mb-3 block text-3xl">{cat.emoji}</span>
-              <h3 className="mb-1 font-semibold">{cat.label}</h3>
-              <p className="text-sm text-muted-foreground">{cat.sub}</p>
+              <span className="mb-2 block text-2xl sm:mb-3 sm:text-3xl">{cat.emoji}</span>
+              <h3 className="mb-1 text-sm font-semibold sm:text-base">{cat.label}</h3>
+              <p className="text-xs leading-snug text-muted-foreground sm:text-sm">{cat.sub}</p>
             </div>
           ))}
         </div>

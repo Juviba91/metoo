@@ -211,12 +211,14 @@ function LoginForm() {
           )}
 
           {/* Tabs */}
-          <div className="mb-8 flex rounded-xl border border-border p-1">
+          {/* La pestaña elegida, en blanco sobre gris: el terracota se queda para el
+              botón de enviar, que antes era un segundo «Entrar» idéntico. */}
+          <div className="mb-8 flex rounded-xl bg-muted p-1">
             <button
               onClick={() => switchMode('login')}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-colors ${
                 mode === 'login'
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -224,9 +226,9 @@ function LoginForm() {
             </button>
             <button
               onClick={() => switchMode('register')}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-colors ${
                 mode === 'register'
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
