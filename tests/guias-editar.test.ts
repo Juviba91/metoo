@@ -71,3 +71,41 @@ describe('editar_aportacion en la migración', () => {
     expect(funcion).toMatch(/GRANT EXECUTE ON FUNCTION public\.editar_aportacion\(uuid, text\) TO authenticated/)
   })
 })
+
+describe('borrarAportacion', async () => {
+  const { borrarAportacion } = await import('@/app/dashboard/guias/actions')
+
+  it('borra por la función de la base y refresca la guía, el índice y el perfil', async () => {
+    state.mock = createSupabaseMock({ user: { id: 'u1' } })
+    revalidatePath.mockClear()
+
+    const res = await borrarAportacion('r1')
+
+    expect(res.success).toBe(true)
+    expect(state.mock.rpcCalls).toEqual([{ name: 'borrar_aportacion', args: { p_id: 'r1' } }])
+    expect(revalidatePath).toHaveBeenCalledWith('/guias/[tema]', 'page')
+    expect(revalidatePath).toHaveBeenCalledWith('/dashboard/perfil')
+  })
+
+  it('sin sesión no llega a la base', async () => {
+    state.mock = createSupabaseMock({ user: null })
+
+    expect((await borrarAportacion('r1')).error).toBeTruthy()
+    expect(state.mock.rpcCalls).toEqual([])
+  })
+})
+
+describe('borrar_aportacion en la migración', () => {
+  const sql = readFileSync(
+    join(process.cwd(), 'supabase', 'migrations', '20261114_borrar_aportacion_y_chat_equipo_en_vivo.sql'),
+    'utf8',
+  )
+
+  it('solo borra respuestas de quien llama', () => {
+    expect(sql).toMatch(/DELETE FROM guia_respuestas WHERE id = p_id AND autor_id = v_user/)
+  })
+
+  it('no la puede ejecutar quien no tiene sesión', () => {
+    expect(sql).toMatch(/REVOKE ALL ON FUNCTION public\.borrar_aportacion\(uuid\) FROM PUBLIC, anon/)
+  })
+})

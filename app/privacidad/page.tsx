@@ -194,7 +194,7 @@ export default function PrivacidadPage() {
               <li>
                 <strong className="text-foreground">Si te das de baja:</strong> tus respuestas se
                 quedan, dejan de llevar tu alias y ya ni siquiera nosotros sabemos de quién eran. Si prefieres que se
-                borren, escríbenos antes y las borramos.
+                borren, puedes borrarlas tú antes desde cada guía, o escribirnos y lo hacemos.
               </li>
               <li>
                 <strong className="text-foreground">Moderación:</strong> no las revisamos antes de
@@ -446,7 +446,7 @@ export default function PrivacidadPage() {
               <li>
                 <strong className="text-foreground">Tus respuestas en las guías</strong> se
                 quedan, sin tu alias y sin que quede guardado de quién eran (punto 3). Si quieres que
-                se borren, escríbenos antes de darte de baja.
+                se borren, bórralas tú desde cada guía antes de darte de baja, o escríbenos.
               </li>
               <li>
                 Los reportes de moderación, lo que nos escribes por la burbuja de feedback y tus

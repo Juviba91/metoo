@@ -799,6 +799,10 @@ export type Database = {
         Args: { p_id: string; p_contenido: string }
         Returns: undefined
       }
+      borrar_aportacion: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
       votar_guia_tema: {
         Args: { p_tema_slug: string; p_util: boolean }
         Returns: undefined

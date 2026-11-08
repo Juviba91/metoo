@@ -49,6 +49,7 @@ export default async function EquipoPage() {
         <ChatEquipo
           mensajes={(mensajes ?? []) as { id: number; del_equipo: boolean; contenido: string; creado_en: string }[]}
           soyEquipo={false}
+          enVivoPara={user.id}
           enviar={enviarAlEquipo}
           alVer={marcarEquipoLeido}
           vacio="Todavía no hay mensajes. Si tienes cualquier duda o idea, escríbenos."
