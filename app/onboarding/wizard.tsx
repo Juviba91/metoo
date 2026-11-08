@@ -108,8 +108,12 @@ export function OnboardingWizard({
       {/* Paso 1 — Rol */}
       {step === 1 && !roleConfirmed && (
         <div>
-          <h1 className="mb-2 text-center text-2xl font-bold">¿Cómo puedo ayudarte?</h1>
-          <p className="mb-8 text-center text-muted-foreground">Cuéntame qué te trae aquí</p>
+          {/* Antes: «¿Cómo puedo ayudarte?», que no encaja con quien viene a
+              ayudar. Y se dice ya que se puede estar a los dos lados. */}
+          <h1 className="mb-2 text-center text-2xl font-bold">¿Qué te trae por aquí?</h1>
+          <p className="mb-8 text-center text-muted-foreground">
+            Elige lo que mejor te describe ahora. Más adelante puedes estar a los dos lados.
+          </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <button
               onClick={() => {
@@ -199,7 +203,7 @@ export function OnboardingWizard({
             {role === 'seeker' ? '¿Qué estás viviendo?' : '¿En qué puedes acompañar?'}
           </h1>
           <p className="mb-6 text-center text-muted-foreground">
-            Elige hashtags o crea los tuyos
+            Elige tus temas o crea uno nuevo. Pueden ser varios.
           </p>
           <HashtagPicker suggestions={suggestions} selected={hashtags} onChange={setHashtags} />
           {/* Con dos o más temas puede que alguno sea del otro lado: viviste
@@ -267,13 +271,16 @@ export function OnboardingWizard({
       {step === 6 && (
         <div className="py-8 text-center">
           <div className="mb-6 text-5xl">💛</div>
-          <h1 className="mb-3 text-2xl font-bold">
-            Bienvenido{role === 'volunteer' ? ' al equipo' : ''}, {alias}
-          </h1>
-          <p className="mb-8 text-muted-foreground">
+          {/* Sin «Bienvenido»: no sabemos el género de nadie. Y sin prometer
+              que «te conectamos»: aquí no hay emparejamiento, buscas tú. */}
+          <h1 className="mb-3 text-2xl font-bold">Ya estás dentro, {alias}</h1>
+          <p className="mb-3 text-muted-foreground">
             {role === 'volunteer'
-              ? 'Gracias por querer acompañar. Recibirás solicitudes de personas que han vivido lo que tú has vivido.'
-              : 'Ya estás dentro. Vamos a conectarte con alguien que ha pasado por lo mismo.'}
+              ? 'Gracias por querer acompañar. Te avisaremos cuando alguien que está pasando por lo que tú viviste quiera hablar contigo.'
+              : 'En Inicio verás a personas que ya pasaron por lo mismo. Escríbeles cuando quieras: aquí el primer paso lo das tú.'}
+          </p>
+          <p className="mb-8 text-sm text-muted-foreground">
+            Te hemos dejado un mensaje de bienvenida en Chats.
           </p>
           <p className="text-xs text-muted-foreground">Entrando a metoo...</p>
         </div>
