@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { TemasConVoluntarios } from '@/components/temas-con-voluntarios'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, BookOpen, Hand, Heart, Shield, Users } from 'lucide-react'
+import { ArrowRight, BookOpen, Heart } from 'lucide-react'
 import { SiteFooter } from '@/components/site-footer'
 import { Logo } from '@/components/logo'
 import { SiteHeaderPublic } from '@/components/site-header-public'
@@ -53,24 +53,6 @@ const steps = [
     n: '04',
     title: 'Del chat a la vida real',
     desc: 'Si con el tiempo hay confianza, podéis seguir por teléfono. Sin prisa, y solo si os apetece a los dos.',
-  },
-]
-
-const reasons = [
-  {
-    icon: Shield,
-    title: 'Privacidad primero',
-    desc: 'No pedimos nombre real, ni foto, ni hospital. Un alias y ya.',
-  },
-  {
-    icon: Hand,
-    title: 'Tú das el primer paso',
-    desc: 'Nadie puede escribirte sin que tú abras la conversación.',
-  },
-  {
-    icon: Users,
-    title: 'Experiencia real',
-    desc: 'Los voluntarios han vivido lo mismo. No es teoría.',
   },
 ]
 
@@ -125,9 +107,9 @@ export default function Page() {
             de metoo que sirve en el minuto uno. */}
         <Link
           href="/guias"
-          className="mt-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="mt-6 inline-block text-balance text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
-          <BookOpen className="size-4" />
+          <BookOpen className="mr-1.5 inline size-4 align-[-3px]" />
           ¿Estás pasando por algo difícil? Lee las guías, sin cuenta
         </Link>
       </section>
@@ -138,11 +120,15 @@ export default function Page() {
       <section className="bg-muted/40 py-14 sm:py-20">
         <div className="mx-auto max-w-5xl px-6">
           <h2 className="mb-10 text-center text-2xl font-bold sm:mb-14 sm:text-3xl">Cómo funciona</h2>
-          <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 md:grid-cols-4">
+          {/* En el móvil, número y título en la misma línea: con el número
+              grande encima, cada paso ocupaba casi media pantalla. */}
+          <div className="grid gap-6 sm:grid-cols-2 sm:gap-10 md:grid-cols-4">
             {steps.map((step) => (
               <div key={step.n}>
-                <span className="text-5xl font-bold text-border">{step.n}</span>
-                <h3 className="mb-2 mt-2 text-lg font-semibold">{step.title}</h3>
+                <div className="flex items-baseline gap-3 sm:block">
+                  <span className="text-2xl font-bold text-border sm:text-5xl">{step.n}</span>
+                  <h3 className="mb-1 text-lg font-semibold sm:mb-2 sm:mt-2">{step.title}</h3>
+                </div>
                 <p className="leading-relaxed text-muted-foreground">{step.desc}</p>
               </div>
             ))}
@@ -174,41 +160,24 @@ export default function Page() {
           metoo acaba de empezar y todavía somos pocos: no en todos los temas hay
           alguien esperando, y preferimos decírtelo antes de que entres.
         </p>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
           {categories.map((cat) => (
             <div
               key={cat.label}
-              className="rounded-xl border border-border p-5 transition-colors hover:bg-muted/50"
+              className="rounded-xl border border-border p-4 transition-colors hover:bg-muted/50 sm:p-5"
             >
-              <span className="mb-3 block text-3xl">{cat.emoji}</span>
-              <h3 className="mb-1 font-semibold">{cat.label}</h3>
-              <p className="text-sm text-muted-foreground">{cat.sub}</p>
+              <span className="mb-2 block text-2xl sm:mb-3 sm:text-3xl">{cat.emoji}</span>
+              <h3 className="mb-1 text-sm font-semibold sm:text-base">{cat.label}</h3>
+              <p className="text-xs leading-snug text-muted-foreground sm:text-sm">{cat.sub}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Why metoo */}
+      {/* Volunteer role. Con fondo gris: es el que alterna con los blancos
+          desde que se quitó «Por qué metoo». */}
       <section className="bg-muted/40 py-14 sm:py-20">
-        <div className="mx-auto max-w-4xl px-6">
-          <h2 className="mb-10 text-center text-2xl font-bold sm:mb-14 sm:text-3xl">Por qué metoo</h2>
-          <div className="grid gap-10 text-center sm:grid-cols-3">
-            {reasons.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex flex-col items-center">
-                <div className="mb-4 flex size-12 items-center justify-center rounded-full border border-border bg-background">
-                  <Icon className="size-5" />
-                </div>
-                <h3 className="mb-2 font-semibold">{title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Volunteer role */}
-      <section className="mx-auto max-w-5xl px-6 py-14 sm:py-20">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-3xl px-6">
           <h2 className="mb-3 text-center text-2xl font-bold sm:text-3xl">
             ¿Qué hace un voluntario?
           </h2>
@@ -216,32 +185,35 @@ export default function Page() {
             Un voluntario en metoo no es psicólogo ni terapeuta. Es alguien que ha pasado por algo
             parecido y decide compartir esa experiencia de forma honesta.
           </p>
-          <div className="grid gap-6 sm:grid-cols-3">
-            <div className="rounded-xl border border-border p-5">
-              <p className="mb-2 text-2xl">👂</p>
-              <h3 className="mb-1 font-semibold">Escucha desde la experiencia</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Comparte cómo lo viviste tú — qué te ayudó, qué fue difícil, qué harías diferente.
-                Sin teorías, sin manuales.
-              </p>
-            </div>
-            <div className="rounded-xl border border-border p-5">
-              <p className="mb-2 text-2xl">🤝</p>
-              <h3 className="mb-1 font-semibold">Acompaña sin restar</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                No se quita hierro a lo que el otro siente, aunque a ti ya no te pese. El dolor de
-                cada persona es válido en su momento.
-              </p>
-            </div>
-            <div className="rounded-xl border border-border p-5">
-              <p className="mb-2 text-2xl">🚧</p>
-              <h3 className="mb-1 font-semibold">Conoce tus límites</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                No se actúa como psicólogo ni se dan diagnósticos. Si alguien necesita ayuda
-                profesional, se le dice con cariño.
-              </p>
-            </div>
-          </div>
+          {/* Lista y no tarjetas: tres recuadros a lo ancho alargaban la portada
+              sin decir más. */}
+          <ul className="mx-auto max-w-xl space-y-5">
+            {[
+              {
+                emoji: '👂',
+                titulo: 'Escucha desde la experiencia',
+                texto: 'Cuenta cómo lo viviste tú: qué te ayudó, qué fue difícil, qué harías diferente. Sin teorías.',
+              },
+              {
+                emoji: '🤝',
+                titulo: 'Acompaña sin restar',
+                texto: 'No le quita hierro a lo que el otro siente, aunque a ti ya no te pese.',
+              },
+              {
+                emoji: '🚧',
+                titulo: 'Conoce sus límites',
+                texto: 'No da diagnósticos. Si alguien necesita ayuda profesional, se lo dice con cariño.',
+              },
+            ].map((v) => (
+              <li key={v.titulo} className="flex gap-3">
+                <span className="text-xl leading-6">{v.emoji}</span>
+                <div>
+                  <h3 className="font-semibold">{v.titulo}</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{v.texto}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

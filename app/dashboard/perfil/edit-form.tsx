@@ -209,6 +209,16 @@ export function EditForm({
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
+      {/* Con cambios pendientes, el botón se queda fijo abajo (encima de la
+          barra de pestañas en el móvil): el formulario es largo y «Guardar»
+          quedaba al final, fuera de la vista mientras editabas arriba. */}
+      <div
+        className={
+          dirty && !saved
+            ? 'sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 -mx-4 space-y-2 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:bottom-4 sm:mx-0 sm:rounded-xl sm:border sm:shadow-sm'
+            : ''
+        }
+      >
       {dirty && !saved && (
         <p className="text-center text-xs text-amber-600 dark:text-amber-400">
           Tienes cambios sin guardar
@@ -226,6 +236,7 @@ export function EditForm({
           'Guardar cambios'
         )}
       </Button>
+      </div>
     </form>
   )
 }

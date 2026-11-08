@@ -155,7 +155,7 @@ export function ChatEquipo({
                   <div className={`flex ${mio ? 'justify-end' : 'justify-start'}`}>
                     <div
                       className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
-                        mio ? 'bg-burbuja text-burbuja-foreground' : 'bg-muted text-foreground'
+                        mio ? 'rounded-br-sm bg-burbuja text-burbuja-foreground' : 'rounded-bl-sm bg-muted text-foreground'
                       }`}
                     >
                       <p className="whitespace-pre-line break-words">{m.contenido}</p>
@@ -202,7 +202,7 @@ export function ChatEquipo({
             <Send className="size-4" />
           </Button>
         </div>
-        {nota && <p className="pb-1 text-center text-xs leading-snug text-muted-foreground">{nota}</p>}
+        {nota && <p className="text-balance pb-1 text-center text-xs leading-snug text-muted-foreground">{nota}</p>}
       </form>
     </div>
   )
