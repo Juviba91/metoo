@@ -69,3 +69,28 @@ export async function editarAportacion(
   revalidatePath('/guias')
   return { success: true }
 }
+
+/**
+ * Retira una aportación propia, del todo.
+ *
+ * Lo comprueba la base (`borrar_aportacion`): solo la de quien llama. Se
+ * refresca también el índice y el perfil, porque si era la única respuesta en
+ * esa guía, la guía deja de existir y sale de «Tus guías».
+ */
+export async function borrarAportacion(id: string): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase.rpc('borrar_aportacion', { p_id: id })
+
+  if (error) {
+    console.error('borrar_aportacion failed:', error)
+    return { error: error.message || 'No se pudo borrar' }
+  }
+
+  revalidatePath('/guias/[tema]', 'page')
+  revalidatePath('/guias')
+  revalidatePath('/dashboard/perfil')
+  return { success: true }
+}

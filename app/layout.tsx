@@ -40,11 +40,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  // Solo claro, que es lo que la app es: ningún código activa el modo oscuro
-  // (la clase `dark` no se pone en ningún sitio). Con `light dark` y un color
-  // de barra negro para el oscuro, quien tenía el móvil en oscuro veía la
-  // barra del navegador negra encima de una página blanca.
-  colorScheme: 'light',
+  // Claro u oscuro según el móvil: el script de <head> pone la clase `dark`.
+  colorScheme: 'light dark',
   // El terracota de metoo (--primary), también en la barra del navegador y en
   // la de la app instalada.
   themeColor: '#a85a34',
@@ -58,7 +55,21 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={geistSans.variable}>
+    // `suppressHydrationWarning`: el script de abajo pone `dark` en <html> antes
+    // de que React hidrate, y sin esto React avisaría de la diferencia.
+    <html lang="es" className={geistSans.variable} suppressHydrationWarning>
+      <head>
+        {/* Modo oscuro según el ajuste del móvil o del ordenador. Va en <head>,
+            antes de pintar nada, para que no haya un destello blanco al abrir
+            de noche; y escucha el cambio por si se cambia con la app abierta.
+            Es mucha gente la que abre esto a las tantas, con el brillo bajo. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var m=matchMedia('(prefers-color-scheme: dark)');var f=function(){document.documentElement.classList.toggle('dark',m.matches)};f();m.addEventListener('change',f)}catch(e){}})()",
+          }}
+        />
+      </head>
       <body className="font-sans antialiased">
         {/* Chrome ofrece instalar la app con un evento que lanza una sola vez al
             cargar, en la página que sea. Se guarda aquí para que el botón de

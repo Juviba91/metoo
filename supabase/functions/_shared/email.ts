@@ -66,8 +66,11 @@ export interface DeliverResult {
 export async function deliverEmail(
   supabase: SupabaseLike,
   apiKey: string | undefined,
-  { to, subject, html, from, recipientUserId }: DeliverEmailArgs,
+  { to, subject, html: contenido, from, recipientUserId }: DeliverEmailArgs,
 ): Promise<DeliverResult> {
+  // Todo lo que sale de aquí, dentro del marco común (y una sola vez).
+  const html = plantillaCorreo(contenido)
+
   if (recipientUserId) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -124,4 +127,41 @@ async function queue(
   })
 
   if (error) console.error('Could not queue email:', error)
+}
+
+/**
+ * Marca de que un correo ya va dentro de la plantilla. Los correos que se
+ * encolan desde la base (`plantilla_correo` en SQL) llegan ya envueltos, y
+ * los que fallan aquí y se reencolan también: sin la marca saldrían con dos
+ * marcos uno dentro de otro.
+ */
+export const MARCA_PLANTILLA = '<!-- metoo-plantilla -->'
+
+/**
+ * El marco común de los correos: «metoo.» arriba, el contenido, y un pie con
+ * el 112 y el enlace a los ajustes de avisos. Antes cada correo era un par de
+ * párrafos sueltos, sin nada que dijera de dónde venían.
+ *
+ * Tablas y estilos en línea porque es lo que entienden todos los clientes de
+ * correo. La misma plantilla está en SQL (`plantilla_correo`, migración
+ * 20261114): si cambias una, cambia la otra.
+ */
+export function plantillaCorreo(html: string): string {
+  if (html.includes(MARCA_PLANTILLA)) return html
+  return (
+    MARCA_PLANTILLA +
+    '<div style="background:#faf7f5;padding:24px 12px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif">' +
+    '<style>a{color:#a85a34}</style>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #efe9e5;border-radius:14px">' +
+    '<tr><td style="padding:28px 28px 8px">' +
+    '<p style="margin:0 0 20px;font-size:20px;font-weight:700;color:#0a0a0a">metoo<span style="color:#a85a34">.</span></p>' +
+    '<div style="font-size:15px;line-height:1.6;color:#262626">' +
+    html +
+    '</div></td></tr>' +
+    '<tr><td style="padding:16px 28px 24px;border-top:1px solid #f3eeea;font-size:12px;line-height:1.5;color:#8a8a8a">' +
+    'Apoyo de quien ya pasó por lo mismo · ' +
+    '<a href="https://www.metoonetwork.xyz/dashboard/ajustes" style="color:#8a8a8a">Ajustes de avisos</a><br>' +
+    'En una emergencia, llama al 112.' +
+    '</td></tr></table></div>'
+  )
 }

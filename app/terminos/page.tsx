@@ -244,7 +244,8 @@ export default function TerminosPage() {
               Las <strong className="text-foreground">guías</strong> se leen sin cuenta, aunque
               pedimos a los buscadores que no las indexen. Al enviar una respuesta nos autorizas
               a publicarla ahí, con tu alias y con un enlace desde tu perfil, y a mantenerla
-              mientras no la retires: puedes pedirnos que la borremos en cualquier momento. Si te
+              mientras no la retires: puedes editarla o borrarla tú desde la propia guía, o pedirnos
+              que la borremos, en cualquier momento. Si te
               das de baja, se queda, sin tu alias. Las guías no las escriben los hospitales ni
               los representan, y pueden estar desfasadas. No nombres en ellas a profesionales ni a otras personas
               concretas; lo que lo haga se oculta.

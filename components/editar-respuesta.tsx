@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { editarAportacion } from '@/app/dashboard/guias/actions'
+import { borrarAportacion, editarAportacion } from '@/app/dashboard/guias/actions'
 
 const MAX = 600
 
 /**
- * Una respuesta tuya en una guía, con «Editar».
+ * Una respuesta tuya en una guía, con «Editar» y «Borrar».
  *
  * Solo se usa en las respuestas de quien está leyendo: el resto son texto
  * plano. La base vuelve a comprobar que sea tuya, así que esto no es una
@@ -30,6 +30,11 @@ export function EditarRespuesta({
   const [texto, setTexto] = useState(contenido)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Borrar no tiene vuelta atrás: se pide confirmar en el sitio, sin ventana.
+  const [confirmandoBorrar, setConfirmandoBorrar] = useState(false)
+  const [borrando, setBorrando] = useState(false)
+  // Hasta que llega la página nueva sin ella, que no siga ahí la pregunta.
+  const [borrada, setBorrada] = useState(false)
 
   function abrir() {
     // Se parte de lo que hay publicado ahora, no de una edición anterior
@@ -59,20 +64,71 @@ export function EditarRespuesta({
     }
   }
 
+  async function borrar() {
+    setBorrando(true)
+    setError(null)
+    try {
+      const res = await borrarAportacion(id)
+      if (res.error) {
+        setError(res.error)
+        return
+      }
+      setBorrada(true)
+      router.refresh()
+    } finally {
+      setBorrando(false)
+    }
+  }
+
+  if (borrada) {
+    return <p className="text-xs text-muted-foreground">Respuesta borrada.</p>
+  }
+
   if (!editando) {
     return (
       <>
         <p className="whitespace-pre-line">{contenido}</p>
         <div className="flex items-end justify-between gap-3">
           {children}
-          <button
-            type="button"
-            onClick={abrir}
-            className="shrink-0 text-xs text-primary underline-offset-2 hover:underline"
-          >
-            Editar
-          </button>
+          {!confirmandoBorrar && (
+            <span className="flex shrink-0 gap-3">
+              <button
+                type="button"
+                onClick={abrir}
+                className="text-xs text-primary underline-offset-2 hover:underline"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmandoBorrar(true)}
+                className="text-xs text-muted-foreground underline-offset-2 hover:text-destructive hover:underline"
+              >
+                Borrar
+              </button>
+            </span>
+          )}
         </div>
+        {confirmandoBorrar && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/60 px-3 py-2">
+            <p className="text-xs text-foreground">¿Borrar esta respuesta? No se puede deshacer.</p>
+            <span className="flex gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setConfirmandoBorrar(false)}
+                disabled={borrando}
+                className="text-xs"
+              >
+                Cancelar
+              </Button>
+              <Button size="sm" variant="destructive" onClick={borrar} disabled={borrando} className="text-xs">
+                {borrando ? 'Borrando…' : 'Sí, borrar'}
+              </Button>
+            </span>
+          </div>
+        )}
+        {error && !editando && <p className="mt-2 text-xs text-destructive">{error}</p>}
       </>
     )
   }

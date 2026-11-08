@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -43,6 +44,7 @@ export function ChatEquipo({
   nota,
   alVer,
   refrescarCadaMs = 8000,
+  enVivoPara,
 }: {
   mensajes: MensajeVista[]
   soyEquipo: boolean
@@ -53,6 +55,13 @@ export function ChatEquipo({
   /** Se llama al abrir la conversación y cada vez que llega algo nuevo (marcar leído). */
   alVer?: () => void
   refrescarCadaMs?: number
+  /**
+   * Id de la persona cuyo hilo es (solo en su lado). Con él, los mensajes
+   * nuevos llegan al momento por Realtime; el sondeo queda de respaldo por si
+   * se corta. El panel de admin no lo pasa: la sesión de Juan no puede leer en
+   * vivo los hilos de los demás (la política solo deja ver los propios).
+   */
+  enVivoPara?: string
 }) {
   const router = useRouter()
   // Lo que he enviado y el servidor aún no ha devuelto. La lista que se pinta
@@ -82,8 +91,50 @@ export function ChatEquipo({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ultimoAjeno])
 
+  // En vivo: cada mensaje nuevo de este hilo repinta la conversación.
+  const [enVivo, setEnVivo] = useState(false)
+  useEffect(() => {
+    if (!enVivoPara) return
+    const supabase = createClient()
+    let activo = true
+    let canal: ReturnType<typeof supabase.channel> | null = null
+
+    function suscribir() {
+      if (!activo) return
+      canal = supabase
+        .channel(`equipo-${enVivoPara}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'mensajes_equipo', filter: `usuario_id=eq.${enVivoPara}` },
+          () => router.refresh(),
+        )
+        .subscribe((estado) => {
+          if (!activo) return
+          setEnVivo(estado === 'SUBSCRIBED')
+          // Si se corta, vuelve el sondeo y se reintenta, como en el chat normal.
+          if (estado === 'CHANNEL_ERROR' || estado === 'TIMED_OUT') {
+            setTimeout(() => {
+              if (canal) supabase.removeChannel(canal)
+              suscribir()
+            }, 3000)
+          }
+        })
+    }
+
+    suscribir()
+    return () => {
+      activo = false
+      if (canal) supabase.removeChannel(canal)
+    }
+  }, [enVivoPara, router])
+
   const ultimaActividad = useRef(0)
   useEffect(() => {
+    // Con Realtime conectado no hace falta preguntar cada pocos segundos, pero
+    // se sigue preguntando cada minuto: un canal puede quedar «conectado» sin
+    // recibir nada (p. ej. si la tabla no está en la publicación) y así el
+    // chat nunca se queda congelado.
+    const cada = enVivo ? 60_000 : refrescarCadaMs
     ultimaActividad.current = Date.now()
     const tocar = () => {
       ultimaActividad.current = Date.now()
@@ -98,14 +149,14 @@ export function ChatEquipo({
       if (document.visibilityState === 'visible' && Date.now() - ultimaActividad.current < INACTIVIDAD_MAX_MS) {
         router.refresh()
       }
-    }, refrescarCadaMs)
+    }, cada)
     return () => {
       clearInterval(id)
       window.removeEventListener('pointerdown', tocar)
       window.removeEventListener('keydown', tocar)
       document.removeEventListener('visibilitychange', alVolver)
     }
-  }, [router, refrescarCadaMs])
+  }, [router, refrescarCadaMs, enVivo])
 
   async function alEnviar(e?: React.FormEvent) {
     e?.preventDefault()
