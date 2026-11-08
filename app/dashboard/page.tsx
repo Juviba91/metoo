@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { DashboardMatches } from '@/components/dashboard-matches'
 import { AvisameTemas } from '@/components/avisame-temas'
 import { temasSinAcompanante } from '@/lib/avisos'
-import { BookOpen, MapPin, MessageCircle, UserRound } from 'lucide-react'
+import { BookOpen, MapPin, MessageCircle } from 'lucide-react'
 import { resendConfirmation } from '@/app/auth/actions'
 import { acceptConnection, rejectConnection, toggleAvailability } from '@/app/dashboard/actions'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
@@ -12,7 +12,6 @@ import {
   candidatosPara,
   contrario,
   conversacionesVisiblesDe,
-  esDoble,
   ladosDe,
   otraPersonaDe,
   temasDelLado,
@@ -154,11 +153,8 @@ export default async function DashboardPage({
   // existe, `guiaLeida` es null y no se enseña: mejor eso que insistir.
   const mostrarGuiaVoluntario = lados.acompana && guiaLeida !== null && !guiaLeida?.guia_voluntario_leida_en
 
-  // Con su lado, para marcar 💛/🤝 como en Mi perfil cuando estás a los dos.
-  const ownHashtags = (profile.profile_hashtags as any[])
-    ?.filter((ph: any) => ph.hashtags)
-    .map((ph: any) => ({ ...ph.hashtags, role: ph.role })) ?? []
-  const marcarLado = lados.busca && lados.acompana
+  // Solo para saber si falta añadir temas al perfil.
+  const ownHashtags = (profile.profile_hashtags as any[])?.filter((ph: any) => ph.hashtags) ?? []
 
   const statusLabel: Record<string, string> = {
     pending: 'Pendiente',
@@ -190,77 +186,35 @@ export default async function DashboardPage({
           </div>
         )}
 
-        {/* Profile header */}
-        <div>
-          <h1 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <UserRound className="size-5" />
-            {profile.alias}
-          </h1>
+        {/* Tu perfil ya tiene su pestaña: aquí repetía la misma tarjeta arriba
+            del todo y empujaba las conversaciones hacia abajo. Solo quedan los
+            dos avisos que sí piden hacer algo. */}
+        <h1 className="sr-only">Inicio</h1>
 
-          <div className="rounded-xl border border-border p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <p className="mb-2 text-sm text-muted-foreground">
-                  {esDoble(lados)
-                    ? '💛 Acompañando · 🤝 Buscando apoyo'
-                    : lados.busca
-                      ? '🤝 Buscando apoyo'
-                      : '💛 Ofreciendo ayuda'}
-                </p>
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  {profile.city && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="size-3.5" /> {profile.city}
-                    </span>
-                  )}
-                </div>
-                {profile.bio && (
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
-                )}
-                {ownHashtags.length > 0 ? (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {ownHashtags.map((tag: any) => (
-                      <span
-                        key={tag.id}
-                        className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
-                      >
-                        {marcarLado && tag.role && (tag.role === 'volunteer' ? '💛 ' : '🤝 ')}#{tag.label}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <Link
-                    href="/dashboard/perfil/editar"
-                    className="mt-3 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-                  >
-                    + Añade hashtags a tu perfil para aparecer en búsquedas
-                  </Link>
-                )}
-              </div>
-              <Link
-                href="/dashboard/perfil/editar"
-                className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                Editar
-              </Link>
-            </div>
+        {ownHashtags.length === 0 && (
+          <Link
+            href="/dashboard/perfil/editar"
+            className="block rounded-xl border border-primary/25 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+          >
+            <p className="text-sm font-semibold">Añade tus temas al perfil</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Sin ellos nadie puede encontrarte, y tú no ves a quién te puede ayudar. →
+            </p>
+          </Link>
+        )}
 
-            {lados.acompana && (
-              <form action={toggleAvailability.bind(null, !profile.is_active)} className="mt-4 self-start">
-                <button
-                  type="submit"
-                  className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
-                    profile.is_active
-                      ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400'
-                      : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-                >
-                  {profile.is_active ? '● Disponible para ayudar' : '○ No disponible'}
-                </button>
-              </form>
-            )}
+        {lados.acompana && !profile.is_active && (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 p-4">
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Ahora mismo no estás disponible: no sales en las búsquedas y nadie puede escribirte.
+            </p>
+            <form action={toggleAvailability.bind(null, true)}>
+              <Button type="submit" size="sm" variant="outline" className="shrink-0 text-xs">
+                Estar disponible
+              </Button>
+            </form>
           </div>
-        </div>
+        )}
 
         {/* Conversations */}
         {visibleConnections.length > 0 && (

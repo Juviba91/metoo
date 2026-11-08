@@ -5,7 +5,6 @@ import { ArrowLeft } from 'lucide-react'
 import { EditForm } from '../edit-form'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
-import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import type { UserRole } from '@/types/database'
@@ -47,7 +46,7 @@ export default async function EditarPerfilPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-8 sm:px-6 pb-36 sm:pb-8">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-8 sm:px-6 pb-28 sm:pb-8">
         <Link
           href="/dashboard/perfil"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -74,7 +73,6 @@ export default async function EditarPerfilPage() {
       </main>
 
       <SiteFooter className="hidden sm:block" />
-      <FeedbackBubble />
       <BottomNav
         pendingCount={pendingCount}
         chatUnread={(unreadData as number) ?? 0}
