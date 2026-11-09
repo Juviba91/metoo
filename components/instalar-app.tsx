@@ -82,7 +82,7 @@ export function InstalarApp() {
   if (plataforma !== 'ios' && plataforma !== 'android') return null
 
   return (
-    <div className="rounded-lg border border-border px-4 py-3">
+    <div className="rounded-xl border border-border px-4 py-3">
       <div className="flex items-start gap-3">
         <Download className="mt-0.5 size-4 text-muted-foreground" />
         <div className="flex-1">

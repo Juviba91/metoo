@@ -127,7 +127,7 @@ export function DashboardMatches({
 
       {/* Hashtag filter chips */}
       {hashtagOptions.length > 0 && (
-        <div className="mb-6 rounded-lg border border-border/40 bg-muted/20 p-4">
+        <div className="mb-6 rounded-xl border border-border/40 bg-muted/20 p-4">
           <p className="mb-3 text-sm font-semibold">Buscar por hashtag</p>
           <div className="flex flex-wrap gap-2">
             {hashtagOptions.map((h) => (

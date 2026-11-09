@@ -29,12 +29,20 @@ describe('notify-message', () => {
 })
 
 describe('pie de los avisos', () => {
+  // El pie con el enlace a Ajustes lo pone ahora el marco común
+  // (`plantillaCorreo`), no cada función: que no salga dos veces.
   it.each(['notify-message', 'notify-connection'])(
-    '%s manda a Ajustes, que es donde se desactivan',
+    '%s sale por deliverEmail, que pone el pie con el enlace a Ajustes',
     (nombre) => {
       const codigo = leer(nombre)
-      expect(codigo).toMatch(/desactívalos en Ajustes/)
+      expect(codigo).toMatch(/deliverEmail\(/)
+      expect(codigo).not.toMatch(/apoyo de quien ya pasó por lo mismo/)
       expect(codigo).not.toMatch(/desactívalos en tu perfil/)
     },
   )
+
+  it('el marco común enlaza a Ajustes', () => {
+    const email = readFileSync(join(process.cwd(), 'supabase/functions/_shared/email.ts'), 'utf8')
+    expect(email).toMatch(/\/dashboard\/ajustes/)
+  })
 })

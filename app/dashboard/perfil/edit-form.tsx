@@ -182,7 +182,7 @@ export function EditForm({
       </div>
 
       {lados.acompana && (
-        <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+        <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
           <div>
             <p className="text-sm font-medium">Disponible para recibir solicitudes</p>
             <p className="text-xs text-muted-foreground">

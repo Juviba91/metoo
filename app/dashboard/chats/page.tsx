@@ -2,7 +2,7 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getHiddenUserIds, contarSolicitudesPendientes } from '@/app/safety/actions'
 import { conversacionesVisiblesDe, ladosDe, otraPersonaDe } from '@/lib/lados'
-import { MapPin, MessageCircle } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
@@ -11,6 +11,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { NOMBRE_EQUIPO } from '@/lib/equipo'
 import { conversacionSinLeer } from '@/lib/sin-leer'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Chats' }
 
@@ -102,11 +103,8 @@ export default async function ChatsPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
-        <h2 className="hidden items-center gap-2 text-lg font-semibold sm:flex">
-          <MessageCircle className="size-5" />
-          Tus conversaciones
-        </h2>
+      <Pagina ancho="ancho" abajo="burbuja">
+        <CabeceraPagina titulo="Tus conversaciones" />
 
         {/* Equipo y conversaciones van juntos, con la misma separación entre
             tarjetas: antes el Equipo quedaba suelto, a 32 px del resto. */}
@@ -201,7 +199,7 @@ export default async function ChatsPage() {
           )}
         </div>
 
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />

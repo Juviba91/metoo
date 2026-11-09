@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { mesYAno } from '@/lib/guias'
 import { GuiasShell } from '@/components/guias-shell'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina } from '@/components/pagina'
 
 export const metadata: Metadata = {
   title: 'Guías',
@@ -42,14 +43,11 @@ export default async function GuiasPage() {
 
   return (
     <GuiasShell>
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
-        <div>
-          {/* Con sesión, el título ya está en la cabecera del móvil; sin ella no. */}
-          <h1 className={cn('text-2xl font-bold', user && 'hidden sm:block')}>Guías</h1>
-          <p className={cn("text-base leading-relaxed text-muted-foreground", !user && "mt-1", "sm:mt-1")}>
-            Lo que escriben personas que han pasado por esa experiencia.
-          </p>
-        </div>
+      <Pagina ancho="ancho">
+        {/* Con sesión, el título ya está en la cabecera del móvil; sin ella no. */}
+        <CabeceraPagina titulo="Guías" siempreVisible={!user}>
+          Lo que escriben personas que han pasado por esa experiencia.
+        </CabeceraPagina>
 
         <div>
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
@@ -100,7 +98,7 @@ export default async function GuiasPage() {
             </Link>
           </div>
         </div>
-      </main>
+      </Pagina>
     </GuiasShell>
   )
 }

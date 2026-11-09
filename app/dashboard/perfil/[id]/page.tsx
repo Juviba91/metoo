@@ -1,6 +1,5 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ContactButton } from '@/components/contact-button'
 import { BlockButton } from '@/components/block-button'
@@ -13,6 +12,7 @@ import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteFooter } from '@/components/site-footer'
 import type { Metadata } from 'next'
+import { Pagina, Volver } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Perfil' }
 
@@ -100,13 +100,8 @@ export default async function PublicProfilePage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
-        <Link
-          href="/dashboard"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> Volver
-        </Link>
+      <Pagina abajo="burbuja">
+        <Volver href="/dashboard">Volver</Volver>
 
         <ProfileCard
           perfil={{ ...profile, hashtags }}
@@ -138,7 +133,7 @@ export default async function PublicProfilePage({
         </ProfileCard>
 
         <GuiasDePerfil userId={id} />
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />

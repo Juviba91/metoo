@@ -22,6 +22,7 @@ import { FeedbackBubble } from '@/components/feedback-bubble'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import type { Metadata } from 'next'
+import { Pagina } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Inicio' }
 
@@ -166,7 +167,7 @@ export default async function DashboardPage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:space-y-10 sm:px-6 sm:py-8 sm:pb-8">
+      <Pagina ancho="ancho" abajo="burbuja">
         {/* Email confirmation banner */}
         {!user.email_confirmed_at && (
           <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/30">
@@ -425,7 +426,7 @@ export default async function DashboardPage({
           )}
         </div>
 
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />

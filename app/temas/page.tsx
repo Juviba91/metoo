@@ -1,7 +1,6 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { FeedbackBubble } from '@/components/feedback-bubble'
@@ -10,6 +9,7 @@ import { SiteFooter } from '@/components/site-footer'
 import type { Rol } from '@/lib/connections'
 import { partirTemas, textosTema, textoPublicaciones, type Tema } from '@/lib/temas'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina, Volver } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Temas' }
 
@@ -41,21 +41,13 @@ export default async function TemasPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
-        <Link
-          href="/feed"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> Feed
-        </Link>
+      <Pagina ancho="ancho" abajo="burbuja">
+        <Volver href="/feed">Feed</Volver>
 
-        <div>
-          <h1 className="hidden text-lg font-semibold sm:block">Temas</h1>
-          <p className="text-sm text-muted-foreground sm:mt-1">
-            De qué se habla aquí, y cuánta gente hay detrás de cada cosa. Solo números:
-            nadie aparece con nombre.
-          </p>
-        </div>
+        <CabeceraPagina titulo="Temas">
+          De qué se habla aquí, y cuánta gente hay detrás de cada cosa. Solo números:
+          nadie aparece con nombre.
+        </CabeceraPagina>
 
         {conVida.length === 0 ? (
           <div className="rounded-xl border border-border p-12 text-center text-muted-foreground">
@@ -129,7 +121,7 @@ export default async function TemasPage() {
             </p>
           </div>
         )}
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />

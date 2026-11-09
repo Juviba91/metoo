@@ -24,7 +24,7 @@ export function PapelPorTema({
   onChange: (id: string, rol: Rol) => void
 }) {
   return (
-    <div className="mt-5 rounded-lg border border-border/60 p-4">
+    <div className="mt-5 rounded-xl border border-border/60 p-4">
       <p className="text-sm font-medium">¿Qué es cada tema para ti?</p>
       <p className="mb-3 mt-1 text-xs leading-relaxed text-muted-foreground">
         «Lo viví»: puedes acompañar a quien lo esté pasando. «Lo estoy viviendo»: buscas apoyo.

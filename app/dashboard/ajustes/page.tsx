@@ -1,7 +1,5 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteFooter } from '@/components/site-footer'
@@ -13,6 +11,7 @@ import { InstalarApp } from '@/components/instalar-app'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { ladosDe } from '@/lib/lados'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina, Volver } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Ajustes' }
 
@@ -46,15 +45,10 @@ export default async function AjustesPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-8 sm:px-6 pb-28 sm:pb-8">
-        <Link
-          href="/dashboard/perfil"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> Perfil
-        </Link>
+      <Pagina ancho="estrecho">
+        <Volver href="/dashboard/perfil">Perfil</Volver>
 
-        <h1 className="hidden text-2xl font-bold sm:block">Ajustes de la cuenta</h1>
+        <CabeceraPagina titulo="Ajustes de la cuenta" />
 
         <div>
           <h2 className="mb-4 text-sm font-semibold">Cuenta</h2>
@@ -82,7 +76,7 @@ export default async function AjustesPage() {
         <div className="border-t border-border/60 pt-8">
           <AppAbout />
         </div>
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <BottomNav

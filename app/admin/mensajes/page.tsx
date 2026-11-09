@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { getUser } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { SiteHeader } from '@/components/site-header'
 import { hilosDeEquipo, NOMBRE_EQUIPO } from '@/lib/equipo'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina, Volver } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Chats admin' }
 
@@ -39,18 +39,13 @@ export default async function MensajesEquipoPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-        <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-4" /> Admin
-        </Link>
+      <Pagina abajo="nada">
+        <Volver href="/admin">Admin</Volver>
 
-        <div>
-          <h1 className="hidden text-2xl font-bold sm:block">Chats admin</h1>
-          <p className="text-sm text-muted-foreground sm:mt-1">
-            Escribes como «{NOMBRE_EQUIPO}». {esperando > 0 ? `${esperando} esperando respuesta.` : 'Nadie espera respuesta.'} Pulsa a una persona para
-            escribirle, hayan escrito antes o no.
-          </p>
-        </div>
+        <CabeceraPagina titulo="Chats admin">
+          Escribes como «{NOMBRE_EQUIPO}». {esperando > 0 ? `${esperando} esperando respuesta.` : 'Nadie espera respuesta.'} Pulsa a una persona para
+          escribirle, hayan escrito antes o no.
+        </CabeceraPagina>
 
         <ul className="space-y-2">
           {hilos.map((h) => (
@@ -82,7 +77,7 @@ export default async function MensajesEquipoPage() {
             </li>
           ))}
         </ul>
-      </main>
+      </Pagina>
     </div>
   )
 }

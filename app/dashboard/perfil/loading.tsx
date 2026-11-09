@@ -1,3 +1,4 @@
+import { Pagina } from '@/components/pagina'
 import { SiteHeaderShell } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 
@@ -5,7 +6,7 @@ export default function PerfilLoading() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeaderShell />
-      <main className="mx-auto w-full max-w-2xl space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
+      <Pagina abajo="burbuja">
         <div>
           <div className="mb-3 h-4 w-48 animate-pulse rounded bg-muted" />
           <div className="animate-pulse rounded-xl border border-border p-5 sm:p-6">
@@ -26,7 +27,7 @@ export default function PerfilLoading() {
             <div className="h-10 w-full rounded-lg bg-muted" />
           </div>
         </div>
-      </main>
+      </Pagina>
 
       <BottomNav />
     </div>

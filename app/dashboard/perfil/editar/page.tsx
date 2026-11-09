@@ -1,7 +1,5 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { EditForm } from '../edit-form'
 import { SiteHeader } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
@@ -9,6 +7,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import type { UserRole } from '@/types/database'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina, Volver } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Editar perfil' }
 
@@ -46,15 +45,10 @@ export default async function EditarPerfilPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-8 sm:px-6 pb-28 sm:pb-8">
-        <Link
-          href="/dashboard/perfil"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> Perfil
-        </Link>
+      <Pagina ancho="estrecho">
+        <Volver href="/dashboard/perfil">Perfil</Volver>
 
-        <h1 className="hidden text-2xl font-bold sm:block">Editar perfil</h1>
+        <CabeceraPagina titulo="Editar perfil" />
 
         <EditForm
           initial={{
@@ -70,7 +64,7 @@ export default async function EditarPerfilPage() {
           role={profile.role as UserRole}
           suggestions={allHashtags ?? []}
         />
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <BottomNav

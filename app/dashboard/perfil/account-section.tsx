@@ -89,7 +89,7 @@ export function AccountSection({
   return (
     <div className="space-y-4">
       {/* Email section */}
-      <div className="rounded-lg border border-border px-4 py-3">
+      <div className="rounded-xl border border-border px-4 py-3">
         <div className="flex items-start gap-3">
           <Mail className="mt-0.5 size-4 text-muted-foreground" />
           <div className="flex-1 min-w-0">
@@ -128,7 +128,7 @@ export function AccountSection({
       </div>
 
       {/* Password section */}
-      <div className="rounded-lg border border-border px-4 py-3">
+      <div className="rounded-xl border border-border px-4 py-3">
         <div className="flex items-start gap-3">
           <Key className="mt-0.5 size-4 text-muted-foreground" />
           <div className="flex-1">
@@ -159,7 +159,7 @@ export function AccountSection({
       </div>
 
       {/* Email notifications section */}
-      <div className="rounded-lg border border-border px-4 py-3">
+      <div className="rounded-xl border border-border px-4 py-3">
         <div className="flex items-start gap-3">
           <Bell className="mt-0.5 size-4 text-muted-foreground" />
           <div className="flex-1">
@@ -193,7 +193,7 @@ export function AccountSection({
 
       {/* Aviso de gente esperando: solo tiene sentido para voluntarios */}
       {esVoluntario && (
-        <div className="rounded-lg border border-border px-4 py-3">
+        <div className="rounded-xl border border-border px-4 py-3">
           <div className="flex items-start gap-3">
             <Users className="mt-0.5 size-4 text-muted-foreground" />
             <div className="flex-1">
@@ -226,7 +226,7 @@ export function AccountSection({
       )}
 
       {/* Blocked users section */}
-      <div className="rounded-lg border border-border px-4 py-3">
+      <div className="rounded-xl border border-border px-4 py-3">
         <div className="flex items-start gap-3">
           <Shield className="mt-0.5 size-4 text-muted-foreground" />
           <div className="flex-1">

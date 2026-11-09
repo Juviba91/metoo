@@ -1,7 +1,6 @@
 import { createClient, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { BottomNav } from '@/components/bottom-nav'
 import { SiteHeader } from '@/components/site-header'
@@ -9,6 +8,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { CajaPregunta, Selectores } from './guia-form'
 import { AvisoPublicacion } from './aviso-publicacion'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina, Volver } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Redacta tu guía' }
 
@@ -90,21 +90,13 @@ export default async function EscribirGuiaPage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
-        <Link
-          href="/guias"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> Guías
-        </Link>
+      <Pagina>
+        <Volver href="/guias">Guías</Volver>
 
-        <div>
-          <h1 className="hidden text-lg font-semibold sm:block">Redacta tu guía</h1>
-          <p className="text-sm leading-relaxed text-muted-foreground sm:mt-1">
-            Lo práctico que nadie te contó y que a ti te habría ahorrado horas. Va a la guía
-            del tema que elijas, que puede leer cualquiera.
-          </p>
-        </div>
+        <CabeceraPagina titulo="Redacta tu guía">
+          Lo práctico que nadie te contó y que a ti te habría ahorrado horas. Va a la guía
+          del tema que elijas, que puede leer cualquiera.
+        </CabeceraPagina>
 
         {temas.length === 0 ? (
           <div className="rounded-xl border border-border p-8 text-center text-sm text-muted-foreground">
@@ -161,7 +153,7 @@ export default async function EscribirGuiaPage({
             </AvisoPublicacion>
           </>
         )}
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <BottomNav pendingCount={pendingCount} chatUnread={(unreadData as number) ?? 0} />

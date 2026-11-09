@@ -1,3 +1,4 @@
+import { Pagina } from '@/components/pagina'
 import { SiteHeaderShell } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 
@@ -5,8 +6,8 @@ export default function PublicProfileLoading() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeaderShell />
-      <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
-        <div className="mb-6 h-5 w-20 animate-pulse rounded bg-muted" />
+      <Pagina abajo="burbuja">
+        <div className="h-5 w-20 animate-pulse rounded bg-muted" />
 
         <div className="animate-pulse rounded-xl border border-border p-5 sm:p-6">
           <div className="mb-4 space-y-2">
@@ -31,7 +32,7 @@ export default function PublicProfileLoading() {
             <div className="h-10 w-full rounded-lg bg-muted" />
           </div>
         </div>
-      </main>
+      </Pagina>
 
       {/* Navegación real: durante la carga se puede cambiar de pestaña.
           Los contadores llegan a 0 y se rellenan cuando la página resuelve. */}

@@ -2,10 +2,10 @@ import { cache } from 'react'
 import { createClient, getUser } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { agruparPorPregunta, etiquetaAutor, mesYAno, puedeEstarDesfasada } from '@/lib/guias'
+import { Pagina, CabeceraPagina, Volver } from '@/components/pagina'
 import { GuiasShell } from '@/components/guias-shell'
 import { EditarRespuesta } from '@/components/editar-respuesta'
 import { TeHaServido } from './te-ha-servido'
@@ -72,20 +72,12 @@ export default async function GuiaPage({ params }: { params: Params }) {
 
   return (
     <GuiasShell>
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
-        <Link
-          href="/guias"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> Guías
-        </Link>
+      <Pagina>
+        <Volver href="/guias">Guías</Volver>
 
-        <div>
-          <h1 className="text-2xl font-bold">{tema}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Lo que cuentan personas que ya pasaron por esto.
-          </p>
-        </div>
+        <CabeceraPagina titulo={tema} siempreVisible>
+          Lo que cuentan personas que ya pasaron por esto.
+        </CabeceraPagina>
 
         {/* Arriba y no en el pie: hay que leerlo antes que nada. */}
         <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-4 text-sm leading-relaxed dark:border-amber-800/60 dark:bg-amber-950/20">
@@ -179,7 +171,7 @@ export default async function GuiaPage({ params }: { params: Params }) {
             Imprime un cartel con QR
           </Link>
         </p>
-      </main>
+      </Pagina>
     </GuiasShell>
   )
 }

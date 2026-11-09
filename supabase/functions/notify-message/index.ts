@@ -69,11 +69,6 @@ Deno.serve(async (req: Request) => {
       <p>Hola,</p>
       <p><strong>${safeAlias}</strong> te ha enviado un mensaje en metoo.</p>
       <p><a href="${chatUrl}">Leerlo en la conversación →</a></p>
-      <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
-      <p style="font-size:0.75rem;color:#9ca3af;">
-        metoo — apoyo de quien ya pasó por lo mismo.<br />
-        Si no quieres recibir estos avisos, desactívalos en Ajustes.
-      </p>
     `,
   })
 

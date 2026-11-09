@@ -14,6 +14,7 @@ import { contarSolicitudesPendientes } from '@/app/safety/actions'
 import { HowItWorks } from '@/components/how-it-works'
 import { esDoble, ladoQueInvitar, ladosDe } from '@/lib/lados'
 import type { Metadata } from 'next'
+import { Pagina } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Perfil' }
 
@@ -54,7 +55,7 @@ export default async function PerfilPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-4 py-6 pb-36 sm:px-6 sm:py-8 sm:pb-8">
+      <Pagina abajo="burbuja">
         <div>
           <p className="mb-3 text-sm text-muted-foreground">
             {doble
@@ -109,7 +110,7 @@ export default async function PerfilPage() {
         <div className="border-t border-border/60 pt-8">
           <HowItWorks />
         </div>
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />
