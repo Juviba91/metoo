@@ -103,7 +103,7 @@ export function AvisosMovil() {
     estado === 'activo' ? 'Activados' : estado === 'inactivo' ? 'Desactivados' : estado === 'cargando' ? '…' : 'No disponibles'
 
   return (
-    <div className="rounded-lg border border-border px-4 py-3">
+    <div className="rounded-xl border border-border px-4 py-3">
       <div className="flex items-start gap-3">
         <Smartphone className="mt-0.5 size-4 text-muted-foreground" />
         <div className="flex-1">

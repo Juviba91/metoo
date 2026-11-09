@@ -1,3 +1,4 @@
+import { Pagina } from '@/components/pagina'
 import { SiteHeaderShell } from '@/components/site-header'
 import { BottomNav } from '@/components/bottom-nav'
 
@@ -5,7 +6,7 @@ export default function PerfilLoading() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeaderShell />
-      <main className="mx-auto w-full max-w-lg space-y-8 px-4 py-8 sm:px-6 pb-28 sm:pb-8">
+      <Pagina ancho="estrecho">
         <div className="h-8 w-40 animate-pulse rounded bg-muted" />
 
         {/* Formulario */}
@@ -35,7 +36,7 @@ export default function PerfilLoading() {
             <div key={i} className="h-24 w-full animate-pulse rounded-lg bg-muted" />
           ))}
         </div>
-      </main>
+      </Pagina>
 
       {/* Navegación real: durante la carga se puede cambiar de pestaña.
           Los contadores llegan a 0 y se rellenan cuando la página resuelve. */}

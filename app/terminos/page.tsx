@@ -17,8 +17,8 @@ export default function TerminosPage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeaderPublic showAuth={false} ancho="max-w-3xl" />
 
-      <main className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className="mb-2 text-3xl font-bold">Términos de uso</h1>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-16">
+        <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Términos de uso</h1>
         <p className="mb-10 text-sm text-muted-foreground">
           Última actualización: {TEXTOS_ACTUALIZADOS}
         </p>
@@ -267,7 +267,7 @@ export default function TerminosPage() {
               obligue la ley. Tampoco respondemos de las decisiones que tomes sobre tu salud:
               metoo no es un servicio sanitario y así te lo decimos desde el principio (punto 3).
             </p>
-            <p className="mt-3 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm">
+            <p className="mt-3 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
               Esta limitación tiene los límites que impone la ley y no pretende ir más allá. No se
               excluye en ningún caso la responsabilidad por dolo ni por negligencia grave, ni por
               los daños a la vida, la integridad física o la salud, ni ninguno de los derechos que

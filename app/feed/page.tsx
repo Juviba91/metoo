@@ -10,6 +10,7 @@ import { SiteFooter } from '@/components/site-footer'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Feed' }
 
@@ -65,13 +66,10 @@ export default async function FeedPage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-4 px-4 py-4 pb-36 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-6">
-        <div>
-          <h1 className="hidden text-lg font-semibold sm:block">Feed de la comunidad</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Comparte tu experiencia, un pensamiento o un recurso que te haya ayudado. Usa <strong className="text-foreground">#hashtags</strong> para que otros puedan encontrarte.
-          </p>
-        </div>
+      <Pagina abajo="burbuja" className="space-y-6">
+        <CabeceraPagina titulo="Feed de la comunidad">
+          Comparte tu experiencia, un pensamiento o un recurso que te haya ayudado. Usa <strong className="text-foreground">#hashtags</strong> para que otros puedan encontrarte.
+        </CabeceraPagina>
 
         {activeTag && (
           <div className="flex items-center gap-2">
@@ -88,7 +86,7 @@ export default async function FeedPage({
 
         <PostComposer alias={profile.alias} />
         <PostList posts={posts} currentUserId={user.id} activeTag={activeTag ?? null} initialLimit={50} />
-      </main>
+      </Pagina>
 
       <SiteFooter className="hidden sm:block" />
       <FeedbackBubble />

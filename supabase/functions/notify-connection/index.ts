@@ -9,14 +9,6 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://metoonetwork.xyz'
 const FROM_EMAIL = Deno.env.get('FROM_EMAIL') ?? 'metoo <onboarding@resend.dev>'
 
-const PIE = `
-  <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
-  <p style="font-size:0.75rem;color:#9ca3af;">
-    metoo — apoyo de quien ya pasó por lo mismo.<br />
-    Si no quieres recibir estos avisos, desactívalos en Ajustes.
-  </p>
-`
-
 /**
  * Un único webhook sobre `connections` cubre las dos mitades de la conversación:
  *
@@ -92,7 +84,6 @@ async function avisarSolicitud(supabase: any, conexion: any) {
       <p><strong>${aliasSeguro}</strong> ha pedido contactar contigo en metoo.</p>
       <p>Entra a la app para aceptar o rechazar la solicitud.</p>
       <p><a href="${APP_URL}/dashboard">Ver solicitud →</a></p>
-      ${PIE}
     `,
   })
 
@@ -156,7 +147,6 @@ async function avisarAceptacion(supabase: any, conexion: any) {
       <p><strong>${aliasSeguro}</strong> ha aceptado tu solicitud. Ya podéis hablar.</p>
       <p>No hay prisa ni forma correcta de empezar: cuenta lo que te apetezca contar.</p>
       <p><a href="${chatUrl}">Abrir la conversación →</a></p>
-      ${PIE}
     `,
   })
 

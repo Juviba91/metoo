@@ -6,6 +6,7 @@ import { consentimientoAlDia } from '@/lib/legal'
 import { destinoSeguro } from '@/lib/destino'
 import { FormularioConsentimiento } from './formulario'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Antes de seguir' }
 
@@ -43,16 +44,13 @@ export default async function ConsentimientoPage({
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-8 sm:px-6">
-        <div>
-          <h1 className="text-2xl font-bold">Antes de seguir</h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Hemos revisado los textos legales con un abogado y han cambiado cosas que te
-            afectan. Necesitamos que los aceptes de nuevo
-            {nuncaDioElDeSalud && ', y que nos des por separado el permiso para tratar lo que cuentas sobre tu salud'}
-            . Seguir usando la app sin más no vale: tiene que ser un sí expreso.
-          </p>
-        </div>
+      <Pagina ancho="estrecho" abajo="nada">
+        <CabeceraPagina titulo="Antes de seguir" siempreVisible>
+          Hemos revisado los textos legales con un abogado y han cambiado cosas que te
+          afectan. Necesitamos que los aceptes de nuevo
+          {nuncaDioElDeSalud && ', y que nos des por separado el permiso para tratar lo que cuentas sobre tu salud'}
+          . Seguir usando la app sin más no vale: tiene que ser un sí expreso.
+        </CabeceraPagina>
 
         <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm leading-relaxed text-muted-foreground">
           <p className="mb-2 font-semibold text-foreground">Lo que cambia</p>
@@ -87,7 +85,7 @@ export default async function ConsentimientoPage({
           </Link>
           .
         </p>
-      </main>
+      </Pagina>
     </div>
   )
 }

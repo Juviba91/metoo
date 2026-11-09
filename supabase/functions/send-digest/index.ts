@@ -107,7 +107,6 @@ Deno.serve(async (req: Request) => {
         <p><a href="${APP_URL}/dashboard">Ver quién está esperando →</a></p>
         <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0;" />
         <p style="font-size:0.75rem;color:#9ca3af;">
-          metoo — apoyo de quien ya pasó por lo mismo.<br />
           Este aviso sale como mucho una vez por semana, y solo cuando hay
           alguien esperando.
           <a href="${urlBaja}" style="color:#9ca3af;">Dejar de recibirlo</a>.

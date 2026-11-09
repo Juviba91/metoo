@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 import { ChevronDown } from 'lucide-react'
 import type { Metadata } from 'next'
+import { Pagina, CabeceraPagina } from '@/components/pagina'
 
 export const metadata: Metadata = { title: 'Admin' }
 
@@ -191,8 +192,8 @@ export default async function AdminPage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
 
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6">
-        <h1 className="hidden text-2xl font-bold sm:block">Admin</h1>
+      <Pagina ancho="completo" abajo="nada" className="space-y-10">
+        <CabeceraPagina titulo="Admin" />
 
         {/* Tu chat con cada persona de metoo. */}
         <section>
@@ -472,7 +473,7 @@ export default async function AdminPage() {
           }))}
         />
 
-      </main>
+      </Pagina>
     </div>
   )
 }

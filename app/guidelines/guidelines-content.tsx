@@ -331,7 +331,7 @@ function SeekerContent() {
             'Sustituir a un profesional de salud mental',
             'Gestionar una crisis en solitario',
           ].map((item) => (
-            <div key={item} className="flex items-start gap-3 rounded-lg border border-border px-4 py-2.5 text-sm">
+            <div key={item} className="flex items-start gap-3 rounded-xl border border-border px-4 py-2.5 text-sm">
               <span className="mt-0.5 shrink-0 text-destructive">✕</span>
               <span className="text-foreground">{item}</span>
             </div>
@@ -414,13 +414,13 @@ export function GuidelinesContent({ defaultRole }: { defaultRole: 'volunteer' | 
         <Link href="/" className="text-xl font-bold tracking-tight">metoo.</Link>
       </header>
 
-      <main className="mx-auto max-w-2xl px-6 py-12 pb-20">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 pb-20 sm:px-6 sm:py-12">
 
         {/* Hero */}
         <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
           Comunidad metoo
         </p>
-        <h1 className="mb-2 text-4xl font-bold leading-tight">Normas de la comunidad</h1>
+        <h1 className="mb-2 text-3xl font-bold leading-tight sm:text-4xl">Normas de la comunidad</h1>
         {/* Forman parte de los términos: llevan la misma fecha y se versionan
             con ellos (VERSION_TEXTOS_LEGALES). */}
         <p className="mb-4 text-sm text-muted-foreground">
