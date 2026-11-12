@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { calcularEmbudo } from '@/lib/embudo'
 import { dondeSeQuedan } from '@/lib/alta'
 import { hilosDeEquipo, NOMBRE_EQUIPO } from '@/lib/equipo'
+import { posiblesParejas, type PerfilPareja } from '@/lib/posibles-parejas'
 import { redirect } from 'next/navigation'
 import {
   DeleteUserBtn,
@@ -55,6 +56,7 @@ export default async function AdminPage() {
     { data: temasVoluntarios },
     { data: pasosAlta },
     { data: mensajesEquipo },
+    { data: bloqueos },
   ] = await Promise.all([
     admin
       .from('profiles')
@@ -111,6 +113,8 @@ export default async function AdminPage() {
       .select('usuario_id, del_equipo, contenido, creado_en')
       .order('creado_en', { ascending: false })
       .limit(5000),
+    // Para no proponer como pareja a dos personas con un bloqueo entre medias.
+    admin.from('blocks').select('blocker_id, blocked_id').limit(5000),
   ])
 
   // «¿Te ha servido?» por guía, con la misma clave que los grupos de abajo.
@@ -151,6 +155,18 @@ export default async function AdminPage() {
     (mensajesEquipo ?? []) as { usuario_id: string; del_equipo: boolean; contenido: string; creado_en: string }[],
   ).filter((h) => h.esperando).length
   const sinTerminar = seQuedan.reduce((n, p) => n + p.personas, 0)
+
+  // Quien busca apoyo y quien acompaña en el mismo tema, sin conversación aún.
+  const bajas = new Map(((perfilesEmbudo ?? []) as { id: string; deleted_at: string | null }[]).map((p) => [p.id, p.deleted_at]))
+  const parejas = posiblesParejas({
+    perfiles: ((profiles ?? []) as any[]).map(
+      (p): PerfilPareja => ({ id: p.id, alias: p.alias, role: p.role, is_active: p.is_active, deleted_at: bajas.get(p.id) ?? null }),
+    ),
+    temas: ((temasVoluntarios ?? []) as any[]).map((t) => ({ profile_id: t.profile_id, role: t.role, tema: t.hashtags?.label ?? null })),
+    conexiones: (conexionesEmbudo ?? []) as { seeker_id: string; volunteer_id: string }[],
+    bloqueos: (bloqueos ?? []) as { blocker_id: string; blocked_id: string }[],
+    esPrueba: (id) => (emailMap[id] ?? '').endsWith('@test.local'),
+  })
 
   // Por cuenta: en qué temas acompaña y en cuáles busca apoyo.
   const temasDe = ((temasVoluntarios ?? []) as any[]).reduce<
@@ -212,6 +228,45 @@ export default async function AdminPage() {
               </span>
             )}
           </Link>
+        </section>
+
+        {/* Gente que se podría ayudar y aún no se ha escrito. Quien busca es
+            quien da el primer paso: el empujón se le da a esa persona. */}
+        <section>
+          <h2 className="mb-1 text-lg font-semibold">Posibles parejas</h2>
+          <p className="mb-4 text-xs text-muted-foreground">
+            Busca apoyo y acompaña en el mismo tema, sin conversación entre ellos. Pulsa un alias para escribirle
+            desde el equipo.
+          </p>
+          {parejas.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+              Ahora mismo no hay ninguna: todas las que podían hablar ya lo han hecho.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {parejas.map((pr) => (
+                <li
+                  key={`${pr.tema}-${pr.busca.id}-${pr.acompana.id}`}
+                  className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-border p-4 text-sm"
+                >
+                  <span className="font-medium">#{pr.tema}</span>
+                  <span className="flex flex-wrap items-center gap-x-2">
+                    <Link href={`/admin/mensajes/${pr.busca.id}`} className="underline underline-offset-2 hover:text-primary">
+                      {pr.busca.alias}
+                    </Link>
+                    <span className="text-xs text-muted-foreground">busca apoyo</span>
+                    <span aria-hidden className="text-muted-foreground">·</span>
+                    <Link href={`/admin/mensajes/${pr.acompana.id}`} className="underline underline-offset-2 hover:text-primary">
+                      {pr.acompana.alias}
+                    </Link>
+                    <span className="text-xs text-muted-foreground">
+                      acompaña{pr.acompana.disponible ? '' : ' (no disponible ahora)'}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         {/* El embudo, arriba de todo: es la pregunta de cada día. */}
