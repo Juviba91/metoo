@@ -83,6 +83,16 @@ export function ChatEquipo({
     fondo.current?.scrollIntoView({ behavior: 'instant' })
   }, [lista.length])
 
+  // El campo crece con el texto hasta unas seis líneas; luego hace scroll.
+  // Sin esto se quedaba en una línea y, al escribir un mensaje largo, la
+  // primera quedaba cortada por arriba (igual que en el chat normal).
+  useEffect(() => {
+    const el = entrada.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+  }, [texto])
+
   // Al abrir y cada vez que llega algo nuevo del otro lado.
   const ultimoAjeno = [...mensajes].reverse().find((m) => m.del_equipo !== soyEquipo)?.id
   useEffect(() => {
