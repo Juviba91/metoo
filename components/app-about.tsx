@@ -17,12 +17,7 @@ export function AppAbout() {
       <div className="rounded-xl border border-border p-5">
         <div className="mb-3 flex items-center gap-3">
           <Logo size={28} showWordmark={false} />
-          <div>
-            <p className="font-semibold">metoo.</p>
-            <p className="text-xs text-muted-foreground">
-              Apoyo de quien ya pasó por lo mismo
-            </p>
-          </div>
+          <p className="font-semibold">metoo.</p>
         </div>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Conectamos a quien está pasando por un momento difícil con voluntarios

@@ -29,25 +29,6 @@ export default async function Image() {
           padding: '80px',
         }}
       >
-        {/* Top pill */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            background: '#1a1a1a',
-            border: '1px solid #2a2a2a',
-            borderRadius: '100px',
-            padding: '10px 22px',
-            marginBottom: '48px',
-            color: '#888',
-            fontSize: '20px',
-          }}
-        >
-          <span style={{ fontSize: '16px' }}>💛</span>
-          <span>Apoyo de quien ya pasó por lo mismo</span>
-        </div>
-
         {/* Marca: isotipo + wordmark */}
         <div
           style={{

@@ -4,7 +4,6 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'metoo',
     short_name: 'metoo',
-    description: 'Apoyo de quien ya pasó por lo mismo',
     id: '/dashboard',
     start_url: '/dashboard',
     scope: '/',
