@@ -68,11 +68,6 @@ export default function Page() {
       <section className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-24">
         <Logo size={80} showWordmark={false} className="mb-8 drop-shadow-sm" />
 
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground sm:mb-8">
-          <Heart className="size-3.5" />
-          <span>Apoyo de quien ya pasó por lo mismo</span>
-        </div>
-
         <h1 className="mb-5 text-4xl font-bold leading-tight tracking-tight sm:mb-6 sm:text-5xl lg:text-6xl">
           Alguien ya estuvo
           <br />
@@ -81,7 +76,7 @@ export default function Page() {
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:mb-10 sm:text-xl">
           metoo te deja hablar con alguien que ya pasó por lo que estás pasando tú.
-          Sin dar tu nombre. Sin que nadie te juzgue.
+          Sin que nadie te juzgue.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -102,16 +97,6 @@ export default function Page() {
             <Heart className="size-4" />
           </Link>
         </div>
-
-        {/* Para quien llega con prisa y sin ganas de registrarse: es lo único
-            de metoo que sirve en el minuto uno. */}
-        <Link
-          href="/guias"
-          className="mt-6 inline-block text-balance text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-        >
-          <BookOpen className="mr-1.5 inline size-4 align-[-3px]" />
-          ¿Estás pasando por algo difícil? Lee las guías, sin cuenta
-        </Link>
       </section>
 
       <TemasConVoluntarios />
