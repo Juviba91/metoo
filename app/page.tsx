@@ -74,7 +74,7 @@ export default function Page() {
           donde estás tú.
         </h1>
 
-        <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:mb-10 sm:text-xl">
+        <p className="mx-auto mb-8 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground sm:mb-10 sm:text-xl">
           metoo te deja hablar con alguien que ya pasó por lo que estás pasando tú.
           Sin que nadie te juzgue.
         </p>
